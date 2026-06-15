@@ -36,5 +36,23 @@ jobs:
       - run: pnpm run build
         working-directory: .deps/skenion-contracts
       - run: node scripts/validate-with-contracts.mjs
+      - run: node scripts/validate-runtime-project-payloads.mjs
       - run: cargo test --manifest-path .deps/skenion-runtime/Cargo.toml --all-targets --all-features
       - run: bash scripts/validate-with-runtime.sh .deps/skenion-runtime
+      - run: |
+          cargo run --manifest-path .deps/skenion-runtime/Cargo.toml -- serve --host 127.0.0.1 --port 3761 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID" EXIT
+          READY=false
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:3761/health >/dev/null; then
+              READY=true
+              break
+            fi
+            sleep 1
+          done
+          if [[ "${READY}" != "true" ]]; then
+            echo "runtime health endpoint did not become ready" >&2
+            exit 1
+          fi
+          SKENION_RUNTIME_URL=http://127.0.0.1:3761 node scripts/validate-runtime-project-payloads.mjs

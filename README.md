@@ -22,10 +22,15 @@ and graph documents. Its invalid graph fixtures are intentionally valid graph
 documents, but they must fail project validation or execution planning when a
 runtime resolves them against the node registry.
 
+Runtime project payload fixtures live under
+`compatibility/v0.1/projects`. They match the local Runtime HTTP API request
+shape for `/v0/validate`, `/v0/plan`, and `/v0/run`.
+
 Run local validation with:
 
 ```sh
 SKENION_CONTRACTS_PACKAGE=/Users/state303/Documents/Skenion-contracts/packages/ts/dist node scripts/validate-with-contracts.mjs
+SKENION_CONTRACTS_PACKAGE=/Users/state303/Documents/Skenion-contracts/packages/ts/dist node scripts/validate-runtime-project-payloads.mjs
 bash scripts/validate-with-runtime.sh /Users/state303/Documents/Skenion-runtime
 ```
 

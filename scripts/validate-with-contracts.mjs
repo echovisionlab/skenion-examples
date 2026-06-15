@@ -38,6 +38,26 @@ async function readJson(file) {
 }
 
 function validateDocument(file, document, contracts) {
+  if (document && typeof document === "object" && "graph" in document && Array.isArray(document.nodes)) {
+    const graphResult = contracts.validateGraphDocument(document.graph);
+    if (!graphResult.ok) {
+      return graphResult;
+    }
+
+    const errors = [];
+    for (const [index, definition] of document.nodes.entries()) {
+      const result = contracts.validateNodeDefinition(definition);
+      if (!result.ok) {
+        errors.push(...result.errors.map((error) => `nodes[${index}]: ${error}`));
+      }
+    }
+
+    return {
+      ok: errors.length === 0,
+      errors
+    };
+  }
+
   if (document.schema === "skenion.graph") {
     return contracts.validateGraphDocument(document);
   }
