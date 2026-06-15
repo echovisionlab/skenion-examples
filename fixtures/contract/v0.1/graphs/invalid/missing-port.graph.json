@@ -1,0 +1,43 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "invalid-missing-port",
+  "revision": "rev_0001",
+  "nodes": [
+    {
+      "id": "value_1",
+      "kind": "core.value",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sink_1",
+      "kind": "core.sink",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": []
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "value_1",
+        "port": "out"
+      },
+      "to": {
+        "node": "sink_1",
+        "port": "missing"
+      }
+    }
+  ]
+}

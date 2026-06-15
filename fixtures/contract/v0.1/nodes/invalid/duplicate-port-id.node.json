@@ -1,0 +1,35 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "script.duplicate_port",
+  "version": "0.1.0",
+  "displayName": "Duplicate Port",
+  "category": "Script",
+  "ports": [
+    {
+      "id": "value",
+      "direction": "input",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.f32"
+      },
+      "activation": "latched"
+    },
+    {
+      "id": "value",
+      "direction": "output",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.f32"
+      }
+    }
+  ],
+  "execution": {
+    "model": "script_control"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["script.api.v0.1"]
+}

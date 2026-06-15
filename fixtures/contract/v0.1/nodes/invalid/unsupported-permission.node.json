@@ -1,0 +1,17 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "script.unsafe_file_reader",
+  "version": "0.1.0",
+  "displayName": "Unsafe File Reader",
+  "category": "Script",
+  "ports": [],
+  "execution": {
+    "model": "script_control"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": ["filesystem.read"],
+  "capabilities": ["script.api.v0.1"]
+}

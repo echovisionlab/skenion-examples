@@ -1,0 +1,111 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "audio-rms-signal",
+  "revision": "rev_0001",
+  "nodes": [
+    {
+      "id": "audio_in_1",
+      "kind": "audio.input",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "audio",
+          "direction": "output",
+          "label": "Audio",
+          "type": {
+            "flow": "stream",
+            "dataKind": "audio.buffer",
+            "channels": 2,
+            "sampleRate": 48000
+          }
+        }
+      ]
+    },
+    {
+      "id": "rms_1",
+      "kind": "audio.rms",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "audio",
+          "direction": "input",
+          "label": "Audio",
+          "type": {
+            "flow": "stream",
+            "dataKind": "audio.buffer",
+            "channels": 2,
+            "sampleRate": 48000
+          },
+          "activation": "trigger"
+        },
+        {
+          "id": "level",
+          "direction": "output",
+          "label": "Level",
+          "type": {
+            "flow": "signal",
+            "dataKind": "number.f32",
+            "range": {
+              "min": 0,
+              "max": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "threshold_1",
+      "kind": "logic.threshold",
+      "kindVersion": "0.1.0",
+      "params": {
+        "threshold": 0.5
+      },
+      "ports": [
+        {
+          "id": "value",
+          "direction": "input",
+          "label": "Value",
+          "type": {
+            "flow": "signal",
+            "dataKind": "number.f32"
+          },
+          "activation": "trigger"
+        },
+        {
+          "id": "above",
+          "direction": "output",
+          "label": "Above",
+          "type": {
+            "flow": "signal",
+            "dataKind": "boolean"
+          }
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "audio_in_1",
+        "port": "audio"
+      },
+      "to": {
+        "node": "rms_1",
+        "port": "audio"
+      }
+    },
+    {
+      "from": {
+        "node": "rms_1",
+        "port": "level"
+      },
+      "to": {
+        "node": "threshold_1",
+        "port": "value"
+      }
+    }
+  ]
+}

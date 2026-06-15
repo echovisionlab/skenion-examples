@@ -1,0 +1,53 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "invalid-video-stream-to-texture-without-upload",
+  "revision": "rev_0001",
+  "nodes": [
+    {
+      "id": "decode_1",
+      "kind": "media.video_decode",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "frame",
+          "direction": "output",
+          "type": {
+            "flow": "stream",
+            "dataKind": "video.frame"
+          }
+        }
+      ]
+    },
+    {
+      "id": "shader_1",
+      "kind": "gpu.shader",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "texture",
+          "direction": "input",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d"
+          },
+          "activation": "latched"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "decode_1",
+        "port": "frame"
+      },
+      "to": {
+        "node": "shader_1",
+        "port": "texture"
+      }
+    }
+  ]
+}

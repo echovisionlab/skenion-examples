@@ -1,0 +1,81 @@
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+const root = process.cwd();
+const contractsPackage = process.env.SKENION_CONTRACTS_PACKAGE
+  ?? path.join(root, ".deps/skenion-contracts/packages/ts/dist");
+
+async function importContracts() {
+  if (contractsPackage.startsWith(".") || contractsPackage.startsWith("/") || contractsPackage.includes(path.sep)) {
+    const entry = contractsPackage.endsWith(".js")
+      ? contractsPackage
+      : path.join(contractsPackage, "index.js");
+    return import(pathToFileURL(path.resolve(root, entry)).href);
+  }
+
+  return import(contractsPackage);
+}
+
+async function walk(dir) {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await walk(fullPath));
+    } else if (entry.name.endsWith(".json")) {
+      files.push(fullPath);
+    }
+  }
+
+  return files.sort();
+}
+
+async function readJson(file) {
+  return JSON.parse(await readFile(file, "utf8"));
+}
+
+function validateDocument(file, document, contracts) {
+  if (document.schema === "skenion.graph") {
+    return contracts.validateGraphDocument(document);
+  }
+  if (document.schema === "skenion.node.definition") {
+    return contracts.validateNodeDefinition(document);
+  }
+
+  return {
+    ok: false,
+    errors: [`unsupported schema ${document.schema ?? "<missing>"}`]
+  };
+}
+
+const contracts = await importContracts();
+const fixtureRoot = path.join(root, "fixtures/contract/v0.1");
+const validFiles = (await walk(fixtureRoot)).filter((file) => file.includes(`${path.sep}valid${path.sep}`));
+const invalidFiles = (await walk(fixtureRoot)).filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
+const failures = [];
+
+for (const file of validFiles) {
+  const result = validateDocument(file, await readJson(file), contracts);
+  if (!result.ok) {
+    failures.push(`${file}: expected valid, got ${result.errors.join("; ")}`);
+  }
+}
+
+for (const file of invalidFiles) {
+  const result = validateDocument(file, await readJson(file), contracts);
+  if (result.ok) {
+    failures.push(`${file}: expected invalid, got valid`);
+  }
+}
+
+if (failures.length > 0) {
+  for (const failure of failures) {
+    console.error(failure);
+  }
+  process.exit(1);
+}
+
+console.log(`validated ${validFiles.length} valid fixtures and ${invalidFiles.length} invalid fixtures with @skenion/contracts`);

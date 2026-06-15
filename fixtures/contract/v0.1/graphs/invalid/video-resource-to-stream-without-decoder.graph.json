@@ -1,0 +1,53 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "invalid-video-resource-to-stream-without-decoder",
+  "revision": "rev_0001",
+  "nodes": [
+    {
+      "id": "video_file_1",
+      "kind": "asset.video_file",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "asset",
+          "direction": "output",
+          "type": {
+            "flow": "resource",
+            "dataKind": "asset.video"
+          }
+        }
+      ]
+    },
+    {
+      "id": "consumer_1",
+      "kind": "media.video_consumer",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "frame",
+          "direction": "input",
+          "type": {
+            "flow": "stream",
+            "dataKind": "video.frame"
+          },
+          "activation": "trigger"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "video_file_1",
+        "port": "asset"
+      },
+      "to": {
+        "node": "consumer_1",
+        "port": "frame"
+      }
+    }
+  ]
+}

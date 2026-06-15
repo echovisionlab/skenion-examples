@@ -1,0 +1,40 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "media.video_decode",
+  "version": "0.1.0",
+  "displayName": "Video Decode",
+  "category": "Media",
+  "ports": [
+    {
+      "id": "source",
+      "direction": "input",
+      "label": "Source",
+      "type": {
+        "flow": "resource",
+        "dataKind": "asset.video"
+      },
+      "activation": "latched"
+    },
+    {
+      "id": "frame",
+      "direction": "output",
+      "label": "Frame",
+      "type": {
+        "flow": "stream",
+        "dataKind": "video.frame",
+        "format": "rgba8unorm",
+        "colorSpace": "srgb",
+        "frameRate": 60
+      }
+    }
+  ],
+  "execution": {
+    "model": "video_frame"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["media.video.decode"]
+}

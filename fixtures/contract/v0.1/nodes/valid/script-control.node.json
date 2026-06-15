@@ -1,0 +1,67 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "script.midi_brightness",
+  "version": "0.1.0",
+  "displayName": "MIDI Brightness",
+  "category": "Script",
+  "scriptApiVersion": "0.1.0",
+  "bundleHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "ports": [
+    {
+      "id": "cc",
+      "direction": "input",
+      "label": "CC",
+      "type": {
+        "flow": "signal",
+        "dataKind": "number.f32",
+        "range": {
+          "min": 0,
+          "max": 1
+        }
+      },
+      "activation": "trigger"
+    },
+    {
+      "id": "enabled",
+      "direction": "input",
+      "label": "Enabled",
+      "type": {
+        "flow": "value",
+        "dataKind": "boolean"
+      },
+      "default": true,
+      "activation": "latched"
+    },
+    {
+      "id": "intensity",
+      "direction": "output",
+      "label": "Intensity",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.f32",
+        "range": {
+          "min": 0,
+          "max": 1
+        }
+      }
+    },
+    {
+      "id": "pulse",
+      "direction": "output",
+      "label": "Pulse",
+      "type": {
+        "flow": "event",
+        "dataKind": "bang"
+      }
+    }
+  ],
+  "execution": {
+    "model": "script_control"
+  },
+  "state": {
+    "persistent": true
+  },
+  "permissions": [],
+  "capabilities": ["script.api.v0.1"]
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "script.output_activation",
+  "version": "0.1.0",
+  "displayName": "Output Activation",
+  "category": "Script",
+  "ports": [
+    {
+      "id": "pulse",
+      "direction": "output",
+      "type": {
+        "flow": "event",
+        "dataKind": "bang"
+      },
+      "activation": "trigger"
+    }
+  ],
+  "execution": {
+    "model": "script_control"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["script.api.v0.1"]
+}
