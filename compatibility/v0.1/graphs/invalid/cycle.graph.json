@@ -1,0 +1,84 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "cycle",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "a",
+      "kind": "core.pass-f32",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "activation": "latched"
+        },
+        {
+          "id": "out",
+          "direction": "output",
+          "label": "Out",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b",
+      "kind": "core.pass-f32",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "activation": "latched"
+        },
+        {
+          "id": "out",
+          "direction": "output",
+          "label": "Out",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          }
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "a",
+        "port": "out"
+      },
+      "to": {
+        "node": "b",
+        "port": "in"
+      }
+    },
+    {
+      "from": {
+        "node": "b",
+        "port": "out"
+      },
+      "to": {
+        "node": "a",
+        "port": "in"
+      }
+    }
+  ]
+}

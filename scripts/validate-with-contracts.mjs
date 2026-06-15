@@ -55,6 +55,8 @@ const contracts = await importContracts();
 const fixtureRoot = path.join(root, "fixtures/contract/v0.1");
 const validFiles = (await walk(fixtureRoot)).filter((file) => file.includes(`${path.sep}valid${path.sep}`));
 const invalidFiles = (await walk(fixtureRoot)).filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
+const compatibilityRoot = path.join(root, "compatibility/v0.1");
+const compatibilityFiles = await walk(compatibilityRoot);
 const failures = [];
 
 for (const file of validFiles) {
@@ -71,6 +73,13 @@ for (const file of invalidFiles) {
   }
 }
 
+for (const file of compatibilityFiles) {
+  const result = validateDocument(file, await readJson(file), contracts);
+  if (!result.ok) {
+    failures.push(`${file}: expected document-valid compatibility fixture, got ${result.errors.join("; ")}`);
+  }
+}
+
 if (failures.length > 0) {
   for (const failure of failures) {
     console.error(failure);
@@ -78,4 +87,6 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`validated ${validFiles.length} valid fixtures and ${invalidFiles.length} invalid fixtures with @skenion/contracts`);
+console.log(
+  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, and ${compatibilityFiles.length} compatibility fixtures with @skenion/contracts`
+);

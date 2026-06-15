@@ -1,0 +1,38 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.target",
+  "version": "0.1.0",
+  "displayName": "Target",
+  "category": "Core",
+  "ports": [
+    {
+      "id": "value",
+      "direction": "input",
+      "label": "Value",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.f32"
+      },
+      "activation": "latched"
+    },
+    {
+      "id": "bang",
+      "direction": "input",
+      "label": "Bang",
+      "type": {
+        "flow": "event",
+        "dataKind": "bang"
+      },
+      "activation": "trigger"
+    }
+  ],
+  "execution": {
+    "model": "value"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}

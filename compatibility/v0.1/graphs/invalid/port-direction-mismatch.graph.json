@@ -1,0 +1,27 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "port-direction-mismatch",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "value_1",
+      "kind": "core.value-f32",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "out",
+          "direction": "input",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "activation": "latched"
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

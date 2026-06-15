@@ -1,0 +1,44 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "audio.rms",
+  "version": "0.1.0",
+  "displayName": "Audio RMS",
+  "category": "Audio",
+  "ports": [
+    {
+      "id": "audio",
+      "direction": "input",
+      "label": "Audio",
+      "type": {
+        "flow": "stream",
+        "dataKind": "audio.buffer",
+        "channels": 2,
+        "sampleRate": 48000
+      },
+      "activation": "trigger"
+    },
+    {
+      "id": "level",
+      "direction": "output",
+      "label": "Level",
+      "type": {
+        "flow": "signal",
+        "dataKind": "number.f32",
+        "range": {
+          "min": 0,
+          "max": 1
+        }
+      }
+    }
+  ],
+  "execution": {
+    "model": "audio_block",
+    "clock": "audio"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["audio.analysis.rms"]
+}

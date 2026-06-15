@@ -1,0 +1,30 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "audio.input",
+  "version": "0.1.0",
+  "displayName": "Audio Input",
+  "category": "Audio",
+  "ports": [
+    {
+      "id": "audio",
+      "direction": "output",
+      "label": "Audio",
+      "type": {
+        "flow": "stream",
+        "dataKind": "audio.buffer",
+        "channels": 2,
+        "sampleRate": 48000
+      }
+    }
+  ],
+  "execution": {
+    "model": "audio_block",
+    "clock": "audio"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["audio.input"]
+}

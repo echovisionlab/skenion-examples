@@ -13,6 +13,11 @@ run_runtime() {
   cargo run --quiet --manifest-path "${manifest_path}" -- "$@"
 }
 
+runtime_supports() {
+  local command="$1"
+  cargo run --quiet --manifest-path "${manifest_path}" -- --help | grep -q "${command}"
+}
+
 check_valid() {
   local command="$1"
   local file="$2"
@@ -43,5 +48,25 @@ done < <(find fixtures/contract/v0.1/nodes/valid -name '*.json' | sort)
 while IFS= read -r file; do
   check_invalid validate-node "${file}"
 done < <(find fixtures/contract/v0.1/nodes/invalid -name '*.json' | sort)
+
+if runtime_supports validate-project; then
+  while IFS= read -r file; do
+    run_runtime validate-project --graph "${file}" --nodes compatibility/v0.1/nodes >/dev/null
+  done < <(find compatibility/v0.1/graphs/valid -name '*.json' | sort)
+
+  while IFS= read -r file; do
+    if run_runtime validate-project --graph "${file}" --nodes compatibility/v0.1/nodes >/dev/null 2>&1; then
+      echo "${file}: expected invalid project, got valid" >&2
+      exit 1
+    fi
+  done < <(find compatibility/v0.1/graphs/invalid -name '*.json' | sort)
+
+  run_runtime plan \
+    --graph compatibility/v0.1/graphs/valid/minimal-value.graph.json \
+    --nodes compatibility/v0.1/nodes \
+    --format json >/dev/null
+else
+  echo "runtime does not support registry project validation yet; skipped compatibility fixtures"
+fi
 
 echo "validated contract fixtures with skenion-runtime"

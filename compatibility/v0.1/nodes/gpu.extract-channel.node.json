@@ -1,0 +1,40 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "gpu.extract-channel",
+  "version": "0.1.0",
+  "displayName": "Extract Channel",
+  "category": "GPU",
+  "ports": [
+    {
+      "id": "image",
+      "direction": "input",
+      "label": "Image",
+      "type": {
+        "flow": "resource",
+        "dataKind": "gpu.texture2d",
+        "format": "rgba8unorm"
+      },
+      "activation": "latched"
+    },
+    {
+      "id": "mask",
+      "direction": "output",
+      "label": "Mask",
+      "type": {
+        "flow": "resource",
+        "dataKind": "gpu.texture2d",
+        "format": "r8unorm",
+        "alphaPolicy": "error"
+      }
+    }
+  ],
+  "execution": {
+    "model": "gpu_pass"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["gpu.channel.extract"]
+}

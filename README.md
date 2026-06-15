@@ -17,6 +17,11 @@ definition manifests used to verify compatibility between:
 Valid fixtures must pass both JSON schema validation and runtime contract
 loading. Invalid fixtures must fail for the expected reason.
 
+The `compatibility/v0.1` directory contains registry-oriented node definitions
+and graph documents. Its invalid graph fixtures are intentionally valid graph
+documents, but they must fail project validation or execution planning when a
+runtime resolves them against the node registry.
+
 Run local validation with:
 
 ```sh

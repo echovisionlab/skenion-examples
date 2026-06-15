@@ -1,0 +1,37 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.pass-f32",
+  "version": "0.1.0",
+  "displayName": "Pass F32",
+  "category": "Core",
+  "ports": [
+    {
+      "id": "in",
+      "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.f32"
+      },
+      "activation": "latched"
+    },
+    {
+      "id": "out",
+      "direction": "output",
+      "label": "Out",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.f32"
+      }
+    }
+  ],
+  "execution": {
+    "model": "value"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}
