@@ -16,6 +16,11 @@ The files under `projects/` are full Runtime HTTP project payloads with
 Invalid payloads are document-valid but should return `ok: false` from the
 Runtime project API.
 
+The same payloads drive local runtime session smoke checks. A runtime should
+load a valid payload through `/v0/session/load`, execute the loaded session
+through `/v0/session/run`, reject an invalid load with `ok:false`, and clear the
+stored session with `DELETE /v0/session`.
+
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
 converter or processing nodes.

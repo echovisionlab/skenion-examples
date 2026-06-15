@@ -26,6 +26,11 @@ Runtime project payload fixtures live under
 `compatibility/v0.1/projects`. They match the local Runtime HTTP API request
 shape for `/v0/validate`, `/v0/plan`, and `/v0/run`.
 
+Runtime session smoke checks live in `scripts/smoke-runtime-session.sh`. The
+script loads the valid minimal project into `/v0/session/load`, runs the loaded
+session through `/v0/session/run`, verifies that an invalid load returns
+`ok:false` without clearing the existing session, and then clears the session.
+
 Run local validation with:
 
 ```sh
