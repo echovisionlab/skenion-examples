@@ -1,0 +1,40 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "video.upload-texture",
+  "version": "0.1.0",
+  "displayName": "Upload Texture",
+  "category": "Video",
+  "ports": [
+    {
+      "id": "frame",
+      "direction": "input",
+      "label": "Frame",
+      "type": {
+        "flow": "stream",
+        "dataKind": "video.frame",
+        "format": "rgba8unorm"
+      },
+      "activation": "trigger"
+    },
+    {
+      "id": "texture",
+      "direction": "output",
+      "label": "Texture",
+      "type": {
+        "flow": "resource",
+        "dataKind": "gpu.texture2d",
+        "format": "rgba8unorm",
+        "colorSpace": "srgb"
+      }
+    }
+  ],
+  "execution": {
+    "model": "gpu_pass"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["gpu.texture.upload"]
+}

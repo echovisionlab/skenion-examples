@@ -1,0 +1,65 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "bang-event-trigger",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "button_1",
+      "kind": "core.button",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "pressed",
+          "direction": "output",
+          "label": "Pressed",
+          "type": {
+            "flow": "event",
+            "dataKind": "bang"
+          }
+        }
+      ]
+    },
+    {
+      "id": "target_1",
+      "kind": "core.target",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "value",
+          "direction": "input",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "bang"
+          },
+          "activation": "trigger"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "button_1",
+        "port": "pressed"
+      },
+      "to": {
+        "node": "target_1",
+        "port": "bang"
+      }
+    }
+  ]
+}

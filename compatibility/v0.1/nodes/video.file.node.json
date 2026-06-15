@@ -1,0 +1,27 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "video.file",
+  "version": "0.1.0",
+  "displayName": "Video File",
+  "category": "Video",
+  "ports": [
+    {
+      "id": "asset",
+      "direction": "output",
+      "label": "Video Asset",
+      "type": {
+        "flow": "resource",
+        "dataKind": "asset.video"
+      }
+    }
+  ],
+  "execution": {
+    "model": "async_resource"
+  },
+  "state": {
+    "persistent": true
+  },
+  "permissions": [],
+  "capabilities": ["asset.video.file"]
+}

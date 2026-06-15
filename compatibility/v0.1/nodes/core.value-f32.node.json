@@ -1,0 +1,31 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.value-f32",
+  "version": "0.1.0",
+  "displayName": "Value F32",
+  "category": "Core",
+  "ports": [
+    {
+      "id": "out",
+      "direction": "output",
+      "label": "Value",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.f32",
+        "range": {
+          "min": 0,
+          "max": 1
+        }
+      }
+    }
+  ],
+  "execution": {
+    "model": "value"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}

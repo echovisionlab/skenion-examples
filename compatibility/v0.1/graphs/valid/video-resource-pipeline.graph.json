@@ -1,0 +1,151 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "video-resource-pipeline",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "video_file_1",
+      "kind": "video.file",
+      "kindVersion": "0.1.0",
+      "params": {
+        "assetId": "asset://sha256/0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "ports": [
+        {
+          "id": "asset",
+          "direction": "output",
+          "label": "Video Asset",
+          "type": {
+            "flow": "resource",
+            "dataKind": "asset.video"
+          }
+        }
+      ]
+    },
+    {
+      "id": "decode_1",
+      "kind": "video.decode",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "source",
+          "direction": "input",
+          "label": "Source",
+          "type": {
+            "flow": "resource",
+            "dataKind": "asset.video"
+          },
+          "activation": "latched"
+        },
+        {
+          "id": "frame",
+          "direction": "output",
+          "label": "Frame",
+          "type": {
+            "flow": "stream",
+            "dataKind": "video.frame",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb",
+            "frameRate": 60
+          }
+        }
+      ]
+    },
+    {
+      "id": "upload_1",
+      "kind": "video.upload-texture",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "frame",
+          "direction": "input",
+          "label": "Frame",
+          "type": {
+            "flow": "stream",
+            "dataKind": "video.frame",
+            "format": "rgba8unorm"
+          },
+          "activation": "trigger"
+        },
+        {
+          "id": "texture",
+          "direction": "output",
+          "label": "Texture",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          }
+        }
+      ]
+    },
+    {
+      "id": "extract_1",
+      "kind": "gpu.extract-channel",
+      "kindVersion": "0.1.0",
+      "params": {
+        "channel": "a"
+      },
+      "ports": [
+        {
+          "id": "image",
+          "direction": "input",
+          "label": "Image",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm"
+          },
+          "activation": "latched"
+        },
+        {
+          "id": "mask",
+          "direction": "output",
+          "label": "Mask",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "r8unorm",
+            "alphaPolicy": "error"
+          }
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "video_file_1",
+        "port": "asset"
+      },
+      "to": {
+        "node": "decode_1",
+        "port": "source"
+      }
+    },
+    {
+      "from": {
+        "node": "decode_1",
+        "port": "frame"
+      },
+      "to": {
+        "node": "upload_1",
+        "port": "frame"
+      }
+    },
+    {
+      "from": {
+        "node": "upload_1",
+        "port": "texture"
+      },
+      "to": {
+        "node": "extract_1",
+        "port": "image"
+      }
+    }
+  ]
+}

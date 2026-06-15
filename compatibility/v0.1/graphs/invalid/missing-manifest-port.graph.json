@@ -1,0 +1,55 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "missing-manifest-port",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "value_1",
+      "kind": "core.value-f32",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "ghost",
+          "direction": "output",
+          "label": "Ghost",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          }
+        }
+      ]
+    },
+    {
+      "id": "target_1",
+      "kind": "core.target",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "value",
+          "direction": "input",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "activation": "latched"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "value_1",
+        "port": "ghost"
+      },
+      "to": {
+        "node": "target_1",
+        "port": "value"
+      }
+    }
+  ]
+}
