@@ -1,0 +1,23 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "invalid-duplicate-node-id",
+  "revision": "rev_0001",
+  "nodes": [
+    {
+      "id": "value_1",
+      "kind": "core.value",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": []
+    },
+    {
+      "id": "value_1",
+      "kind": "core.value",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": []
+    }
+  ],
+  "edges": []
+}

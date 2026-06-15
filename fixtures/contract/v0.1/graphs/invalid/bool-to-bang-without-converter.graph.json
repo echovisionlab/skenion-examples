@@ -1,0 +1,53 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "invalid-bool-to-bang-without-converter",
+  "revision": "rev_0001",
+  "nodes": [
+    {
+      "id": "toggle_1",
+      "kind": "core.toggle",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "value",
+          "direction": "output",
+          "type": {
+            "flow": "value",
+            "dataKind": "boolean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "burst_1",
+      "kind": "particles.burst",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "trigger",
+          "direction": "input",
+          "type": {
+            "flow": "event",
+            "dataKind": "bang"
+          },
+          "activation": "trigger"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "toggle_1",
+        "port": "value"
+      },
+      "to": {
+        "node": "burst_1",
+        "port": "trigger"
+      }
+    }
+  ]
+}

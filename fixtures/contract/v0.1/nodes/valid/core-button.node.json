@@ -1,0 +1,27 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.button",
+  "version": "0.1.0",
+  "displayName": "Button",
+  "category": "Core",
+  "ports": [
+    {
+      "id": "pressed",
+      "direction": "output",
+      "label": "Pressed",
+      "type": {
+        "flow": "event",
+        "dataKind": "bang"
+      }
+    }
+  ],
+  "execution": {
+    "model": "event"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}

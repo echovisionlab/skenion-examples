@@ -1,0 +1,54 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "invalid-input-to-input-edge",
+  "revision": "rev_0001",
+  "nodes": [
+    {
+      "id": "a_1",
+      "kind": "core.value",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "activation": "latched"
+        }
+      ]
+    },
+    {
+      "id": "b_1",
+      "kind": "core.value",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "activation": "latched"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "a_1",
+        "port": "in"
+      },
+      "to": {
+        "node": "b_1",
+        "port": "in"
+      }
+    }
+  ]
+}

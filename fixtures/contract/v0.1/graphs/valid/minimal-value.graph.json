@@ -1,0 +1,68 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "minimal-value",
+  "revision": "rev_0001",
+  "nodes": [
+    {
+      "id": "slider_1",
+      "kind": "core.slider",
+      "kindVersion": "0.1.0",
+      "params": {
+        "value": 0.5
+      },
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32",
+            "range": {
+              "min": 0,
+              "max": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "blur_1",
+      "kind": "gpu.blur",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "radius",
+          "direction": "input",
+          "label": "Radius",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32",
+            "unit": "px",
+            "range": {
+              "min": 0,
+              "max": 100
+            }
+          },
+          "required": false,
+          "default": 10,
+          "activation": "latched"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "slider_1",
+        "port": "out"
+      },
+      "to": {
+        "node": "blur_1",
+        "port": "radius"
+      }
+    }
+  ]
+}

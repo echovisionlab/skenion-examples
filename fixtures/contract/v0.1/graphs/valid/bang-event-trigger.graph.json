@@ -1,0 +1,55 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "bang-event-trigger",
+  "revision": "rev_0001",
+  "nodes": [
+    {
+      "id": "button_1",
+      "kind": "core.button",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "pressed",
+          "direction": "output",
+          "label": "Pressed",
+          "type": {
+            "flow": "event",
+            "dataKind": "bang"
+          }
+        }
+      ]
+    },
+    {
+      "id": "burst_1",
+      "kind": "particles.burst",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "trigger",
+          "direction": "input",
+          "label": "Trigger",
+          "type": {
+            "flow": "event",
+            "dataKind": "bang"
+          },
+          "activation": "trigger"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "button_1",
+        "port": "pressed"
+      },
+      "to": {
+        "node": "burst_1",
+        "port": "trigger"
+      }
+    }
+  ]
+}
