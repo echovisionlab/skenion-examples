@@ -28,6 +28,11 @@ runtime-invalid, such as stale `baseRevision`, missing nodes, or duplicate
 edges. A runtime should reject invalid patches without mutating the loaded
 session.
 
+The `render.clear-color` node fixture is the first render-oriented compatibility
+node. Its `params.color` value is `[r, g, b, a]` with each component in the
+`0.0..1.0` range. Runtimes should interpret it as a frame-clocked GPU pass that
+clears the local preview window.
+
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
 converter or processing nodes.

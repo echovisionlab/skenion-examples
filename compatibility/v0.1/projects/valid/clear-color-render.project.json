@@ -1,0 +1,47 @@
+{
+  "graph": {
+    "schema": "skenion.graph",
+    "schemaVersion": "0.1.0",
+    "id": "clear-color-render-graph",
+    "revision": "1",
+    "nodes": [
+      {
+        "id": "clear_1",
+        "kind": "render.clear-color",
+        "kindVersion": "0.1.0",
+        "params": {
+          "color": [
+            0.05,
+            0.08,
+            0.12,
+            1.0
+          ]
+        },
+        "ports": []
+      }
+    ],
+    "edges": []
+  },
+  "nodes": [
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "render.clear-color",
+      "version": "0.1.0",
+      "displayName": "Clear Color",
+      "category": "Render",
+      "ports": [],
+      "execution": {
+        "model": "gpu_pass",
+        "clock": "frame"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "render.output.clear-color"
+      ]
+    }
+  ]
+}

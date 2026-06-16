@@ -48,6 +48,13 @@ starts dry-run local preview through `/v0/session/preview/start`, applies a
 patch to verify stale preview status, restarts preview to refresh it, and then
 stops preview.
 
+Runtime clear-color render smoke checks live in
+`scripts/smoke-runtime-render-clear-color.sh`. The script loads the
+`render.clear-color` project, starts dry-run preview, applies a color patch,
+verifies stale preview status, restarts preview, and stops it. CI validates the
+lifecycle and contract shape; visible pixels are checked manually with a native
+preview window.
+
 Run local validation with:
 
 ```sh
