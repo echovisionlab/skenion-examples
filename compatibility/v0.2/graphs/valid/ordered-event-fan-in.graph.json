@@ -1,0 +1,81 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.2.0",
+  "id": "ordered-event-fan-in-v02",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "button_a",
+      "kind": "core.bang-button",
+      "kindVersion": "0.2.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "event.bang",
+          "rate": "event"
+        }
+      ]
+    },
+    {
+      "id": "button_b",
+      "kind": "core.bang-button",
+      "kindVersion": "0.2.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "event.bang",
+          "rate": "event"
+        }
+      ]
+    },
+    {
+      "id": "event_log",
+      "kind": "core.event-log",
+      "kindVersion": "0.2.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "event.bang",
+          "rate": "event",
+          "maxConnections": 8,
+          "mergePolicy": "ordered-events",
+          "triggerMode": "trigger"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_button_a_log",
+      "source": {
+        "nodeId": "button_a",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "event_log",
+        "portId": "in"
+      },
+      "resolvedType": "event.bang",
+      "order": 0
+    },
+    {
+      "id": "edge_button_b_log",
+      "source": {
+        "nodeId": "button_b",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "event_log",
+        "portId": "in"
+      },
+      "resolvedType": "event.bang",
+      "order": 1
+    }
+  ]
+}

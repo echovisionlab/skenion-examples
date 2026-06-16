@@ -1,0 +1,25 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.2.0",
+  "id": "render.fullscreen-shader",
+  "version": "0.2.0",
+  "displayName": "Fullscreen Shader",
+  "category": "Render",
+  "ports": [
+    {
+      "id": "out",
+      "direction": "output",
+      "type": "render.frame",
+      "rate": "render"
+    }
+  ],
+  "execution": {
+    "model": "gpu_pass",
+    "clock": "frame"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["render.frame.v0.2", "shader.wgsl.v0.1"]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.2.0",
+  "id": "core.bang-button",
+  "version": "0.2.0",
+  "displayName": "Bang Button",
+  "category": "Core",
+  "ports": [
+    {
+      "id": "out",
+      "direction": "output",
+      "type": "event.bang",
+      "rate": "event"
+    }
+  ],
+  "execution": {
+    "model": "event"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["event.bang.v0.2"]
+}
