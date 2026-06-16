@@ -1,25 +1,26 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "render.clear-color",
+  "id": "render.output",
   "version": "0.1.0",
-  "displayName": "Clear Color",
+  "displayName": "Render Output",
   "category": "Render",
   "ports": [
     {
-      "id": "out",
-      "direction": "output",
-      "label": "Out",
+      "id": "in",
+      "direction": "input",
+      "label": "In",
       "type": {
         "flow": "resource",
         "dataKind": "gpu.texture2d",
         "format": "rgba8unorm",
         "colorSpace": "srgb"
-      }
+      },
+      "activation": "latched"
     }
   ],
   "execution": {
-    "model": "gpu_pass",
+    "model": "frame",
     "clock": "frame"
   },
   "state": {
@@ -27,6 +28,6 @@
   },
   "permissions": [],
   "capabilities": [
-    "render.output.clear-color"
+    "render.output.surface"
   ]
 }

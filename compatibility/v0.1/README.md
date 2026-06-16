@@ -31,13 +31,19 @@ session.
 The `render.clear-color` node fixture is the first render-oriented compatibility
 node. Its `params.color` value is `[r, g, b, a]` with each component in the
 `0.0..1.0` range. Runtimes should interpret it as a frame-clocked GPU pass that
-clears the local preview window.
+produces a `resource<gpu.texture2d>` output for the local preview window.
 
 The `render.fullscreen-shader` node fixture is the first shader-oriented render
 node. Its v0.12 params are `{ "language": "wgsl", "source": "..." }`.
 Runtimes should compile the WGSL source into a fullscreen triangle pass, expose
 `resolution`, `time`, and `frame` through the Skenion frame uniform, and report
 shader compile or render errors through preview telemetry.
+
+The `render.output` node fixture selects the final preview surface. Render
+projects should explicitly connect `render.clear-color:out` or
+`render.fullscreen-shader:out` to `render.output:in`. The
+`studio-port-demo.project.json` payload combines value, event, and render
+connections so Studio can verify visible inlets, outlets, and cable routing.
 
 Runtime telemetry smoke checks use the clear-color project to verify the
 read-only `/v0/session/telemetry` snapshot and `/v0/session/telemetry/stream`
