@@ -24,7 +24,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           repository: echovisionlab/skenion-runtime
-          ref: codex/runtime-port-edge-feedback-v014
           path: .deps/skenion-runtime
       - uses: pnpm/action-setup@v6
         with:
