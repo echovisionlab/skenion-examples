@@ -39,3 +39,6 @@ set +o pipefail
 SSE="$(curl --fail --silent --max-time 2 --no-buffer "${RUNTIME_URL}/v0/session/telemetry/stream" | head -n 2)"
 set -o pipefail
 python3 -c 'import sys; text=sys.argv[1]; assert "event: telemetry" in text; assert "data:" in text' "${SSE}"
+
+curl --fail --silent -X POST "${RUNTIME_URL}/v0/session/preview/stop" >/dev/null
+curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null
