@@ -33,6 +33,12 @@ node. Its `params.color` value is `[r, g, b, a]` with each component in the
 `0.0..1.0` range. Runtimes should interpret it as a frame-clocked GPU pass that
 clears the local preview window.
 
+The `render.fullscreen-shader` node fixture is the first shader-oriented render
+node. Its v0.12 params are `{ "language": "wgsl", "source": "..." }`.
+Runtimes should compile the WGSL source into a fullscreen triangle pass, expose
+`resolution`, `time`, and `frame` through the Skenion frame uniform, and report
+shader compile or render errors through preview telemetry.
+
 Runtime telemetry smoke checks use the clear-color project to verify the
 read-only `/v0/session/telemetry` snapshot and `/v0/session/telemetry/stream`
 SSE endpoint. Telemetry reports session state, preview state, dry-run or native
