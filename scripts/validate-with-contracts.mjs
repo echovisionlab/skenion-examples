@@ -64,6 +64,9 @@ function validateDocument(file, document, contracts) {
   if (document.schema === "skenion.node.definition") {
     return contracts.validateNodeDefinition(document);
   }
+  if (document.schema === "skenion.graph.patch") {
+    return contracts.validateGraphPatch(document);
+  }
 
   return {
     ok: false,
@@ -77,6 +80,10 @@ const validFiles = (await walk(fixtureRoot)).filter((file) => file.includes(`${p
 const invalidFiles = (await walk(fixtureRoot)).filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
 const compatibilityRoot = path.join(root, "compatibility/v0.1");
 const compatibilityFiles = await walk(compatibilityRoot);
+const patchFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}patches${path.sep}`));
+const validPatchFiles = patchFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
+const invalidPatchFiles = patchFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
+const compatibilityDocumentFiles = compatibilityFiles.filter((file) => !file.includes(`${path.sep}patches${path.sep}`));
 const failures = [];
 
 for (const file of validFiles) {
@@ -93,10 +100,28 @@ for (const file of invalidFiles) {
   }
 }
 
-for (const file of compatibilityFiles) {
+for (const file of compatibilityDocumentFiles) {
   const result = validateDocument(file, await readJson(file), contracts);
   if (!result.ok) {
     failures.push(`${file}: expected document-valid compatibility fixture, got ${result.errors.join("; ")}`);
+  }
+}
+
+for (const file of validPatchFiles) {
+  const result = validateDocument(file, await readJson(file), contracts);
+  if (!result.ok) {
+    failures.push(`${file}: expected valid graph patch, got ${result.errors.join("; ")}`);
+  }
+}
+
+for (const file of invalidPatchFiles) {
+  const result = validateDocument(file, await readJson(file), contracts);
+  if (file.endsWith("unsupported-op.patch.json")) {
+    if (result.ok) {
+      failures.push(`${file}: expected schema-invalid graph patch, got valid`);
+    }
+  } else if (!result.ok) {
+    failures.push(`${file}: expected schema-valid runtime-invalid graph patch, got ${result.errors.join("; ")}`);
   }
 }
 
@@ -108,5 +133,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, and ${compatibilityFiles.length} compatibility fixtures with @skenion/contracts`
+  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${compatibilityDocumentFiles.length} compatibility fixtures, ${validPatchFiles.length} valid patches, and ${invalidPatchFiles.length} invalid patches with @skenion/contracts`
 );

@@ -21,6 +21,13 @@ load a valid payload through `/v0/session/load`, execute the loaded session
 through `/v0/session/run`, reject an invalid load with `ok:false`, and clear the
 stored session with `DELETE /v0/session`.
 
+The files under `patches/` are `GraphPatch v0.1` documents scoped to the valid
+minimal project payload. Valid patches assume `graph.revision: "1"`. Invalid
+patches are either schema-invalid, such as unsupported operations, or
+runtime-invalid, such as stale `baseRevision`, missing nodes, or duplicate
+edges. A runtime should reject invalid patches without mutating the loaded
+session.
+
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
 converter or processing nodes.
