@@ -1,0 +1,35 @@
+{
+  "schema": "skenion.graph.patch",
+  "schemaVersion": "0.1.0",
+  "id": "example_patch_add_value_node",
+  "baseRevision": "1",
+  "clientId": "skenion-examples",
+  "ops": [
+    {
+      "op": "addNode",
+      "node": {
+        "id": "value_2",
+        "kind": "core.value-f32",
+        "kindVersion": "0.1.0",
+        "params": {
+          "value": 0.75
+        },
+        "ports": [
+          {
+            "id": "out",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32",
+              "range": {
+                "min": 0,
+                "max": 1
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "skenion.graph.patch",
+  "schemaVersion": "0.1.0",
+  "id": "example_patch_connect_value_to_target",
+  "baseRevision": "1",
+  "clientId": "skenion-examples",
+  "ops": [
+    {
+      "op": "addNode",
+      "node": {
+        "id": "target_2",
+        "kind": "core.target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "value",
+            "direction": "input",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32"
+            },
+            "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "bang"
+            },
+            "activation": "trigger"
+          }
+        ]
+      }
+    },
+    {
+      "op": "addEdge",
+      "edge": {
+        "from": {
+          "node": "value_1",
+          "port": "out"
+        },
+        "to": {
+          "node": "target_2",
+          "port": "value"
+        }
+      }
+    }
+  ]
+}

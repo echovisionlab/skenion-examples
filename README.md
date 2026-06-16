@@ -31,6 +31,12 @@ script loads the valid minimal project into `/v0/session/load`, runs the loaded
 session through `/v0/session/run`, verifies that an invalid load returns
 `ok:false` without clearing the existing session, and then clears the session.
 
+Runtime graph patch smoke checks live in `scripts/smoke-runtime-patch.sh`. The
+script loads the valid minimal project, applies a `GraphPatch v0.1` document
+through `/v0/session/patch`, verifies the runtime-assigned graph revision, and
+then verifies that a stale `baseRevision` returns a conflict without mutating
+the session.
+
 Run local validation with:
 
 ```sh

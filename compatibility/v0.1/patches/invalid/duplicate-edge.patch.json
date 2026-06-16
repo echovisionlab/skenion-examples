@@ -1,0 +1,22 @@
+{
+  "schema": "skenion.graph.patch",
+  "schemaVersion": "0.1.0",
+  "id": "example_patch_duplicate_edge",
+  "baseRevision": "1",
+  "clientId": "skenion-examples",
+  "ops": [
+    {
+      "op": "addEdge",
+      "edge": {
+        "from": {
+          "node": "value_1",
+          "port": "out"
+        },
+        "to": {
+          "node": "target_1",
+          "port": "value"
+        }
+      }
+    }
+  ]
+}

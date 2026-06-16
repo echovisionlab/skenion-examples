@@ -1,0 +1,15 @@
+{
+  "schema": "skenion.graph.patch",
+  "schemaVersion": "0.1.0",
+  "id": "example_patch_set_value_param",
+  "baseRevision": "1",
+  "clientId": "skenion-examples",
+  "ops": [
+    {
+      "op": "setNodeParam",
+      "nodeId": "value_1",
+      "key": "value",
+      "value": 0.875
+    }
+  ]
+}
