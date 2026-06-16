@@ -1,0 +1,31 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.2.0",
+  "id": "render.feedback-composite",
+  "version": "0.2.0",
+  "displayName": "Feedback Composite",
+  "category": "Render",
+  "ports": [
+    {
+      "id": "previous",
+      "direction": "input",
+      "type": "render.frame",
+      "rate": "render"
+    },
+    {
+      "id": "out",
+      "direction": "output",
+      "type": "render.frame",
+      "rate": "render"
+    }
+  ],
+  "execution": {
+    "model": "gpu_pass",
+    "clock": "frame"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": ["render.frame.v0.2", "feedback.render-frame.v0.2"]
+}

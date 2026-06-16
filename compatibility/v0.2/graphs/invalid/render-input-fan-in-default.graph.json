@@ -1,0 +1,74 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.2.0",
+  "id": "render-input-fan-in-default-v02",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "clear_a",
+      "kind": "render.clear-color",
+      "kindVersion": "0.2.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "render.frame",
+          "rate": "render"
+        }
+      ]
+    },
+    {
+      "id": "clear_b",
+      "kind": "render.clear-color",
+      "kindVersion": "0.2.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "render.frame",
+          "rate": "render"
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "kind": "render.output",
+      "kindVersion": "0.2.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "render.frame",
+          "rate": "render"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_clear_a_output",
+      "source": {
+        "nodeId": "clear_a",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "output",
+        "portId": "in"
+      }
+    },
+    {
+      "id": "edge_clear_b_output",
+      "source": {
+        "nodeId": "clear_b",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "output",
+        "portId": "in"
+      }
+    }
+  ]
+}

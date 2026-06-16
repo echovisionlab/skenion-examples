@@ -47,13 +47,17 @@ function validateProjectPayload(file, payload, contracts) {
     fail(file, "expected { graph, nodes } project payload");
   }
 
-  const graphResult = contracts.validateGraphDocument(payload.graph);
+  const graphResult = payload.graph?.schemaVersion === "0.2.0"
+    ? contracts.validateGraphDocumentV02(payload.graph)
+    : contracts.validateGraphDocument(payload.graph);
   if (!graphResult.ok) {
     fail(file, `invalid graph document: ${graphResult.errors.join("; ")}`);
   }
 
   for (const [index, definition] of payload.nodes.entries()) {
-    const result = contracts.validateNodeDefinition(definition);
+    const result = definition.schemaVersion === "0.2.0"
+      ? contracts.validateNodeDefinitionV02(definition)
+      : contracts.validateNodeDefinition(definition);
     if (!result.ok) {
       fail(file, `invalid node definition ${index}: ${result.errors.join("; ")}`);
     }
@@ -81,17 +85,33 @@ function expectedInvalidReason(file) {
   if (file.endsWith("incompatible-edge.project.json")) {
     return "incompatible edge";
   }
+  if (file.endsWith("ambiguous-algebraic-loop.project.json")) {
+    return "ambiguous-algebraic-loop";
+  }
   return "";
 }
 
 const contracts = await importContracts();
-const projectRoot = path.join(root, "compatibility/v0.1/projects");
-const files = await walk(projectRoot);
+const files = [
+  ...await walk(path.join(root, "compatibility/v0.1/projects")),
+  ...await walk(path.join(root, "compatibility/v0.2/projects"))
+];
 const validFiles = files.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
 const invalidFiles = files.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
 
-for (const file of files) {
+for (const file of validFiles) {
   validateProjectPayload(file, await readJson(file), contracts);
+}
+
+for (const file of invalidFiles) {
+  try {
+    validateProjectPayload(file, await readJson(file), contracts);
+  } catch (error) {
+    if (file.includes(`${path.sep}v0.2${path.sep}`)) {
+      continue;
+    }
+    throw error;
+  }
 }
 
 if (runtimeUrl) {

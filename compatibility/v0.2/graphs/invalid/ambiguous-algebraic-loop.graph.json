@@ -1,0 +1,72 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.2.0",
+  "id": "ambiguous-algebraic-loop-v02",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "a",
+      "kind": "core.value-transform",
+      "kindVersion": "0.2.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "value.number",
+          "rate": "control"
+        },
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "value.number",
+          "rate": "control"
+        }
+      ]
+    },
+    {
+      "id": "b",
+      "kind": "core.value-transform",
+      "kindVersion": "0.2.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "value.number",
+          "rate": "control"
+        },
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "value.number",
+          "rate": "control"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_a_b",
+      "source": {
+        "nodeId": "a",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "b",
+        "portId": "in"
+      }
+    },
+    {
+      "id": "edge_b_a",
+      "source": {
+        "nodeId": "b",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "a",
+        "portId": "in"
+      }
+    }
+  ]
+}
