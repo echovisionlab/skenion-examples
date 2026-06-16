@@ -17,10 +17,53 @@
             1.0
           ]
         },
-        "ports": []
+        "ports": [
+          {
+            "id": "out",
+            "direction": "output",
+            "label": "Out",
+            "type": {
+              "flow": "resource",
+              "dataKind": "gpu.texture2d",
+              "format": "rgba8unorm",
+              "colorSpace": "srgb"
+            }
+          }
+        ]
+      },
+      {
+        "id": "output_1",
+        "kind": "render.output",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "resource",
+              "dataKind": "gpu.texture2d",
+              "format": "rgba8unorm",
+              "colorSpace": "srgb"
+            },
+            "activation": "latched"
+          }
+        ]
       }
     ],
-    "edges": []
+    "edges": [
+      {
+        "from": {
+          "node": "clear_1",
+          "port": "out"
+        },
+        "to": {
+          "node": "output_1",
+          "port": "in"
+        }
+      }
+    ]
   },
   "nodes": [
     {
@@ -30,7 +73,19 @@
       "version": "0.1.0",
       "displayName": "Clear Color",
       "category": "Render",
-      "ports": [],
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "label": "Out",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          }
+        }
+      ],
       "execution": {
         "model": "gpu_pass",
         "clock": "frame"
@@ -41,6 +96,39 @@
       "permissions": [],
       "capabilities": [
         "render.output.clear-color"
+      ]
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "render.output",
+      "version": "0.1.0",
+      "displayName": "Render Output",
+      "category": "Render",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          },
+          "activation": "latched"
+        }
+      ],
+      "execution": {
+        "model": "frame",
+        "clock": "frame"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "render.output.surface"
       ]
     }
   ]

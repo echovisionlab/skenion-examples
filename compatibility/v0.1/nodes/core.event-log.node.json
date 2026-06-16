@@ -1,0 +1,28 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.event-log",
+  "version": "0.1.0",
+  "displayName": "Event Log",
+  "category": "Core",
+  "ports": [
+    {
+      "id": "bang",
+      "direction": "input",
+      "label": "Bang",
+      "type": {
+        "flow": "event",
+        "dataKind": "bang"
+      },
+      "activation": "trigger"
+    }
+  ],
+  "execution": {
+    "model": "event"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}
