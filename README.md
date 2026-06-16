@@ -61,6 +61,12 @@ clear-color project, confirms dry-run preview render telemetry while the
 preview is running, verifies stale telemetry after a graph patch, and checks
 that `/v0/session/telemetry/stream` emits a telemetry SSE event.
 
+Runtime fullscreen shader smoke checks live in
+`scripts/smoke-runtime-fullscreen-shader.sh`. The script loads the
+`render.fullscreen-shader` project, starts dry-run preview, verifies telemetry
+reports `renderer: "fullscreen-shader"`, applies a shader source patch, checks
+stale preview state, and restarts preview.
+
 Run local validation with:
 
 ```sh
