@@ -1,0 +1,16 @@
+{
+  "schema": "skenion.graph.patch",
+  "schemaVersion": "0.1.0",
+  "id": "set-value-f32-to-0-8",
+  "baseRevision": "1",
+  "clientId": "skenion-examples",
+  "description": "Set the shader uniform source value to 0.8.",
+  "ops": [
+    {
+      "op": "setNodeParam",
+      "nodeId": "value_1",
+      "key": "value",
+      "value": 0.8
+    }
+  ]
+}

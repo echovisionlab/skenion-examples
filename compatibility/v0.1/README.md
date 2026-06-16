@@ -36,8 +36,12 @@ produces a `resource<gpu.texture2d>` output for the local preview window.
 The `render.fullscreen-shader` node fixture is the first shader-oriented render
 node. Its v0.12 params are `{ "language": "wgsl", "source": "..." }`.
 Runtimes should compile the WGSL source into a fullscreen triangle pass, expose
-`resolution`, `time`, and `frame` through the Skenion frame uniform, and report
-shader compile or render errors through preview telemetry.
+`resolution`, `time`, optional `u_value`, and `frame` through the Skenion frame
+uniform, and report shader compile or render errors through preview telemetry.
+The `fullscreen-shader-uniform.project.json` payload connects
+`core.value-f32:out` to `render.fullscreen-shader:u_value` and then routes the
+shader output into `render.output:in`. Its WGSL source uses explicit padding to
+match the current 32-byte Runtime uniform buffer layout.
 
 The `render.output` node fixture selects the final preview surface. Render
 projects should explicitly connect `render.clear-color:out` or
@@ -50,6 +54,11 @@ read-only `/v0/session/telemetry` snapshot and `/v0/session/telemetry/stream`
 SSE endpoint. Telemetry reports session state, preview state, dry-run or native
 render activity, revision freshness, and basic process metadata; it must not
 mutate the loaded session or preview lifecycle.
+
+Runtime shader uniform smoke checks use
+`scripts/smoke-runtime-shader-uniform.sh`. The script loads the fullscreen shader
+uniform project, starts dry-run preview, patches the float value to `0.8`,
+checks that preview becomes stale, and restarts preview.
 
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
