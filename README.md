@@ -42,6 +42,12 @@ The script loads the valid minimal project, applies a patch, verifies the
 accepted apply event, then calls `/v0/session/undo`, `/v0/session/redo`, and
 `/v0/session/history` to confirm append-only patch history behavior.
 
+Runtime preview lifecycle smoke checks live in
+`scripts/smoke-runtime-preview.sh`. The script loads the valid minimal project,
+starts dry-run local preview through `/v0/session/preview/start`, applies a
+patch to verify stale preview status, restarts preview to refresh it, and then
+stops preview.
+
 Run local validation with:
 
 ```sh
