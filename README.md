@@ -55,6 +55,12 @@ verifies stale preview status, restarts preview, and stops it. CI validates the
 lifecycle and contract shape; visible pixels are checked manually with a native
 preview window.
 
+Runtime telemetry smoke checks live in `scripts/smoke-runtime-telemetry.sh`.
+The script verifies `/v0/session/telemetry` before and after loading the
+clear-color project, confirms dry-run preview render telemetry while the
+preview is running, verifies stale telemetry after a graph patch, and checks
+that `/v0/session/telemetry/stream` emits a telemetry SSE event.
+
 Run local validation with:
 
 ```sh
