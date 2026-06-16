@@ -37,6 +37,11 @@ through `/v0/session/patch`, verifies the runtime-assigned graph revision, and
 then verifies that a stale `baseRevision` returns a conflict without mutating
 the session.
 
+Runtime patch history smoke checks live in `scripts/smoke-runtime-history.sh`.
+The script loads the valid minimal project, applies a patch, verifies the
+accepted apply event, then calls `/v0/session/undo`, `/v0/session/redo`, and
+`/v0/session/history` to confirm append-only patch history behavior.
+
 Run local validation with:
 
 ```sh
