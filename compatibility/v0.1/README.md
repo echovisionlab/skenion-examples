@@ -33,6 +33,12 @@ node. Its `params.color` value is `[r, g, b, a]` with each component in the
 `0.0..1.0` range. Runtimes should interpret it as a frame-clocked GPU pass that
 clears the local preview window.
 
+Runtime telemetry smoke checks use the clear-color project to verify the
+read-only `/v0/session/telemetry` snapshot and `/v0/session/telemetry/stream`
+SSE endpoint. Telemetry reports session state, preview state, dry-run or native
+render activity, revision freshness, and basic process metadata; it must not
+mutate the loaded session or preview lifecycle.
+
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
 converter or processing nodes.
