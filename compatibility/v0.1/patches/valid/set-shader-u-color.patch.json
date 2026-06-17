@@ -4,7 +4,7 @@
   "id": "set-shader-u-color",
   "baseRevision": "2",
   "clientId": "examples-smoke",
-  "description": "Change the color node connected to render.fullscreen-shader.u_color.",
+  "description": "Change the color node connected to the dynamic render.fullscreen-shader.tint input.",
   "ops": [
     {
       "op": "setNodeParam",

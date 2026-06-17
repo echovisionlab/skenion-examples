@@ -76,8 +76,14 @@ restarts preview.
 Runtime multi-uniform shader smoke checks live in
 `scripts/smoke-runtime-shader-multi-uniform.sh`. The script loads the
 `fullscreen-shader-multi-uniform` project, starts dry-run preview, patches the
-connected `u_value2` float and `u_color` RGBA color inputs in sequence, verifies
+connected `phase` float and `tint` RGBA color inputs in sequence, verifies
 stale preview state after each accepted patch, and restarts preview.
+
+Runtime dynamic shader interface smoke checks live in
+`scripts/smoke-runtime-dynamic-shader-interface.sh`. The script loads the
+`dynamic-shader-interface` project, applies a `replaceNodeInterface` patch
+generated from WGSL `@skenion.uniform` annotations, verifies shader ports, and
+checks preview stale/restart behavior.
 
 Runtime typed value semantics smoke checks live in
 `scripts/smoke-runtime-value-semantics.sh`. The script loads the

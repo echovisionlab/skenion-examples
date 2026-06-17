@@ -104,41 +104,42 @@
         "kindVersion": "0.1.0",
         "params": {
           "language": "wgsl",
-          "source": "struct SkenionFrame {\n  resolution: vec2<f32>,\n  time: f32,\n  frame: u32,\n  u_value: f32,\n  u_value2: f32,\n  _pad0: vec2<f32>,\n  u_color: vec4<f32>,\n}\n\n@group(0) @binding(0)\nvar<uniform> skenion: SkenionFrame;\n\nstruct VertexOut {\n  @builtin(position) position: vec4<f32>,\n}\n\n@vertex\nfn vs_main(@builtin(vertex_index) vertex_index: u32) -> VertexOut {\n  var positions = array<vec2<f32>, 3>(\n    vec2<f32>(-1.0, -3.0),\n    vec2<f32>(-1.0,  1.0),\n    vec2<f32>( 3.0,  1.0)\n  );\n\n  var out: VertexOut;\n  out.position = vec4<f32>(positions[vertex_index], 0.0, 1.0);\n  return out;\n}\n\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  return vec4<f32>(skenion.u_value, 0.2, 1.0 - skenion.u_value, 1.0) * skenion.u_color;\n}"
+          "source": "// @skenion.uniform speed number.f32 default=0.5 min=0 max=1 step=0.01\n// @skenion.uniform tint color.rgba default=[1,0.2,0.1,1]\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let animated = vec4<f32>(skenion.speed, 0.2, 1.0 - skenion.speed, 1.0);\n  return animated * skenion.tint;\n}"
         },
         "ports": [
           {
-            "id": "u_value",
+            "id": "speed",
             "direction": "input",
-            "label": "u_value",
+            "label": "Speed",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.f32",
+              "range": {
+                "min": 0,
+                "max": 1,
+                "step": 0.01
+              }
             },
             "required": false,
-            "activation": "latched"
+            "activation": "latched",
+            "default": 0.5
           },
           {
-            "id": "u_value2",
+            "id": "tint",
             "direction": "input",
-            "label": "u_value2",
-            "type": {
-              "flow": "value",
-              "dataKind": "number.f32"
-            },
-            "required": false,
-            "activation": "latched"
-          },
-          {
-            "id": "u_color",
-            "direction": "input",
-            "label": "u_color",
+            "label": "Tint",
             "type": {
               "flow": "value",
               "dataKind": "color.rgba"
             },
             "required": false,
-            "activation": "latched"
+            "activation": "latched",
+            "default": [
+              1,
+              0.2,
+              0.1,
+              1
+            ]
           },
           {
             "id": "out",
@@ -203,7 +204,7 @@
         },
         "to": {
           "node": "shader_1",
-          "port": "u_value"
+          "port": "speed"
         }
       },
       {
@@ -348,39 +349,6 @@
       "displayName": "Fullscreen Shader",
       "category": "Render",
       "ports": [
-        {
-          "id": "u_value",
-          "direction": "input",
-          "label": "u_value",
-          "type": {
-            "flow": "value",
-            "dataKind": "number.f32"
-          },
-          "required": false,
-          "activation": "latched"
-        },
-        {
-          "id": "u_value2",
-          "direction": "input",
-          "label": "u_value2",
-          "type": {
-            "flow": "value",
-            "dataKind": "number.f32"
-          },
-          "required": false,
-          "activation": "latched"
-        },
-        {
-          "id": "u_color",
-          "direction": "input",
-          "label": "u_color",
-          "type": {
-            "flow": "value",
-            "dataKind": "color.rgba"
-          },
-          "required": false,
-          "activation": "latched"
-        },
         {
           "id": "out",
           "direction": "output",

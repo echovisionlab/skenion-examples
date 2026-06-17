@@ -35,19 +35,22 @@ produces a `resource<gpu.texture2d>` output for the local preview window.
 
 The `render.fullscreen-shader` node fixture is the first shader-oriented render
 node. Its params are `{ "language": "wgsl", "source": "..." }`.
-Runtimes should compile the WGSL source into a fullscreen triangle pass, expose
-`resolution`, `time`, `frame`, optional `u_value`, optional `u_value2`, and
-optional `u_color` through the Skenion frame uniform, and report shader compile
-or render errors through preview telemetry.
+Runtimes should compile the WGSL fragment source into a fullscreen triangle
+pass, provide a generated Skenion frame/uniform header, and report shader
+compile or render errors through preview telemetry. Dynamic value inputs are
+declared with `// @skenion.uniform <portId> <dataKind>` comments.
 The `fullscreen-shader-uniform.project.json` payload connects
-`core.value-f32:value` to `render.fullscreen-shader:u_value` and then routes the
+`core.value-f32:value` to `render.fullscreen-shader:speed` and then routes the
 shader output into `render.output:in`.
 
 The `fullscreen-shader-multi-uniform.project.json` payload connects two
 `core.value-f32` nodes and one `core.color-rgba` node to
-`render.fullscreen-shader:u_value`, `u_value2`, and `u_color`, then routes the
-shader output into `render.output:in`. Its WGSL source matches the current
-48-byte Runtime uniform buffer layout.
+`render.fullscreen-shader:speed`, `phase`, and `tint`, then routes the shader
+output into `render.output:in`.
+
+The `dynamic-shader-interface.project.json` payload covers the v0 dynamic
+shader interface path: WGSL annotations produce `speed`, `enabled`,
+`iterations`, and `tint` input ports, plus the static `out` render output.
 
 Typed value nodes are stateful control nodes. `core.value-f32`,
 `core.value-i32`, `core.value-bool`, `core.color-rgba`, and `core.string` expose
@@ -55,7 +58,7 @@ Typed value nodes are stateful control nodes. `core.value-f32`,
 surface, but `bang` flips the stored value before emitting. The
 `value-semantics-demo.project.json` payload wires `core.bang-button:bang` into
 `core.value-f32:bang`, routes `core.value-f32:value` to both
-`core.target:value` and `render.fullscreen-shader:u_value`, and keeps runtime
+`core.target:value` and `render.fullscreen-shader:speed`, and keeps runtime
 control events separate from graph patches.
 
 The `control-layer-demo.project.json` payload covers the non-render control
@@ -89,8 +92,8 @@ checks that preview becomes stale, and restarts preview.
 
 Runtime multi-uniform shader smoke checks use
 `scripts/smoke-runtime-shader-multi-uniform.sh`. The script loads the fullscreen
-shader multi-uniform project, starts dry-run preview, patches `u_value2` and
-`u_color` through their connected value nodes, checks that preview becomes stale
+shader multi-uniform project, starts dry-run preview, patches `phase` and
+`tint` through their connected value nodes, checks that preview becomes stale
 after each patch, and restarts preview.
 
 Runtime typed value semantics smoke checks use
