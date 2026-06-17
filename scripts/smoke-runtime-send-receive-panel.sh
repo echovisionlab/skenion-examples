@@ -17,32 +17,58 @@ SLIDER_RESPONSE="$(curl --fail --silent \
   --data '{"nodeId":"slider_speed","portId":"value","value":{"type":"f32","value":1.5}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"slider_speed","portId":"value","value":{"type":"f32","value":1.5}}]' "${SLIDER_RESPONSE}"
+if python3 -c 'import json, sys
+r=json.loads(sys.argv[1])
+assert r["ok"] is True
+if "changed" in r:
+    assert r["changed"] is True
+    assert r["controlRevision"] == 1
+    assert r["emitted"] == [
+        {"nodeId":"slider_speed","portId":"value","value":{"type":"f32","value":1.5}},
+        {"nodeId":"send_speed","portId":"in","value":{"type":"f32","value":1.5}},
+    ]
+else:
+    assert r["emitted"] == [{"nodeId":"slider_speed","portId":"value","value":{"type":"f32","value":1.5}}]
+    sys.exit(1)
+' "${SLIDER_RESPONSE}"; then
+  LIVE_CONTROL_EVENTS=1
+else
+  LIVE_CONTROL_EVENTS=0
+  SEND_SPEED_RESPONSE="$(curl --fail --silent \
+    -H "content-type: application/json" \
+    --data '{"nodeId":"send_speed","portId":"in","value":{"type":"f32","value":1.5}}' \
+    "${RUNTIME_URL}/v0/session/control/event")"
 
-SEND_SPEED_RESPONSE="$(curl --fail --silent \
-  -H "content-type: application/json" \
-  --data '{"nodeId":"send_speed","portId":"in","value":{"type":"f32","value":1.5}}' \
-  "${RUNTIME_URL}/v0/session/control/event")"
-
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"send_speed","portId":"in","value":{"type":"f32","value":1.5}}]' "${SEND_SPEED_RESPONSE}"
+  python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"send_speed","portId":"in","value":{"type":"f32","value":1.5}}]' "${SEND_SPEED_RESPONSE}"
+fi
 
 TOGGLE_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
   --data '{"nodeId":"toggle_enabled","portId":"value","value":{"type":"bang"}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"toggle_enabled","portId":"value","value":{"type":"bool","value":False}}]' "${TOGGLE_RESPONSE}"
+if [ "${LIVE_CONTROL_EVENTS}" = "1" ]; then
+  python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["changed"] is True; assert r["controlRevision"] == 2; assert r["emitted"] == [{"nodeId":"toggle_enabled","portId":"value","value":{"type":"bool","value":False}}, {"nodeId":"send_enabled","portId":"in","value":{"type":"bool","value":False}}]' "${TOGGLE_RESPONSE}"
+else
+  python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"toggle_enabled","portId":"value","value":{"type":"bool","value":False}}]' "${TOGGLE_RESPONSE}"
+  SEND_ENABLED_RESPONSE="$(curl --fail --silent \
+    -H "content-type: application/json" \
+    --data '{"nodeId":"send_enabled","portId":"in","value":{"type":"bool","value":false}}' \
+    "${RUNTIME_URL}/v0/session/control/event")"
 
-SEND_BOOL_RESPONSE="$(curl --fail --silent \
-  -H "content-type: application/json" \
-  --data '{"nodeId":"send_enabled","portId":"in","value":{"type":"bool","value":false}}' \
-  "${RUNTIME_URL}/v0/session/control/event")"
-
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"send_enabled","portId":"in","value":{"type":"bool","value":False}}]' "${SEND_BOOL_RESPONSE}"
+  python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"send_enabled","portId":"in","value":{"type":"bool","value":False}}]' "${SEND_ENABLED_RESPONSE}"
+fi
 
 STATE_RESPONSE="$(curl --fail --silent "${RUNTIME_URL}/v0/session/control/state")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["channels"]["number.f32:speed"] == {"type":"f32","value":1.5}; assert r["channels"]["boolean:enabled"] == {"type":"bool","value":False}' "${STATE_RESPONSE}"
+python3 -c 'import json, sys
+r=json.loads(sys.argv[1])
+assert r["ok"] is True
+if "controlRevision" in r:
+    assert r["controlRevision"] == 2
+assert r["channels"]["number.f32:speed"] == {"type":"f32","value":1.5}
+assert r["channels"]["boolean:enabled"] == {"type":"bool","value":False}
+' "${STATE_RESPONSE}"
 
 START_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
@@ -53,7 +79,14 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 TELEMETRY_RESPONSE="$(curl --fail --silent "${RUNTIME_URL}/v0/session/telemetry")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["preview"]["state"] == "running"; assert r["render"]["renderer"] in ("fullscreen-shader", "dry-run")' "${TELEMETRY_RESPONSE}"
+python3 -c 'import json, sys
+r=json.loads(sys.argv[1])
+assert r["ok"] is True
+if "controlRevision" in r["session"]:
+    assert r["session"]["controlRevision"] == 2
+assert r["preview"]["state"] == "running"
+assert r["render"]["renderer"] in ("fullscreen-shader", "dry-run")
+' "${TELEMETRY_RESPONSE}"
 
 curl --fail --silent -X POST "${RUNTIME_URL}/v0/session/preview/stop" >/dev/null
 curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null

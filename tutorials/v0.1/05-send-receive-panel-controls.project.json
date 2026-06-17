@@ -9,7 +9,7 @@
       "kind": "core.comment",
       "kindVersion": "0.1.0",
       "params": {
-        "text": "Panel controls write typed send channels. Receive nodes make the non-local read explicit before shader uniforms."
+        "text": "Panel controls write typed send channels. A running preview can consume those control updates live, while graph edits still require restart."
       },
       "ports": []
     },

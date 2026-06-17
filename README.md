@@ -91,6 +91,17 @@ Runtime typed value semantics smoke checks live in
 `set` updates without emitting, `bang` emits the stored value, and `in` updates
 and emits.
 
+Runtime send/receive panel smoke checks live in
+`scripts/smoke-runtime-send-receive-panel.sh`. The script verifies explicit
+typed channel routing for panel controls and shader receive nodes.
+
+Runtime live control preview smoke checks live in
+`scripts/smoke-runtime-live-control-preview.sh`. The script loads the
+send/receive panel project, starts dry-run preview, sends UI slider and toggle
+control events, and verifies that session control revision, typed channel state,
+preview control revision, and telemetry stay live without creating a graph patch
+or restarting preview.
+
 ## Tutorials
 
 Learning-oriented tutorial graphs live under `tutorials/v0.1`. They are
