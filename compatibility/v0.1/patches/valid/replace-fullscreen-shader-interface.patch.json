@@ -1,0 +1,85 @@
+{
+  "schema": "skenion.graph.patch",
+  "schemaVersion": "0.1.0",
+  "id": "replace-fullscreen-shader-interface",
+  "baseRevision": "1",
+  "description": "Replace fullscreen shader instance ports from WGSL @skenion.uniform annotations.",
+  "ops": [
+    {
+      "op": "replaceNodeInterface",
+      "nodeId": "shader_1",
+      "edgePolicy": "removeInvalidEdges",
+      "ports": [
+        {
+          "id": "speed",
+          "direction": "input",
+          "label": "Speed",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32",
+            "range": {
+              "min": 0,
+              "max": 2,
+              "step": 0.01
+            }
+          },
+          "required": false,
+          "activation": "latched",
+          "default": 0.5
+        },
+        {
+          "id": "enabled",
+          "direction": "input",
+          "label": "Enabled",
+          "type": {
+            "flow": "value",
+            "dataKind": "boolean"
+          },
+          "required": false,
+          "activation": "latched",
+          "default": true
+        },
+        {
+          "id": "iterations",
+          "direction": "input",
+          "label": "Iterations",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.i32"
+          },
+          "required": false,
+          "activation": "latched",
+          "default": 8
+        },
+        {
+          "id": "tint",
+          "direction": "input",
+          "label": "Tint",
+          "type": {
+            "flow": "value",
+            "dataKind": "color.rgba"
+          },
+          "required": false,
+          "activation": "latched",
+          "default": [
+            1,
+            0.2,
+            0.1,
+            1
+          ]
+        },
+        {
+          "id": "out",
+          "direction": "output",
+          "label": "Out",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          }
+        }
+      ]
+    }
+  ]
+}

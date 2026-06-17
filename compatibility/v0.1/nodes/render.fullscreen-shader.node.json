@@ -7,39 +7,6 @@
   "category": "Render",
   "ports": [
     {
-      "id": "u_value",
-      "direction": "input",
-      "label": "u_value",
-      "type": {
-        "flow": "value",
-        "dataKind": "number.f32"
-      },
-      "required": false,
-      "activation": "latched"
-    },
-    {
-      "id": "u_value2",
-      "direction": "input",
-      "label": "u_value2",
-      "type": {
-        "flow": "value",
-        "dataKind": "number.f32"
-      },
-      "required": false,
-      "activation": "latched"
-    },
-    {
-      "id": "u_color",
-      "direction": "input",
-      "label": "u_color",
-      "type": {
-        "flow": "value",
-        "dataKind": "color.rgba"
-      },
-      "required": false,
-      "activation": "latched"
-    },
-    {
       "id": "out",
       "direction": "output",
       "label": "Out",

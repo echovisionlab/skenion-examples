@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const contractsDir = process.env.SKENION_CONTRACTS_DIR
@@ -9,6 +10,7 @@ const builtinsManifestFile = path.join(contractsDir, "builtins/v0.1/builtins.man
 const expectedProjectFixtures = [
   "clear-color-render.project.json",
   "control-layer-demo.project.json",
+  "dynamic-shader-interface.project.json",
   "event-bang.project.json",
   "fullscreen-shader.project.json",
   "fullscreen-shader-multi-uniform.project.json",
@@ -132,6 +134,10 @@ for (const file of builtinFiles) {
 }
 assertSetEqual("contracts builtin manifest nodes", new Set(builtins.keys()), expectedBuiltinIds);
 
+const contractsPackage = await import(
+  pathToFileURL(path.join(contractsDir, "packages/ts/dist/index.js")).href
+);
+
 for (const fixture of expectedProjectFixtures) {
   const file = path.join(root, "compatibility/v0.1/projects/valid", fixture);
   await readJson(file);
@@ -181,6 +187,18 @@ for (const file of validV01Files) {
   for (const node of graphNodes(document)) {
     const builtin = builtins.get(node.kind);
     if (!builtin) {
+      continue;
+    }
+    if (node.kind === "render.fullscreen-shader") {
+      const analysis = contractsPackage.analyzeShaderInterfaceV01(node.params?.source ?? "", { language: "wgsl" });
+      if (!analysis.ok) {
+        fail(`${file} graph node ${node.id}: invalid shader interface annotations`);
+      }
+      assertEqual(
+        `${file} graph node ${node.id} dynamic ports`,
+        node.ports,
+        contractsPackage.shaderInterfaceToPortsV01(analysis.shaderInterface)
+      );
       continue;
     }
     assertEqual(`${file} graph node ${node.id} ports`, node.ports, builtin.ports);
