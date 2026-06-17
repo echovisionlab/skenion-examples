@@ -4,7 +4,7 @@
   "id": "core.bang-button",
   "version": "0.1.0",
   "displayName": "Bang Button",
-  "category": "Core",
+  "category": "Events",
   "ports": [
     {
       "id": "bang",
@@ -12,7 +12,7 @@
       "label": "Bang",
       "type": {
         "flow": "event",
-        "dataKind": "bang"
+        "dataKind": "event.bang"
       }
     }
   ],

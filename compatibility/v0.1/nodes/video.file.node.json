@@ -23,5 +23,7 @@
     "persistent": true
   },
   "permissions": [],
-  "capabilities": ["asset.video.file"]
+  "capabilities": [
+    "asset.video.file"
+  ]
 }

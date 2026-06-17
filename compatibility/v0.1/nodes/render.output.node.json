@@ -16,6 +16,7 @@
         "format": "rgba8unorm",
         "colorSpace": "srgb"
       },
+      "required": true,
       "activation": "latched"
     }
   ],

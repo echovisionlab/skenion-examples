@@ -12,7 +12,7 @@
       "label": "Pressed",
       "type": {
         "flow": "event",
-        "dataKind": "bang"
+        "dataKind": "event.bang"
       }
     }
   ],

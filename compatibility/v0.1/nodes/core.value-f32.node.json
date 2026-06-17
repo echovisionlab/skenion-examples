@@ -3,11 +3,11 @@
   "schemaVersion": "0.1.0",
   "id": "core.value-f32",
   "version": "0.1.0",
-  "displayName": "Value F32",
-  "category": "Core",
+  "displayName": "Float Value",
+  "category": "Values",
   "ports": [
     {
-      "id": "out",
+      "id": "value",
       "direction": "output",
       "label": "Value",
       "type": {
@@ -15,7 +15,8 @@
         "dataKind": "number.f32",
         "range": {
           "min": 0,
-          "max": 1
+          "max": 1,
+          "step": 0.01
         }
       }
     }

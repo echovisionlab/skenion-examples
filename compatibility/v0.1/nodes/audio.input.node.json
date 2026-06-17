@@ -26,5 +26,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["audio.input"]
+  "capabilities": [
+    "audio.input"
+  ]
 }

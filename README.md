@@ -77,6 +77,7 @@ Run local validation with:
 
 ```sh
 SKENION_CONTRACTS_PACKAGE=/Users/state303/Documents/Skenion-contracts/packages/ts/dist node scripts/validate-with-contracts.mjs
+SKENION_CONTRACTS_DIR=/Users/state303/Documents/Skenion-contracts node scripts/audit-node-conventions.mjs
 SKENION_CONTRACTS_PACKAGE=/Users/state303/Documents/Skenion-contracts/packages/ts/dist node scripts/validate-runtime-project-payloads.mjs
 bash scripts/validate-with-runtime.sh /Users/state303/Documents/Skenion-runtime
 ```
