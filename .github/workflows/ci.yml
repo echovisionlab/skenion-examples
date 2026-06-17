@@ -53,7 +53,7 @@ jobs:
       - run: cargo test --manifest-path .deps/skenion-runtime/Cargo.toml --all-targets --all-features
       - run: bash scripts/validate-with-runtime.sh .deps/skenion-runtime
       - run: |
-          cargo run --manifest-path .deps/skenion-runtime/Cargo.toml -- serve --host 127.0.0.1 --port 3761 &
+          SKENION_PREVIEW_DRY_RUN=1 cargo run --manifest-path .deps/skenion-runtime/Cargo.toml -- serve --host 127.0.0.1 --port 3761 &
           SERVER_PID=$!
           trap "kill $SERVER_PID" EXIT
           READY=false
@@ -69,3 +69,9 @@ jobs:
             exit 1
           fi
           SKENION_RUNTIME_URL=http://127.0.0.1:3761 node scripts/validate-runtime-project-payloads.mjs
+          INFO="$(curl --fail --silent http://127.0.0.1:3761/v0/runtime/info)"
+          if python3 -c 'import json, sys; r=json.loads(sys.argv[1]); sys.exit(0 if "session.render.generatedShader" in r.get("capabilities", []) else 1)' "${INFO}"; then
+            SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-shader-diagnostics.sh
+          else
+            echo "runtime does not support shader diagnostics endpoint yet"
+          fi
