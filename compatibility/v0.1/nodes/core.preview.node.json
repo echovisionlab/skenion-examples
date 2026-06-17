@@ -1,0 +1,31 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.preview",
+  "version": "0.1.0",
+  "displayName": "Preview",
+  "category": "Output",
+  "ports": [
+    {
+      "id": "texture",
+      "direction": "input",
+      "label": "Texture",
+      "type": {
+        "flow": "resource",
+        "dataKind": "gpu.texture2d",
+        "format": "rgba8unorm",
+        "colorSpace": "srgb"
+      },
+      "required": true,
+      "activation": "latched"
+    }
+  ],
+  "execution": {
+    "model": "frame"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}

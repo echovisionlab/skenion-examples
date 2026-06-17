@@ -1,0 +1,27 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.video-asset",
+  "version": "0.1.0",
+  "displayName": "Video Asset",
+  "category": "Media",
+  "ports": [
+    {
+      "id": "asset",
+      "direction": "output",
+      "label": "Asset",
+      "type": {
+        "flow": "resource",
+        "dataKind": "asset.video"
+      }
+    }
+  ],
+  "execution": {
+    "model": "async_resource"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}

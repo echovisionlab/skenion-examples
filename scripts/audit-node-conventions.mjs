@@ -13,7 +13,8 @@ const expectedProjectFixtures = [
   "fullscreen-shader-multi-uniform.project.json",
   "fullscreen-shader-uniform.project.json",
   "minimal-value.project.json",
-  "studio-port-demo.project.json"
+  "studio-port-demo.project.json",
+  "value-semantics-demo.project.json"
 ];
 
 async function walk(dir) {

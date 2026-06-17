@@ -11,17 +11,54 @@
       "params": {},
       "ports": [
         {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          }
+        },
+        {
           "id": "ghost",
           "direction": "output",
           "label": "Ghost",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32",
-            "range": {
-              "min": 0,
-              "max": 1,
-              "step": 0.01
-            }
+            "dataKind": "number.f32"
           }
         }
       ]

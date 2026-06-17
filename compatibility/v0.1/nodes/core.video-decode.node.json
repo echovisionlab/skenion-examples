@@ -1,0 +1,41 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.video-decode",
+  "version": "0.1.0",
+  "displayName": "Video Decode",
+  "category": "Converters",
+  "ports": [
+    {
+      "id": "asset",
+      "direction": "input",
+      "label": "Asset",
+      "type": {
+        "flow": "resource",
+        "dataKind": "asset.video"
+      },
+      "required": true,
+      "activation": "latched"
+    },
+    {
+      "id": "frames",
+      "direction": "output",
+      "label": "Frames",
+      "type": {
+        "flow": "stream",
+        "dataKind": "video.frame",
+        "frameRate": 60,
+        "colorSpace": "srgb",
+        "alphaPolicy": "black"
+      }
+    }
+  ],
+  "execution": {
+    "model": "video_frame"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}

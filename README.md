@@ -79,6 +79,12 @@ Runtime multi-uniform shader smoke checks live in
 connected `u_value2` float and `u_color` RGBA color inputs in sequence, verifies
 stale preview state after each accepted patch, and restarts preview.
 
+Runtime typed value semantics smoke checks live in
+`scripts/smoke-runtime-value-semantics.sh`. The script loads the
+`value-semantics-demo` project and verifies Max-style runtime control behavior:
+`set` updates without emitting, `bang` emits the stored value, and `in` updates
+and emits.
+
 Run local validation with:
 
 ```sh

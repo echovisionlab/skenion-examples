@@ -2,15 +2,32 @@
   "graph": {
     "schema": "skenion.graph",
     "schemaVersion": "0.1.0",
-    "id": "fullscreen-shader-uniform-graph",
+    "id": "value-semantics-demo-graph",
     "revision": "1",
     "nodes": [
+      {
+        "id": "bang_1",
+        "kind": "core.bang-button",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "bang",
+            "direction": "output",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            }
+          }
+        ]
+      },
       {
         "id": "value_1",
         "kind": "core.value-f32",
         "kindVersion": "0.1.0",
         "params": {
-          "value": 0.2
+          "value": 32
         },
         "ports": [
           {
@@ -58,12 +75,36 @@
         ]
       },
       {
+        "id": "target_1",
+        "kind": "core.target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "value",
+            "direction": "input",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32",
+              "range": {
+                "min": 0,
+                "max": 1,
+                "step": 0.01
+              }
+            },
+            "required": true,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
         "id": "shader_1",
         "kind": "render.fullscreen-shader",
         "kindVersion": "0.1.0",
         "params": {
           "language": "wgsl",
-          "source": "struct SkenionFrame {\n  resolution: vec2<f32>,\n  time: f32,\n  frame: u32,\n  u_value: f32,\n  u_value2: f32,\n  _pad0: vec2<f32>,\n  u_color: vec4<f32>,\n}\n\n@group(0) @binding(0)\nvar<uniform> skenion: SkenionFrame;\n\nstruct VertexOut {\n  @builtin(position) position: vec4<f32>,\n}\n\n@vertex\nfn vs_main(@builtin(vertex_index) vertex_index: u32) -> VertexOut {\n  var positions = array<vec2<f32>, 3>(\n    vec2<f32>(-1.0, -3.0),\n    vec2<f32>(-1.0,  1.0),\n    vec2<f32>( 3.0,  1.0)\n  );\n\n  var out: VertexOut;\n  out.position = vec4<f32>(positions[vertex_index], 0.0, 1.0);\n  return out;\n}\n\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  return vec4<f32>(skenion.u_value, skenion.u_value2, 1.0 - skenion.u_value, 1.0) * skenion.u_color;\n}"
+          "source": "struct SkenionFrame {\n  resolution: vec2<f32>,\n  time: f32,\n  frame: u32,\n  u_value: f32,\n  u_value2: f32,\n  _pad0: vec2<f32>,\n  u_color: vec4<f32>,\n}\n\n@group(0) @binding(0)\nvar<uniform> skenion: SkenionFrame;\n\nstruct VertexOut {\n  @builtin(position) position: vec4<f32>,\n}\n\n@vertex\nfn vs_main(@builtin(vertex_index) vertex_index: u32) -> VertexOut {\n  var positions = array<vec2<f32>, 3>(\n    vec2<f32>(-1.0, -3.0),\n    vec2<f32>(-1.0,  1.0),\n    vec2<f32>( 3.0,  1.0)\n  );\n\n  var out: VertexOut;\n  out.position = vec4<f32>(positions[vertex_index], 0.0, 1.0);\n  return out;\n}\n\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  return vec4<f32>(skenion.u_value, 0.2, 1.0 - skenion.u_value, 1.0) * skenion.u_color;\n}"
         },
         "ports": [
           {
@@ -137,6 +178,26 @@
     "edges": [
       {
         "from": {
+          "node": "bang_1",
+          "port": "bang"
+        },
+        "to": {
+          "node": "value_1",
+          "port": "bang"
+        }
+      },
+      {
+        "from": {
+          "node": "value_1",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_1",
+          "port": "value"
+        }
+      },
+      {
+        "from": {
           "node": "value_1",
           "port": "value"
         },
@@ -158,6 +219,33 @@
     ]
   },
   "nodes": [
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "core.bang-button",
+      "version": "0.1.0",
+      "displayName": "Bang Button",
+      "category": "Events",
+      "ports": [
+        {
+          "id": "bang",
+          "direction": "output",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          }
+        }
+      ],
+      "execution": {
+        "model": "event"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
@@ -207,6 +295,40 @@
             "flow": "value",
             "dataKind": "number.f32"
           }
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "core.target",
+      "version": "0.1.0",
+      "displayName": "Value Target",
+      "category": "Values",
+      "ports": [
+        {
+          "id": "value",
+          "direction": "input",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32",
+            "range": {
+              "min": 0,
+              "max": 1,
+              "step": 0.01
+            }
+          },
+          "required": true,
+          "activation": "latched"
         }
       ],
       "execution": {
