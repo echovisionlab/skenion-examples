@@ -1,33 +1,11 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "core.toggle",
+  "id": "core.message",
   "version": "0.1.0",
-  "displayName": "Toggle",
-  "category": "Values",
+  "displayName": "Message",
+  "category": "Control",
   "ports": [
-    {
-      "id": "in",
-      "direction": "input",
-      "label": "In",
-      "type": {
-        "flow": "value",
-        "dataKind": "boolean"
-      },
-      "required": false,
-      "activation": "trigger"
-    },
-    {
-      "id": "set",
-      "direction": "input",
-      "label": "Set",
-      "type": {
-        "flow": "value",
-        "dataKind": "boolean"
-      },
-      "required": false,
-      "activation": "latched"
-    },
     {
       "id": "bang",
       "direction": "input",
@@ -45,12 +23,12 @@
       "label": "Value",
       "type": {
         "flow": "value",
-        "dataKind": "boolean"
+        "dataKind": "string"
       }
     }
   ],
   "execution": {
-    "model": "value"
+    "model": "event"
   },
   "state": {
     "persistent": false

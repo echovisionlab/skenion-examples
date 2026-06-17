@@ -50,11 +50,18 @@ shader output into `render.output:in`. Its WGSL source matches the current
 48-byte Runtime uniform buffer layout.
 
 Typed value nodes are stateful control nodes. `core.value-f32`,
-`core.value-i32`, `core.value-bool`, and `core.color-rgba` expose `in`, `set`,
-`bang`, and `value` ports. The `value-semantics-demo.project.json` payload wires
-`core.bang-button:bang` into `core.value-f32:bang`, routes `core.value-f32:value`
-to both `core.target:value` and `render.fullscreen-shader:u_value`, and keeps
-runtime control events separate from graph patches.
+`core.value-i32`, `core.value-bool`, `core.color-rgba`, and `core.string` expose
+`in`, `set`, `bang`, and `value` ports. `core.toggle` has the same boolean
+surface, but `bang` flips the stored value before emitting. The
+`value-semantics-demo.project.json` payload wires `core.bang-button:bang` into
+`core.value-f32:bang`, routes `core.value-f32:value` to both
+`core.target:value` and `render.fullscreen-shader:u_value`, and keeps runtime
+control events separate from graph patches.
+
+The `control-layer-demo.project.json` payload covers the non-render control
+surface: `core.toggle`, `core.string`, `core.message`, and `core.comment`.
+`core.message` is intentionally a simple string message box in v0.1, and
+`core.comment` is a persisted annotation with no runtime behavior.
 
 Built-in node manifests whose IDs appear in
 `skenion-contracts/builtins/v0.1/builtins.manifest.json` must stay structurally
@@ -90,6 +97,12 @@ Runtime typed value semantics smoke checks use
 `scripts/smoke-runtime-value-semantics.sh`. The script loads the value semantics
 demo project, dispatches `/v0/session/control/event` requests to `set`, `bang`,
 and `in`, validates emitted values, and reads `/v0/session/control/state`.
+
+Runtime control layer smoke checks use
+`scripts/smoke-runtime-control-layer.sh`. The script first verifies typed F32
+set/bang/in behavior and `/v0/session/control/read`, then loads the control
+layer demo project to verify toggle flip semantics, string set/in/bang behavior,
+message bang output, comment param reads, and port reads.
 
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit

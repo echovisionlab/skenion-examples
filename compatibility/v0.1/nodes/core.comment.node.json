@@ -1,0 +1,17 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.comment",
+  "version": "0.1.0",
+  "displayName": "Comment",
+  "category": "Control",
+  "ports": [],
+  "execution": {
+    "model": "value"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}
