@@ -97,6 +97,8 @@ const compatibilityDocumentFiles = compatibilityFiles.filter((file) => !file.inc
 const validCompatibilityDocumentFiles = compatibilityDocumentFiles.filter((file) => !file.includes(`${path.sep}invalid${path.sep}`));
 const invalidCompatibilityDocumentFiles = compatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`) && file.includes(`${path.sep}v0.2${path.sep}`));
 const documentValidCompatibilityFiles = compatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`) && file.includes(`${path.sep}v0.1${path.sep}`));
+const tutorialManifestFile = path.join(root, "tutorials/v0.1/tutorials.manifest.json");
+const tutorialManifest = await readJson(tutorialManifestFile);
 const failures = [];
 
 for (const file of validFiles) {
@@ -145,6 +147,69 @@ for (const file of invalidPatchFiles) {
   }
 }
 
+if (tutorialManifest.schema !== "skenion.examples.tutorials.manifest") {
+  failures.push(`${tutorialManifestFile}: expected schema skenion.examples.tutorials.manifest`);
+}
+if (tutorialManifest.schemaVersion !== "0.1.0") {
+  failures.push(`${tutorialManifestFile}: expected schemaVersion 0.1.0`);
+}
+if (!Array.isArray(tutorialManifest.tutorials) || tutorialManifest.tutorials.length === 0) {
+  failures.push(`${tutorialManifestFile}: tutorials must be a non-empty array`);
+}
+const tutorialIds = new Set();
+for (const [index, tutorial] of (tutorialManifest.tutorials ?? []).entries()) {
+  if (typeof tutorial.id !== "string" || tutorial.id.length === 0) {
+    failures.push(`${tutorialManifestFile}: tutorials[${index}].id must be a non-empty string`);
+    continue;
+  }
+  if (tutorialIds.has(tutorial.id)) {
+    failures.push(`${tutorialManifestFile}: duplicate tutorial id ${tutorial.id}`);
+  }
+  tutorialIds.add(tutorial.id);
+  if (typeof tutorial.title !== "string" || tutorial.title.length === 0) {
+    failures.push(`${tutorialManifestFile}: ${tutorial.id} title must be a non-empty string`);
+  }
+  if (typeof tutorial.description !== "string" || tutorial.description.length === 0) {
+    failures.push(`${tutorialManifestFile}: ${tutorial.id} description must be a non-empty string`);
+  }
+  if (!Array.isArray(tutorial.tags) || tutorial.tags.length === 0) {
+    failures.push(`${tutorialManifestFile}: ${tutorial.id} tags must be a non-empty array`);
+  }
+  if (typeof tutorial.path !== "string" || tutorial.path.length === 0) {
+    failures.push(`${tutorialManifestFile}: ${tutorial.id} path must be a non-empty string`);
+    continue;
+  }
+  const tutorialFile = path.join(root, tutorial.path);
+  const tutorialGraph = await readJson(tutorialFile);
+  const result = validateDocument(tutorialFile, tutorialGraph, contracts);
+  if (!result.ok) {
+    failures.push(`${tutorialFile}: expected valid tutorial graph, got ${result.errors.join("; ")}`);
+  }
+  if (!(tutorialGraph.nodes ?? []).some((node) => node.kind === "core.comment")) {
+    failures.push(`${tutorialFile}: tutorial graph must include at least one core.comment node`);
+  }
+  for (const helpNodeId of tutorial.helpNodeIds ?? []) {
+    if (!contracts.getBuiltinNodeHelp(helpNodeId)) {
+      failures.push(`${tutorialManifestFile}: ${tutorial.id} references missing help ${helpNodeId}`);
+    }
+    if (!contracts.getBuiltinNodeHelpGraph(helpNodeId)) {
+      failures.push(`${tutorialManifestFile}: ${tutorial.id} references missing help graph ${helpNodeId}`);
+    }
+  }
+
+  const shaderSources = (tutorialGraph.nodes ?? [])
+    .filter((node) => node.kind === "render.fullscreen-shader")
+    .map((node) => node.params?.source ?? "");
+  const diagnostics = shaderSources.flatMap((source) => (
+    contracts.analyzeShaderInterfaceV01(source, { language: "wgsl" }).diagnostics.map((diagnostic) => diagnostic.code)
+  ));
+  for (const expectedDiagnostic of tutorial.expectedDiagnostics ?? []) {
+    if (!diagnostics.includes(expectedDiagnostic)) {
+      failures.push(`${tutorialFile}: expected shader diagnostic ${expectedDiagnostic}, got ${diagnostics.join(", ") || "<none>"}`);
+    }
+  }
+}
+
 if (failures.length > 0) {
   for (const failure of failures) {
     console.error(failure);
@@ -153,5 +218,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${validPatchFiles.length} valid patches, and ${invalidPatchFiles.length} invalid patches with @skenion/contracts`
+  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
 );

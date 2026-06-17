@@ -1,0 +1,72 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "tutorial-shader-diagnostics",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "note_1",
+      "kind": "core.comment",
+      "kindVersion": "0.1.0",
+      "params": {
+        "text": "This shader intentionally uses an unsupported uniform type so diagnostics can point at the annotation."
+      },
+      "ports": []
+    },
+    {
+      "id": "shader_1",
+      "kind": "render.fullscreen-shader",
+      "kindVersion": "0.1.0",
+      "params": {
+        "language": "wgsl",
+        "source": "// @skenion.uniform speed vec3 default=0\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  return vec4<f32>(1.0, 0.0, 0.0, 1.0);\n}"
+      },
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "label": "Out",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          }
+        }
+      ]
+    },
+    {
+      "id": "output_1",
+      "kind": "render.output",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          },
+          "required": true,
+          "activation": "latched"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "shader_1",
+        "port": "out"
+      },
+      "to": {
+        "node": "output_1",
+        "port": "in"
+      }
+    }
+  ]
+}
