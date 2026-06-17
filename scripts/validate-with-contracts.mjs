@@ -169,6 +169,12 @@ for (const [index, tutorial] of (tutorialManifest.tutorials ?? []).entries()) {
   if (typeof tutorial.title !== "string" || tutorial.title.length === 0) {
     failures.push(`${tutorialManifestFile}: ${tutorial.id} title must be a non-empty string`);
   }
+  if (typeof tutorial.description !== "string" || tutorial.description.length === 0) {
+    failures.push(`${tutorialManifestFile}: ${tutorial.id} description must be a non-empty string`);
+  }
+  if (!Array.isArray(tutorial.tags) || tutorial.tags.length === 0) {
+    failures.push(`${tutorialManifestFile}: ${tutorial.id} tags must be a non-empty array`);
+  }
   if (typeof tutorial.path !== "string" || tutorial.path.length === 0) {
     failures.push(`${tutorialManifestFile}: ${tutorial.id} path must be a non-empty string`);
     continue;
@@ -178,6 +184,9 @@ for (const [index, tutorial] of (tutorialManifest.tutorials ?? []).entries()) {
   const result = validateDocument(tutorialFile, tutorialGraph, contracts);
   if (!result.ok) {
     failures.push(`${tutorialFile}: expected valid tutorial graph, got ${result.errors.join("; ")}`);
+  }
+  if (!(tutorialGraph.nodes ?? []).some((node) => node.kind === "core.comment")) {
+    failures.push(`${tutorialFile}: tutorial graph must include at least one core.comment node`);
   }
   for (const helpNodeId of tutorial.helpNodeIds ?? []) {
     if (!contracts.getBuiltinNodeHelp(helpNodeId)) {
