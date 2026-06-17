@@ -1,0 +1,38 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.receive-f32",
+  "version": "0.1.0",
+  "displayName": "Receive F32",
+  "category": "Routing",
+  "ports": [
+    {
+      "id": "bang",
+      "direction": "input",
+      "label": "Bang",
+      "type": {
+        "flow": "event",
+        "dataKind": "event.bang"
+      },
+      "required": false,
+      "activation": "trigger"
+    },
+    {
+      "id": "value",
+      "direction": "output",
+      "label": "F32",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.f32"
+      }
+    }
+  ],
+  "execution": {
+    "model": "value"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}

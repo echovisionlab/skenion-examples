@@ -1,0 +1,38 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.receive-bool",
+  "version": "0.1.0",
+  "displayName": "Receive Bool",
+  "category": "Routing",
+  "ports": [
+    {
+      "id": "bang",
+      "direction": "input",
+      "label": "Bang",
+      "type": {
+        "flow": "event",
+        "dataKind": "event.bang"
+      },
+      "required": false,
+      "activation": "trigger"
+    },
+    {
+      "id": "value",
+      "direction": "output",
+      "label": "Bool",
+      "type": {
+        "flow": "value",
+        "dataKind": "boolean"
+      }
+    }
+  ],
+  "execution": {
+    "model": "value"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}
