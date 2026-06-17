@@ -107,6 +107,13 @@ set/bang/in behavior and `/v0/session/control/read`, then loads the control
 layer demo project to verify toggle flip semantics, string set/in/bang behavior,
 message bang output, comment param reads, and port reads.
 
+Runtime live control preview smoke checks use
+`scripts/smoke-runtime-live-control-preview.sh`. The script loads the
+send/receive panel project, starts dry-run preview, dispatches UI slider and
+toggle control events, and verifies that typed channel state and preview
+telemetry report matching control revisions without marking the graph preview
+stale.
+
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
 converter or processing nodes.
