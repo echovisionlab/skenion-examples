@@ -59,6 +59,25 @@
         "render.output"
       ],
       "tags": ["control", "routing", "panel", "shader"]
+    },
+    {
+      "id": "performance-mode",
+      "title": "Performance Mode",
+      "summary": "Use project view state to present ui.* controls without editing the graph.",
+      "description": "Shows how to open a project, switch to Performance Mode, load the current graph into Runtime, start preview, and send live slider/toggle control events without creating graph patches.",
+      "path": "tutorials/v0.1/06-performance-mode.project.json",
+      "projectPath": "projects/v0.1/performance-mode.skenion.json",
+      "helpNodeIds": [
+        "ui.slider-f32",
+        "ui.toggle",
+        "core.send-f32",
+        "core.receive-f32",
+        "core.send-bool",
+        "core.receive-bool",
+        "render.fullscreen-shader",
+        "render.output"
+      ],
+      "tags": ["performance", "control", "project", "shader"]
     }
   ]
 }

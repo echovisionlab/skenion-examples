@@ -1,0 +1,349 @@
+{
+  "schema": "skenion.project",
+  "schemaVersion": "0.1.0",
+  "id": "performance-mode",
+  "revision": "1",
+  "metadata": {
+    "title": "Performance Mode",
+    "description": "Full Skenion project showing ui.* controls as a Performance Mode control surface.",
+    "createdAt": "2026-06-17T00:00:00.000Z",
+    "updatedAt": "2026-06-17T00:00:00.000Z"
+  },
+  "graph": {
+    "schema": "skenion.graph",
+    "schemaVersion": "0.1.0",
+    "id": "performance-mode",
+    "revision": "1",
+    "nodes": [
+      {
+        "id": "comment_1",
+        "kind": "core.comment",
+        "kindVersion": "0.1.0",
+        "params": {
+          "text": "Open this project, switch to Performance Mode, load the current graph into Runtime, start preview, then move Speed and Enabled controls. Performance controls send runtime control events and do not create graph patches."
+        },
+        "ports": []
+      },
+      {
+        "id": "slider_speed",
+        "kind": "ui.slider-f32",
+        "kindVersion": "0.1.0",
+        "params": {
+          "label": "Speed",
+          "value": 0.75,
+          "min": 0,
+          "max": 2,
+          "step": 0.01
+        },
+        "ports": [
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32"
+            }
+          }
+        ]
+      },
+      {
+        "id": "send_speed",
+        "kind": "core.send-f32",
+        "kindVersion": "0.1.0",
+        "params": {
+          "name": "speed"
+        },
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32"
+            },
+            "required": true,
+            "activation": "trigger"
+          }
+        ]
+      },
+      {
+        "id": "receive_speed",
+        "kind": "core.receive-f32",
+        "kindVersion": "0.1.0",
+        "params": {
+          "name": "speed",
+          "default": 0.75
+        },
+        "ports": [
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "F32",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32"
+            }
+          }
+        ]
+      },
+      {
+        "id": "toggle_enabled",
+        "kind": "ui.toggle",
+        "kindVersion": "0.1.0",
+        "params": {
+          "label": "Enabled",
+          "value": true
+        },
+        "ports": [
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "boolean"
+            }
+          }
+        ]
+      },
+      {
+        "id": "send_enabled",
+        "kind": "core.send-bool",
+        "kindVersion": "0.1.0",
+        "params": {
+          "name": "enabled"
+        },
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "boolean"
+            },
+            "required": true,
+            "activation": "trigger"
+          }
+        ]
+      },
+      {
+        "id": "receive_enabled",
+        "kind": "core.receive-bool",
+        "kindVersion": "0.1.0",
+        "params": {
+          "name": "enabled",
+          "default": true
+        },
+        "ports": [
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Bool",
+            "type": {
+              "flow": "value",
+              "dataKind": "boolean"
+            }
+          }
+        ]
+      },
+      {
+        "id": "shader_1",
+        "kind": "render.fullscreen-shader",
+        "kindVersion": "0.1.0",
+        "params": {
+          "language": "wgsl",
+          "source": "// @skenion.uniform speed number.f32 default=0.75 min=0 max=2 step=0.01\n// @skenion.uniform enabled boolean default=true\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let pulse = 0.5 + 0.5 * sin(skenion.time * skenion.speed);\n  let active = vec4<f32>(pulse, skenion.speed / 2.0, 1.0 - pulse, 1.0);\n  return select(vec4<f32>(0.04, 0.04, 0.04, 1.0), active, sk_bool(skenion.enabled));\n}"
+        },
+        "ports": [
+          {
+            "id": "speed",
+            "direction": "input",
+            "label": "Speed",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32",
+              "range": {
+                "min": 0,
+                "max": 2,
+                "step": 0.01
+              }
+            },
+            "required": false,
+            "activation": "latched",
+            "default": 0.75
+          },
+          {
+            "id": "enabled",
+            "direction": "input",
+            "label": "Enabled",
+            "type": {
+              "flow": "value",
+              "dataKind": "boolean"
+            },
+            "required": false,
+            "activation": "latched",
+            "default": true
+          },
+          {
+            "id": "out",
+            "direction": "output",
+            "label": "Out",
+            "type": {
+              "flow": "resource",
+              "dataKind": "gpu.texture2d",
+              "format": "rgba8unorm",
+              "colorSpace": "srgb"
+            }
+          }
+        ]
+      },
+      {
+        "id": "output_1",
+        "kind": "render.output",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "resource",
+              "dataKind": "gpu.texture2d",
+              "format": "rgba8unorm",
+              "colorSpace": "srgb"
+            },
+            "required": true,
+            "activation": "latched"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": {
+          "node": "slider_speed",
+          "port": "value"
+        },
+        "to": {
+          "node": "send_speed",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "receive_speed",
+          "port": "value"
+        },
+        "to": {
+          "node": "shader_1",
+          "port": "speed"
+        }
+      },
+      {
+        "from": {
+          "node": "toggle_enabled",
+          "port": "value"
+        },
+        "to": {
+          "node": "send_enabled",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "receive_enabled",
+          "port": "value"
+        },
+        "to": {
+          "node": "shader_1",
+          "port": "enabled"
+        }
+      },
+      {
+        "from": {
+          "node": "shader_1",
+          "port": "out"
+        },
+        "to": {
+          "node": "output_1",
+          "port": "in"
+        }
+      }
+    ]
+  },
+  "viewState": {
+    "schema": "skenion.view-state",
+    "schemaVersion": "0.1.0",
+    "canvas": {
+      "nodes": {
+        "comment_1": {
+          "x": 96,
+          "y": 96
+        },
+        "slider_speed": {
+          "x": 96,
+          "y": 96
+        },
+        "send_speed": {
+          "x": 376,
+          "y": 96
+        },
+        "receive_speed": {
+          "x": 656,
+          "y": 96
+        },
+        "toggle_enabled": {
+          "x": 96,
+          "y": 296
+        },
+        "send_enabled": {
+          "x": 376,
+          "y": 296
+        },
+        "receive_enabled": {
+          "x": 656,
+          "y": 296
+        },
+        "shader_1": {
+          "x": 936,
+          "y": 196
+        },
+        "output_1": {
+          "x": 1216,
+          "y": 196
+        }
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  }
+}
