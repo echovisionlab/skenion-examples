@@ -43,11 +43,12 @@ The `fullscreen-shader-uniform.project.json` payload connects
 shader output into `render.output:in`. Its WGSL source uses explicit padding to
 match the current 32-byte Runtime uniform buffer layout.
 
-Built-in node manifests whose IDs match `skenion-contracts/builtins/v0.1/nodes`
-must stay structurally identical to the contracts builtins. Run
+Built-in node manifests whose IDs appear in
+`skenion-contracts/builtins/v0.1/builtins.manifest.json` must stay structurally
+identical to the contracts builtins. Run
 `node scripts/audit-node-conventions.mjs` from the repository root to check
 manifest copies, valid graph node snapshots, patch add-node snapshots, and
-canonical dataKind spelling.
+canonical dataKind spelling derived from the contracts manifest.
 
 The `render.output` node fixture selects the final preview surface. Render
 projects should explicitly connect `render.clear-color:out` or
