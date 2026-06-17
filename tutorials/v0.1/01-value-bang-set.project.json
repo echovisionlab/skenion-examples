@@ -1,0 +1,127 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "tutorial-value-bang-set",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "note_1",
+      "kind": "core.comment",
+      "kindVersion": "0.1.0",
+      "params": {
+        "text": "set updates silently, bang emits the current value, and in updates plus emits."
+      },
+      "ports": []
+    },
+    {
+      "id": "bang_1",
+      "kind": "core.bang-button",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "bang",
+          "direction": "output",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          }
+        }
+      ]
+    },
+    {
+      "id": "value_1",
+      "kind": "core.value-f32",
+      "kindVersion": "0.1.0",
+      "params": {
+        "value": 32
+      },
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          }
+        }
+      ]
+    },
+    {
+      "id": "target_1",
+      "kind": "core.target",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "value",
+          "direction": "input",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "required": true,
+          "activation": "latched"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "bang_1",
+        "port": "bang"
+      },
+      "to": {
+        "node": "value_1",
+        "port": "bang"
+      }
+    },
+    {
+      "from": {
+        "node": "value_1",
+        "port": "value"
+      },
+      "to": {
+        "node": "target_1",
+        "port": "value"
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "skenion.examples.tutorials.manifest",
+  "schemaVersion": "0.1.0",
+  "tutorials": [
+    {
+      "id": "value-bang-set",
+      "title": "Value, Bang, and Set",
+      "summary": "Learn Max-style value node control semantics.",
+      "path": "tutorials/v0.1/01-value-bang-set.project.json",
+      "helpNodeIds": ["core.value-f32", "core.bang-button", "core.target"],
+      "tags": ["control", "value"]
+    },
+    {
+      "id": "toggle-message-string",
+      "title": "Toggle, Message, and String",
+      "summary": "Compare stateful values with event-triggered messages.",
+      "path": "tutorials/v0.1/02-toggle-message-string.project.json",
+      "helpNodeIds": ["core.toggle", "core.message", "core.string"],
+      "tags": ["control", "event", "text"]
+    },
+    {
+      "id": "dynamic-shader-inputs",
+      "title": "Dynamic Shader Inputs",
+      "summary": "Connect typed value nodes to annotation-generated shader inputs.",
+      "path": "tutorials/v0.1/03-dynamic-shader-inputs.project.json",
+      "helpNodeIds": ["render.fullscreen-shader", "core.value-f32", "core.color-rgba", "render.output"],
+      "tags": ["shader", "render"]
+    },
+    {
+      "id": "shader-diagnostics",
+      "title": "Shader Diagnostics",
+      "summary": "Inspect a shader with an intentional annotation error.",
+      "path": "tutorials/v0.1/04-shader-diagnostics.project.json",
+      "helpNodeIds": ["render.fullscreen-shader", "render.output"],
+      "tags": ["shader", "diagnostics"],
+      "expectedDiagnostics": ["unsupported-uniform-type"]
+    }
+  ]
+}

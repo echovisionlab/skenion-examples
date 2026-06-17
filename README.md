@@ -91,6 +91,16 @@ Runtime typed value semantics smoke checks live in
 `set` updates without emitting, `bang` emits the stored value, and `in` updates
 and emits.
 
+## Tutorials
+
+Learning-oriented tutorial graphs live under `tutorials/v0.1`. They are
+readable `skenion.graph` documents rather than runtime payload fixtures, so
+Studio can open them directly as example patches. `tutorials.manifest.json`
+indexes tutorial title, summary, help node ids, tags, and expected diagnostics.
+
+Compatibility fixtures prove cross-repo contracts. Tutorial graphs teach patch
+authoring and are validated against the same contracts package.
+
 Run local validation with:
 
 ```sh
