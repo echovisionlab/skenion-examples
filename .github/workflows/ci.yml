@@ -75,3 +75,8 @@ jobs:
           else
             echo "runtime does not support shader diagnostics endpoint yet"
           fi
+          if python3 -c 'import json, sys; r=json.loads(sys.argv[1]); sys.exit(0 if "session.control.channels" in r.get("capabilities", []) else 1)' "${INFO}"; then
+            SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-send-receive-panel.sh
+          else
+            echo "runtime does not support typed control channels yet"
+          fi

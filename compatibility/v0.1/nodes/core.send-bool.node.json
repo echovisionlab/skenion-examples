@@ -1,0 +1,29 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.send-bool",
+  "version": "0.1.0",
+  "displayName": "Send Bool",
+  "category": "Routing",
+  "ports": [
+    {
+      "id": "in",
+      "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "value",
+        "dataKind": "boolean"
+      },
+      "required": true,
+      "activation": "trigger"
+    }
+  ],
+  "execution": {
+    "model": "value"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}
