@@ -8,6 +8,7 @@
       "summary": "Learn Max-style value node control semantics.",
       "description": "Shows how in, set, and bang change a stored value and when the value output emits.",
       "path": "tutorials/v0.1/01-value-bang-set.project.json",
+      "projectPath": "projects/v0.1/value-bang-set.skenion.json",
       "helpNodeIds": ["core.value-f32", "core.bang-button", "core.target"],
       "tags": ["control", "value"]
     },
@@ -26,6 +27,7 @@
       "summary": "Connect typed value nodes to annotation-generated shader inputs.",
       "description": "Uses shader annotations to expose typed inputs, then drives those inputs from value nodes.",
       "path": "tutorials/v0.1/03-dynamic-shader-inputs.project.json",
+      "projectPath": "projects/v0.1/dynamic-shader-interface.skenion.json",
       "helpNodeIds": ["render.fullscreen-shader", "core.value-f32", "core.color-rgba", "render.output"],
       "tags": ["shader", "render"]
     },
@@ -45,6 +47,7 @@
       "summary": "Route typed panel controls into shader uniforms through explicit named channels.",
       "description": "Shows ui.slider-f32 and ui.toggle writing typed send channels, receive nodes reading those channels, and a fullscreen shader consuming the resolved speed/enabled uniforms.",
       "path": "tutorials/v0.1/05-send-receive-panel-controls.project.json",
+      "projectPath": "projects/v0.1/send-receive-panel.skenion.json",
       "helpNodeIds": [
         "ui.slider-f32",
         "ui.toggle",

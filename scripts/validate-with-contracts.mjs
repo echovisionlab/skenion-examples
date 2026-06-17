@@ -75,6 +75,9 @@ function validateDocument(file, document, contracts) {
   if (document.schema === "skenion.graph.patch") {
     return contracts.validateGraphPatch(document);
   }
+  if (document.schema === "skenion.project") {
+    return contracts.validateProjectDocument(document);
+  }
 
   return {
     ok: false,
@@ -99,6 +102,7 @@ const invalidCompatibilityDocumentFiles = compatibilityDocumentFiles.filter((fil
 const documentValidCompatibilityFiles = compatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`) && file.includes(`${path.sep}v0.1${path.sep}`));
 const tutorialManifestFile = path.join(root, "tutorials/v0.1/tutorials.manifest.json");
 const tutorialManifest = await readJson(tutorialManifestFile);
+const projectDocumentFiles = (await walk(path.join(root, "projects"))).filter((file) => file.endsWith(".skenion.json"));
 const failures = [];
 
 for (const file of validFiles) {
@@ -144,6 +148,22 @@ for (const file of invalidPatchFiles) {
     }
   } else if (!result.ok) {
     failures.push(`${file}: expected schema-valid runtime-invalid graph patch, got ${result.errors.join("; ")}`);
+  }
+}
+
+for (const file of projectDocumentFiles) {
+  const project = await readJson(file);
+  const result = validateDocument(file, project, contracts);
+  if (!result.ok) {
+    failures.push(`${file}: expected valid project document, got ${result.errors.join("; ")}`);
+    continue;
+  }
+
+  const viewNodeIds = new Set(Object.keys(project.viewState?.canvas?.nodes ?? {}));
+  for (const node of project.graph?.nodes ?? []) {
+    if (!viewNodeIds.has(node.id)) {
+      failures.push(`${file}: viewState missing node ${node.id}`);
+    }
   }
 }
 
@@ -197,6 +217,19 @@ for (const [index, tutorial] of (tutorialManifest.tutorials ?? []).entries()) {
     }
   }
 
+  if (tutorial.projectPath !== undefined) {
+    if (typeof tutorial.projectPath !== "string" || tutorial.projectPath.length === 0) {
+      failures.push(`${tutorialManifestFile}: ${tutorial.id} projectPath must be a non-empty string`);
+    } else {
+      const projectFile = path.join(root, tutorial.projectPath);
+      const project = await readJson(projectFile);
+      const projectResult = validateDocument(projectFile, project, contracts);
+      if (!projectResult.ok) {
+        failures.push(`${projectFile}: expected valid tutorial project, got ${projectResult.errors.join("; ")}`);
+      }
+    }
+  }
+
   const shaderSources = (tutorialGraph.nodes ?? [])
     .filter((node) => node.kind === "render.fullscreen-shader")
     .map((node) => node.params?.source ?? "");
@@ -218,5 +251,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
+  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
 );
