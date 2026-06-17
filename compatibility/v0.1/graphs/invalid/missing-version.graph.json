@@ -11,12 +11,17 @@
       "params": {},
       "ports": [
         {
-          "id": "out",
+          "id": "value",
           "direction": "output",
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.f32",
+            "range": {
+              "min": 0,
+              "max": 1,
+              "step": 0.01
+            }
           }
         }
       ]

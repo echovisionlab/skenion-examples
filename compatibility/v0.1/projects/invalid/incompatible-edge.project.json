@@ -14,12 +14,17 @@
         },
         "ports": [
           {
-            "id": "out",
+            "id": "value",
             "direction": "output",
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.f32",
+              "range": {
+                "min": 0,
+                "max": 1,
+                "step": 0.01
+              }
             }
           }
         ]
@@ -47,7 +52,7 @@
       {
         "from": {
           "node": "value_1",
-          "port": "out"
+          "port": "value"
         },
         "to": {
           "node": "target_1",
@@ -62,16 +67,21 @@
       "schemaVersion": "0.1.0",
       "id": "core.value-f32",
       "version": "0.1.0",
-      "displayName": "Value F32",
-      "category": "Core",
+      "displayName": "Float Value",
+      "category": "Values",
       "ports": [
         {
-          "id": "out",
+          "id": "value",
           "direction": "output",
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.f32",
+            "range": {
+              "min": 0,
+              "max": 1,
+              "step": 0.01
+            }
           }
         }
       ],

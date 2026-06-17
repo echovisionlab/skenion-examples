@@ -36,6 +36,7 @@ jobs:
       - run: pnpm run build
         working-directory: .deps/skenion-contracts
       - run: node scripts/validate-with-contracts.mjs
+      - run: node scripts/audit-node-conventions.mjs
       - run: node scripts/validate-runtime-project-payloads.mjs
       - run: cargo test --manifest-path .deps/skenion-runtime/Cargo.toml --all-targets --all-features
       - run: bash scripts/validate-with-runtime.sh .deps/skenion-runtime

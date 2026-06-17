@@ -3,8 +3,8 @@
   "schemaVersion": "0.1.0",
   "id": "core.target",
   "version": "0.1.0",
-  "displayName": "Target",
-  "category": "Core",
+  "displayName": "Value Target",
+  "category": "Values",
   "ports": [
     {
       "id": "value",
@@ -12,19 +12,15 @@
       "label": "Value",
       "type": {
         "flow": "value",
-        "dataKind": "number.f32"
+        "dataKind": "number.f32",
+        "range": {
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        }
       },
+      "required": true,
       "activation": "latched"
-    },
-    {
-      "id": "bang",
-      "direction": "input",
-      "label": "Bang",
-      "type": {
-        "flow": "event",
-        "dataKind": "bang"
-      },
-      "activation": "trigger"
     }
   ],
   "execution": {

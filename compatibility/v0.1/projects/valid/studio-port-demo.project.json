@@ -14,7 +14,7 @@
         },
         "ports": [
           {
-            "id": "out",
+            "id": "value",
             "direction": "output",
             "label": "Value",
             "type": {
@@ -22,7 +22,8 @@
               "dataKind": "number.f32",
               "range": {
                 "min": 0,
-                "max": 1
+                "max": 1,
+                "step": 0.01
               }
             }
           }
@@ -40,19 +41,15 @@
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.f32",
+              "range": {
+                "min": 0,
+                "max": 1,
+                "step": 0.01
+              }
             },
+            "required": true,
             "activation": "latched"
-          },
-          {
-            "id": "bang",
-            "direction": "input",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "bang"
-            },
-            "activation": "trigger"
           }
         ]
       },
@@ -68,7 +65,7 @@
             "label": "Bang",
             "type": {
               "flow": "event",
-              "dataKind": "bang"
+              "dataKind": "event.bang"
             }
           }
         ]
@@ -85,8 +82,9 @@
             "label": "Bang",
             "type": {
               "flow": "event",
-              "dataKind": "bang"
+              "dataKind": "event.bang"
             },
+            "required": true,
             "activation": "trigger"
           }
         ]
@@ -100,6 +98,22 @@
           "source": "struct SkenionFrame {\n  resolution: vec2<f32>,\n  time: f32,\n  frame: u32,\n}\n\n@group(0) @binding(0)\nvar<uniform> skenion: SkenionFrame;\n\nstruct VertexOut {\n  @builtin(position) position: vec4<f32>,\n}\n\n@vertex\nfn vs_main(@builtin(vertex_index) vertex_index: u32) -> VertexOut {\n  var positions = array<vec2<f32>, 3>(\n    vec2<f32>(-1.0, -3.0),\n    vec2<f32>(-1.0,  1.0),\n    vec2<f32>( 3.0,  1.0)\n  );\n\n  var out: VertexOut;\n  out.position = vec4<f32>(positions[vertex_index], 0.0, 1.0);\n  return out;\n}\n\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let pulse = 0.5 + 0.5 * sin(skenion.time);\n  return vec4<f32>(pulse, 0.2, 0.8, 1.0);\n}"
         },
         "ports": [
+          {
+            "id": "u_value",
+            "direction": "input",
+            "label": "u_value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32",
+              "range": {
+                "min": 0,
+                "max": 1,
+                "step": 0.01
+              }
+            },
+            "required": false,
+            "activation": "latched"
+          },
           {
             "id": "out",
             "direction": "output",
@@ -129,6 +143,7 @@
               "format": "rgba8unorm",
               "colorSpace": "srgb"
             },
+            "required": true,
             "activation": "latched"
           }
         ]
@@ -138,7 +153,7 @@
       {
         "from": {
           "node": "value_1",
-          "port": "out"
+          "port": "value"
         },
         "to": {
           "node": "target_1",
@@ -173,11 +188,11 @@
       "schemaVersion": "0.1.0",
       "id": "core.value-f32",
       "version": "0.1.0",
-      "displayName": "Value F32",
-      "category": "Core",
+      "displayName": "Float Value",
+      "category": "Values",
       "ports": [
         {
-          "id": "out",
+          "id": "value",
           "direction": "output",
           "label": "Value",
           "type": {
@@ -185,7 +200,8 @@
             "dataKind": "number.f32",
             "range": {
               "min": 0,
-              "max": 1
+              "max": 1,
+              "step": 0.01
             }
           }
         }
@@ -204,8 +220,8 @@
       "schemaVersion": "0.1.0",
       "id": "core.target",
       "version": "0.1.0",
-      "displayName": "Target",
-      "category": "Core",
+      "displayName": "Value Target",
+      "category": "Values",
       "ports": [
         {
           "id": "value",
@@ -213,19 +229,15 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.f32",
+            "range": {
+              "min": 0,
+              "max": 1,
+              "step": 0.01
+            }
           },
+          "required": true,
           "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "bang"
-          },
-          "activation": "trigger"
         }
       ],
       "execution": {
@@ -243,7 +255,7 @@
       "id": "core.bang-button",
       "version": "0.1.0",
       "displayName": "Bang Button",
-      "category": "Core",
+      "category": "Events",
       "ports": [
         {
           "id": "bang",
@@ -251,7 +263,7 @@
           "label": "Bang",
           "type": {
             "flow": "event",
-            "dataKind": "bang"
+            "dataKind": "event.bang"
           }
         }
       ],
@@ -270,7 +282,7 @@
       "id": "core.event-log",
       "version": "0.1.0",
       "displayName": "Event Log",
-      "category": "Core",
+      "category": "Events",
       "ports": [
         {
           "id": "bang",
@@ -278,8 +290,9 @@
           "label": "Bang",
           "type": {
             "flow": "event",
-            "dataKind": "bang"
+            "dataKind": "event.bang"
           },
+          "required": true,
           "activation": "trigger"
         }
       ],
@@ -300,6 +313,22 @@
       "displayName": "Fullscreen Shader",
       "category": "Render",
       "ports": [
+        {
+          "id": "u_value",
+          "direction": "input",
+          "label": "u_value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32",
+            "range": {
+              "min": 0,
+              "max": 1,
+              "step": 0.01
+            }
+          },
+          "required": false,
+          "activation": "latched"
+        },
         {
           "id": "out",
           "direction": "output",
@@ -342,6 +371,7 @@
             "format": "rgba8unorm",
             "colorSpace": "srgb"
           },
+          "required": true,
           "activation": "latched"
         }
       ],

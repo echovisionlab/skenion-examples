@@ -36,5 +36,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["video.decode"]
+  "capabilities": [
+    "video.decode"
+  ]
 }

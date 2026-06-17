@@ -5,46 +5,37 @@
   "revision": "1",
   "nodes": [
     {
-      "id": "button_1",
-      "kind": "core.button",
+      "id": "bang_1",
+      "kind": "core.bang-button",
       "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
-          "id": "pressed",
+          "id": "bang",
           "direction": "output",
-          "label": "Pressed",
+          "label": "Bang",
           "type": {
             "flow": "event",
-            "dataKind": "bang"
+            "dataKind": "event.bang"
           }
         }
       ]
     },
     {
-      "id": "target_1",
-      "kind": "core.target",
+      "id": "event_log_1",
+      "kind": "core.event-log",
       "kindVersion": "0.1.0",
       "params": {},
       "ports": [
-        {
-          "id": "value",
-          "direction": "input",
-          "label": "Value",
-          "type": {
-            "flow": "value",
-            "dataKind": "number.f32"
-          },
-          "activation": "latched"
-        },
         {
           "id": "bang",
           "direction": "input",
           "label": "Bang",
           "type": {
             "flow": "event",
-            "dataKind": "bang"
+            "dataKind": "event.bang"
           },
+          "required": true,
           "activation": "trigger"
         }
       ]
@@ -53,11 +44,11 @@
   "edges": [
     {
       "from": {
-        "node": "button_1",
-        "port": "pressed"
+        "node": "bang_1",
+        "port": "bang"
       },
       "to": {
-        "node": "target_1",
+        "node": "event_log_1",
         "port": "bang"
       }
     }

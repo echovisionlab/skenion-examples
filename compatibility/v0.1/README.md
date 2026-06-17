@@ -39,9 +39,15 @@ Runtimes should compile the WGSL source into a fullscreen triangle pass, expose
 `resolution`, `time`, optional `u_value`, and `frame` through the Skenion frame
 uniform, and report shader compile or render errors through preview telemetry.
 The `fullscreen-shader-uniform.project.json` payload connects
-`core.value-f32:out` to `render.fullscreen-shader:u_value` and then routes the
+`core.value-f32:value` to `render.fullscreen-shader:u_value` and then routes the
 shader output into `render.output:in`. Its WGSL source uses explicit padding to
 match the current 32-byte Runtime uniform buffer layout.
+
+Built-in node manifests whose IDs match `skenion-contracts/builtins/v0.1/nodes`
+must stay structurally identical to the contracts builtins. Run
+`node scripts/audit-node-conventions.mjs` from the repository root to check
+manifest copies, valid graph node snapshots, patch add-node snapshots, and
+canonical dataKind spelling.
 
 The `render.output` node fixture selects the final preview surface. Render
 projects should explicitly connect `render.clear-color:out` or

@@ -15,6 +15,22 @@
         },
         "ports": [
           {
+            "id": "u_value",
+            "direction": "input",
+            "label": "u_value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32",
+              "range": {
+                "min": 0,
+                "max": 1,
+                "step": 0.01
+              }
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
             "id": "out",
             "direction": "output",
             "label": "Out",
@@ -43,6 +59,7 @@
               "format": "rgba8unorm",
               "colorSpace": "srgb"
             },
+            "required": true,
             "activation": "latched"
           }
         ]
@@ -70,6 +87,22 @@
       "displayName": "Fullscreen Shader",
       "category": "Render",
       "ports": [
+        {
+          "id": "u_value",
+          "direction": "input",
+          "label": "u_value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32",
+            "range": {
+              "min": 0,
+              "max": 1,
+              "step": 0.01
+            }
+          },
+          "required": false,
+          "activation": "latched"
+        },
         {
           "id": "out",
           "direction": "output",
@@ -112,6 +145,7 @@
             "format": "rgba8unorm",
             "colorSpace": "srgb"
           },
+          "required": true,
           "activation": "latched"
         }
       ],

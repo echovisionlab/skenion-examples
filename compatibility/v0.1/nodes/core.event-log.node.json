@@ -4,7 +4,7 @@
   "id": "core.event-log",
   "version": "0.1.0",
   "displayName": "Event Log",
-  "category": "Core",
+  "category": "Events",
   "ports": [
     {
       "id": "bang",
@@ -12,8 +12,9 @@
       "label": "Bang",
       "type": {
         "flow": "event",
-        "dataKind": "bang"
+        "dataKind": "event.bang"
       },
+      "required": true,
       "activation": "trigger"
     }
   ],

@@ -10,7 +10,7 @@
       "edge": {
         "from": {
           "node": "value_1",
-          "port": "out"
+          "port": "value"
         },
         "to": {
           "node": "target_1",

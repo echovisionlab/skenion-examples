@@ -36,5 +36,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["gpu.texture.upload"]
+  "capabilities": [
+    "gpu.texture.upload"
+  ]
 }

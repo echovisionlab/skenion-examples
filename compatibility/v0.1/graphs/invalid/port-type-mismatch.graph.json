@@ -11,12 +11,12 @@
       "params": {},
       "ports": [
         {
-          "id": "out",
+          "id": "value",
           "direction": "output",
           "label": "Value",
           "type": {
             "flow": "event",
-            "dataKind": "bang"
+            "dataKind": "event.bang"
           }
         }
       ]

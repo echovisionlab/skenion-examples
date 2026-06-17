@@ -13,7 +13,7 @@
           0.05,
           0.08,
           0.12,
-          1.0
+          1
         ]
       },
       "ports": [
@@ -46,6 +46,7 @@
             "format": "rgba8unorm",
             "colorSpace": "srgb"
           },
+          "required": true,
           "activation": "latched"
         }
       ]
