@@ -49,6 +49,13 @@ The `fullscreen-shader-multi-uniform.project.json` payload connects two
 shader output into `render.output:in`. Its WGSL source matches the current
 48-byte Runtime uniform buffer layout.
 
+Typed value nodes are stateful control nodes. `core.value-f32`,
+`core.value-i32`, `core.value-bool`, and `core.color-rgba` expose `in`, `set`,
+`bang`, and `value` ports. The `value-semantics-demo.project.json` payload wires
+`core.bang-button:bang` into `core.value-f32:bang`, routes `core.value-f32:value`
+to both `core.target:value` and `render.fullscreen-shader:u_value`, and keeps
+runtime control events separate from graph patches.
+
 Built-in node manifests whose IDs appear in
 `skenion-contracts/builtins/v0.1/builtins.manifest.json` must stay structurally
 identical to the contracts builtins. Run
@@ -78,6 +85,11 @@ Runtime multi-uniform shader smoke checks use
 shader multi-uniform project, starts dry-run preview, patches `u_value2` and
 `u_color` through their connected value nodes, checks that preview becomes stale
 after each patch, and restarts preview.
+
+Runtime typed value semantics smoke checks use
+`scripts/smoke-runtime-value-semantics.sh`. The script loads the value semantics
+demo project, dispatches `/v0/session/control/event` requests to `set`, `bang`,
+and `in`, validates emitted values, and reads `/v0/session/control/state`.
 
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit

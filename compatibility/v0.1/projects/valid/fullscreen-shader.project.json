@@ -20,12 +20,7 @@
             "label": "u_value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32",
-              "range": {
-                "min": 0,
-                "max": 1,
-                "step": 0.01
-              }
+              "dataKind": "number.f32"
             },
             "required": false,
             "activation": "latched"
@@ -36,12 +31,7 @@
             "label": "u_value2",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32",
-              "range": {
-                "min": 0,
-                "max": 1,
-                "step": 0.01
-              }
+              "dataKind": "number.f32"
             },
             "required": false,
             "activation": "latched"
@@ -120,12 +110,7 @@
           "label": "u_value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32",
-            "range": {
-              "min": 0,
-              "max": 1,
-              "step": 0.01
-            }
+            "dataKind": "number.f32"
           },
           "required": false,
           "activation": "latched"
@@ -136,12 +121,7 @@
           "label": "u_value2",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32",
-            "range": {
-              "min": 0,
-              "max": 1,
-              "step": 0.01
-            }
+            "dataKind": "number.f32"
           },
           "required": false,
           "activation": "latched"
