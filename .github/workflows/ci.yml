@@ -31,6 +31,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: pnpm
+          cache-dependency-path: .deps/skenion-contracts/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
         working-directory: .deps/skenion-contracts
       - run: pnpm run build
@@ -41,6 +43,13 @@ jobs:
       - run: |
           mkdir -p .deps/skenion-runtime/.deps
           ln -sfn "${GITHUB_WORKSPACE}" .deps/skenion-runtime/.deps/skenion-examples
+      - run: rustup show
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: skenion-examples-runtime-rust
+          workspaces: .deps/skenion-runtime -> target
+          cache-all-crates: "true"
+          cache-on-failure: "true"
       - run: cargo test --manifest-path .deps/skenion-runtime/Cargo.toml --all-targets --all-features
       - run: bash scripts/validate-with-runtime.sh .deps/skenion-runtime
       - run: |
