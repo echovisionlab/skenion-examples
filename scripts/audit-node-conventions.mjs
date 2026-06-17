@@ -5,6 +5,7 @@ const root = process.cwd();
 const contractsDir = process.env.SKENION_CONTRACTS_DIR
   ?? path.join(root, ".deps/skenion-contracts");
 const builtinsDir = path.join(contractsDir, "builtins/v0.1/nodes");
+const builtinsManifestFile = path.join(contractsDir, "builtins/v0.1/builtins.manifest.json");
 const expectedProjectFixtures = [
   "clear-color-render.project.json",
   "event-bang.project.json",
@@ -60,6 +61,18 @@ function assertEqual(label, actual, expected) {
   }
 }
 
+function assertSetEqual(label, actual, expected) {
+  const actualOnly = [...actual].filter((value) => !expected.has(value)).sort();
+  const expectedOnly = [...expected].filter((value) => !actual.has(value)).sort();
+  if (actualOnly.length > 0 || expectedOnly.length > 0) {
+    const details = [
+      actualOnly.length > 0 ? `unexpected: ${actualOnly.join(", ")}` : null,
+      expectedOnly.length > 0 ? `missing: ${expectedOnly.join(", ")}` : null
+    ].filter(Boolean).join("; ");
+    fail(`${label}: ${details}`);
+  }
+}
+
 function collectDataKinds(value, out = []) {
   if (Array.isArray(value)) {
     for (const item of value) {
@@ -93,11 +106,28 @@ function graphEdges(document) {
 }
 
 const builtinFiles = await walk(builtinsDir);
+const builtinsManifest = await readJson(builtinsManifestFile);
+const expectedBuiltinIds = new Set(builtinsManifest.nodes ?? []);
+const canonicalDataKinds = new Set(builtinsManifest.canonicalDataKinds ?? []);
+if (builtinsManifest.schema !== "skenion.builtins.manifest") {
+  fail(`${builtinsManifestFile}: expected schema skenion.builtins.manifest`);
+}
+if (builtinsManifest.schemaVersion !== "0.1.0") {
+  fail(`${builtinsManifestFile}: expected schemaVersion 0.1.0`);
+}
+if (expectedBuiltinIds.size === 0) {
+  fail(`${builtinsManifestFile}: nodes must not be empty`);
+}
+if (canonicalDataKinds.size === 0) {
+  fail(`${builtinsManifestFile}: canonicalDataKinds must not be empty`);
+}
+
 const builtins = new Map();
 for (const file of builtinFiles) {
   const definition = await readJson(file);
   builtins.set(definition.id, definition);
 }
+assertSetEqual("contracts builtin manifest nodes", new Set(builtins.keys()), expectedBuiltinIds);
 
 for (const fixture of expectedProjectFixtures) {
   const file = path.join(root, "compatibility/v0.1/projects/valid", fixture);
@@ -112,11 +142,15 @@ const compatibilityFiles = [
 for (const file of compatibilityFiles) {
   const document = await readJson(file);
   const dataKinds = collectDataKinds(document);
-  if (dataKinds.includes("f32")) {
-    fail(`${file}: non-canonical dataKind f32 found; use number.f32`);
-  }
-  if (dataKinds.includes("bang")) {
-    fail(`${file}: non-canonical dataKind bang found; use event.bang`);
+  for (const dataKind of dataKinds) {
+    const numberCanonical = `number.${dataKind}`;
+    const eventCanonical = `event.${dataKind}`;
+    if (canonicalDataKinds.has(numberCanonical)) {
+      fail(`${file}: non-canonical dataKind ${dataKind} found; use ${numberCanonical}`);
+    }
+    if (canonicalDataKinds.has(eventCanonical)) {
+      fail(`${file}: non-canonical dataKind ${dataKind} found; use ${eventCanonical}`);
+    }
   }
 }
 

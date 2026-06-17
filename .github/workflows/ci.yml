@@ -38,6 +38,9 @@ jobs:
       - run: node scripts/validate-with-contracts.mjs
       - run: node scripts/audit-node-conventions.mjs
       - run: node scripts/validate-runtime-project-payloads.mjs
+      - run: |
+          mkdir -p .deps/skenion-runtime/.deps
+          ln -sfn "${GITHUB_WORKSPACE}" .deps/skenion-runtime/.deps/skenion-examples
       - run: cargo test --manifest-path .deps/skenion-runtime/Cargo.toml --all-targets --all-features
       - run: bash scripts/validate-with-runtime.sh .deps/skenion-runtime
       - run: |
