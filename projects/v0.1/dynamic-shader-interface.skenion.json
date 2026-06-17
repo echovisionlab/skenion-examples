@@ -1,0 +1,423 @@
+{
+  "schema": "skenion.project",
+  "schemaVersion": "0.1.0",
+  "id": "dynamic-shader-interface",
+  "revision": "1",
+  "metadata": {
+    "title": "Dynamic Shader Interface",
+    "description": "Full Skenion project for Dynamic Shader Interface.",
+    "createdAt": "2026-06-17T00:00:00.000Z",
+    "updatedAt": "2026-06-17T00:00:00.000Z"
+  },
+  "graph": {
+    "schema": "skenion.graph",
+    "schemaVersion": "0.1.0",
+    "id": "dynamic-shader-interface-graph",
+    "revision": "1",
+    "nodes": [
+      {
+        "id": "value_1",
+        "kind": "core.value-f32",
+        "kindVersion": "0.1.0",
+        "params": {
+          "value": 0.75
+        },
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32"
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32"
+            }
+          }
+        ]
+      },
+      {
+        "id": "enabled_1",
+        "kind": "core.value-bool",
+        "kindVersion": "0.1.0",
+        "params": {
+          "value": true
+        },
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "boolean"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "boolean"
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "boolean"
+            }
+          }
+        ]
+      },
+      {
+        "id": "iterations_1",
+        "kind": "core.value-i32",
+        "kindVersion": "0.1.0",
+        "params": {
+          "value": 8
+        },
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.i32"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.i32"
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.i32"
+            }
+          }
+        ]
+      },
+      {
+        "id": "tint_1",
+        "kind": "core.color-rgba",
+        "kindVersion": "0.1.0",
+        "params": {
+          "value": [
+            1,
+            0.2,
+            0.1,
+            1
+          ]
+        },
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "color.rgba"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "color.rgba"
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Color",
+            "type": {
+              "flow": "value",
+              "dataKind": "color.rgba"
+            }
+          }
+        ]
+      },
+      {
+        "id": "shader_1",
+        "kind": "render.fullscreen-shader",
+        "kindVersion": "0.1.0",
+        "params": {
+          "language": "wgsl",
+          "source": "// @skenion.uniform speed number.f32 default=0.5 min=0 max=2 step=0.01\n// @skenion.uniform enabled boolean default=true\n// @skenion.uniform iterations number.i32 default=8\n// @skenion.uniform tint color.rgba default=[1,0.2,0.1,1]\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let enabled = sk_bool(skenion.enabled);\n  let bands = max(f32(skenion.iterations), 1.0);\n  let pulse = 0.5 + 0.5 * sin(skenion.time * skenion.speed + bands * 0.05);\n  let base = vec4<f32>(pulse, skenion.speed / 2.0, 1.0 - pulse, 1.0) * skenion.tint;\n  return select(vec4<f32>(0.02, 0.02, 0.02, 1.0), base, enabled);\n}"
+        },
+        "ports": [
+          {
+            "id": "speed",
+            "direction": "input",
+            "label": "Speed",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.f32",
+              "range": {
+                "min": 0,
+                "max": 2,
+                "step": 0.01
+              }
+            },
+            "required": false,
+            "activation": "latched",
+            "default": 0.5
+          },
+          {
+            "id": "enabled",
+            "direction": "input",
+            "label": "Enabled",
+            "type": {
+              "flow": "value",
+              "dataKind": "boolean"
+            },
+            "required": false,
+            "activation": "latched",
+            "default": true
+          },
+          {
+            "id": "iterations",
+            "direction": "input",
+            "label": "Iterations",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.i32"
+            },
+            "required": false,
+            "activation": "latched",
+            "default": 8
+          },
+          {
+            "id": "tint",
+            "direction": "input",
+            "label": "Tint",
+            "type": {
+              "flow": "value",
+              "dataKind": "color.rgba"
+            },
+            "required": false,
+            "activation": "latched",
+            "default": [
+              1,
+              0.2,
+              0.1,
+              1
+            ]
+          },
+          {
+            "id": "out",
+            "direction": "output",
+            "label": "Out",
+            "type": {
+              "flow": "resource",
+              "dataKind": "gpu.texture2d",
+              "format": "rgba8unorm",
+              "colorSpace": "srgb"
+            }
+          }
+        ]
+      },
+      {
+        "id": "output_1",
+        "kind": "render.output",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "resource",
+              "dataKind": "gpu.texture2d",
+              "format": "rgba8unorm",
+              "colorSpace": "srgb"
+            },
+            "required": true,
+            "activation": "latched"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": {
+          "node": "value_1",
+          "port": "value"
+        },
+        "to": {
+          "node": "shader_1",
+          "port": "speed"
+        }
+      },
+      {
+        "from": {
+          "node": "enabled_1",
+          "port": "value"
+        },
+        "to": {
+          "node": "shader_1",
+          "port": "enabled"
+        }
+      },
+      {
+        "from": {
+          "node": "iterations_1",
+          "port": "value"
+        },
+        "to": {
+          "node": "shader_1",
+          "port": "iterations"
+        }
+      },
+      {
+        "from": {
+          "node": "tint_1",
+          "port": "value"
+        },
+        "to": {
+          "node": "shader_1",
+          "port": "tint"
+        }
+      },
+      {
+        "from": {
+          "node": "shader_1",
+          "port": "out"
+        },
+        "to": {
+          "node": "output_1",
+          "port": "in"
+        }
+      }
+    ]
+  },
+  "viewState": {
+    "schema": "skenion.view-state",
+    "schemaVersion": "0.1.0",
+    "canvas": {
+      "nodes": {
+        "value_1": {
+          "x": 96,
+          "y": 96
+        },
+        "enabled_1": {
+          "x": 376,
+          "y": 96
+        },
+        "iterations_1": {
+          "x": 656,
+          "y": 96
+        },
+        "tint_1": {
+          "x": 936,
+          "y": 96
+        },
+        "shader_1": {
+          "x": 96,
+          "y": 276
+        },
+        "output_1": {
+          "x": 376,
+          "y": 276
+        }
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  }
+}
