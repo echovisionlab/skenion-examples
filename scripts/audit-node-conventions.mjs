@@ -8,6 +8,7 @@ const builtinsDir = path.join(contractsDir, "builtins/v0.1/nodes");
 const builtinsManifestFile = path.join(contractsDir, "builtins/v0.1/builtins.manifest.json");
 const expectedProjectFixtures = [
   "clear-color-render.project.json",
+  "control-layer-demo.project.json",
   "event-bang.project.json",
   "fullscreen-shader.project.json",
   "fullscreen-shader-multi-uniform.project.json",

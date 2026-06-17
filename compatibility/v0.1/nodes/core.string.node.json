@@ -1,9 +1,9 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "core.toggle",
+  "id": "core.string",
   "version": "0.1.0",
-  "displayName": "Toggle",
+  "displayName": "String",
   "category": "Values",
   "ports": [
     {
@@ -12,7 +12,7 @@
       "label": "In",
       "type": {
         "flow": "value",
-        "dataKind": "boolean"
+        "dataKind": "string"
       },
       "required": false,
       "activation": "trigger"
@@ -23,7 +23,7 @@
       "label": "Set",
       "type": {
         "flow": "value",
-        "dataKind": "boolean"
+        "dataKind": "string"
       },
       "required": false,
       "activation": "latched"
@@ -45,7 +45,7 @@
       "label": "Value",
       "type": {
         "flow": "value",
-        "dataKind": "boolean"
+        "dataKind": "string"
       }
     }
   ],
