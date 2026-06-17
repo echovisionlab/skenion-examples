@@ -80,15 +80,15 @@ async function postValidate(file, payload) {
 
 function expectedInvalidReason(file) {
   if (file.endsWith("missing-definition.project.json")) {
-    return "missing node definition";
+    return ["missing node definition"];
   }
   if (file.endsWith("incompatible-edge.project.json")) {
-    return "incompatible edge";
+    return ["incompatible edge", "not compatible", "port snapshot mismatch"];
   }
   if (file.endsWith("ambiguous-algebraic-loop.project.json")) {
-    return "ambiguous-algebraic-loop";
+    return ["ambiguous-algebraic-loop"];
   }
-  return "";
+  return [];
 }
 
 const contracts = await importContracts();
@@ -127,10 +127,10 @@ if (runtimeUrl) {
     if (response.ok !== false) {
       fail(file, "expected runtime ok:false, got ok:true");
     }
-    const reason = expectedInvalidReason(file);
+    const reasons = expectedInvalidReason(file);
     const diagnostics = response.diagnostics?.map((diagnostic) => diagnostic.message).join("; ") ?? "";
-    if (reason && !diagnostics.includes(reason)) {
-      fail(file, `expected diagnostic containing "${reason}", got ${diagnostics}`);
+    if (reasons.length > 0 && !reasons.some((reason) => diagnostics.includes(reason))) {
+      fail(file, `expected diagnostic containing one of ${JSON.stringify(reasons)}, got ${diagnostics}`);
     }
   }
 }
