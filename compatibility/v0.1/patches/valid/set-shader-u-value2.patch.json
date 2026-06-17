@@ -1,0 +1,16 @@
+{
+  "schema": "skenion.graph.patch",
+  "schemaVersion": "0.1.0",
+  "id": "set-shader-u-value2",
+  "baseRevision": "1",
+  "clientId": "examples-smoke",
+  "description": "Change the value node connected to render.fullscreen-shader.u_value2.",
+  "ops": [
+    {
+      "op": "setNodeParam",
+      "nodeId": "value_2",
+      "key": "value",
+      "value": 0.9
+    }
+  ]
+}

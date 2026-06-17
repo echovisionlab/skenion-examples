@@ -9,7 +9,7 @@
       "op": "setNodeParam",
       "nodeId": "shader_1",
       "key": "source",
-      "value": "struct SkenionFrame {\n  resolution: vec2<f32>,\n  time: f32,\n  frame: u32,\n}\n\n@group(0) @binding(0)\nvar<uniform> skenion: SkenionFrame;\n\nstruct VertexOut {\n  @builtin(position) position: vec4<f32>,\n}\n\n@vertex\nfn vs_main(@builtin(vertex_index) vertex_index: u32) -> VertexOut {\n  var positions = array<vec2<f32>, 3>(\n    vec2<f32>(-1.0, -3.0),\n    vec2<f32>(-1.0,  1.0),\n    vec2<f32>( 3.0,  1.0)\n  );\n\n  var out: VertexOut;\n  out.position = vec4<f32>(positions[vertex_index], 0.0, 1.0);\n  return out;\n}\n\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let uv = skenion.resolution / max(skenion.resolution.x, skenion.resolution.y);\n  let pulse = 0.5 + 0.5 * sin(skenion.time + f32(skenion.frame) * 0.015);\n  return vec4<f32>(0.1 + uv.x * 0.4, pulse, 0.35 + uv.y * 0.4, 1.0);\n}"
+      "value": "struct SkenionFrame {\n  resolution: vec2<f32>,\n  time: f32,\n  frame: u32,\n  u_value: f32,\n  u_value2: f32,\n  _pad0: vec2<f32>,\n  u_color: vec4<f32>,\n}\n\n@group(0) @binding(0)\nvar<uniform> skenion: SkenionFrame;\n\nstruct VertexOut {\n  @builtin(position) position: vec4<f32>,\n}\n\n@vertex\nfn vs_main(@builtin(vertex_index) vertex_index: u32) -> VertexOut {\n  var positions = array<vec2<f32>, 3>(\n    vec2<f32>(-1.0, -3.0),\n    vec2<f32>(-1.0,  1.0),\n    vec2<f32>( 3.0,  1.0)\n  );\n\n  var out: VertexOut;\n  out.position = vec4<f32>(positions[vertex_index], 0.0, 1.0);\n  return out;\n}\n\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  return vec4<f32>(skenion.u_value, skenion.u_value2, 1.0 - skenion.u_value, 1.0) * skenion.u_color;\n}"
     }
   ]
 }

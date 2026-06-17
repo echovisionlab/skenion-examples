@@ -73,6 +73,12 @@ Runtime shader uniform smoke checks live in
 connected `core.value-f32` node to `0.8`, verifies stale preview state, and
 restarts preview.
 
+Runtime multi-uniform shader smoke checks live in
+`scripts/smoke-runtime-shader-multi-uniform.sh`. The script loads the
+`fullscreen-shader-multi-uniform` project, starts dry-run preview, patches the
+connected `u_value2` float and `u_color` RGBA color inputs in sequence, verifies
+stale preview state after each accepted patch, and restarts preview.
+
 Run local validation with:
 
 ```sh
