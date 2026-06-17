@@ -10,6 +10,7 @@ const expectedProjectFixtures = [
   "clear-color-render.project.json",
   "event-bang.project.json",
   "fullscreen-shader.project.json",
+  "fullscreen-shader-multi-uniform.project.json",
   "fullscreen-shader-uniform.project.json",
   "minimal-value.project.json",
   "studio-port-demo.project.json"
@@ -185,8 +186,11 @@ for (const file of validV01Files) {
 
   for (const edge of graphEdges(document)) {
     const sourceNode = graphNodes(document).find((node) => node.id === edge.from?.node);
-    if (sourceNode?.kind === "core.value-f32" && edge.from.port !== "value") {
-      fail(`${file}: core.value-f32 edge source must use port value`);
+    if (
+      (sourceNode?.kind === "core.value-f32" || sourceNode?.kind === "core.color-rgba")
+      && edge.from.port !== "value"
+    ) {
+      fail(`${file}: ${sourceNode.kind} edge source must use port value`);
     }
   }
 
@@ -197,6 +201,9 @@ for (const file of validV01Files) {
       }
       if (op.edge?.from?.node?.startsWith("value_") && op.edge.from.port !== "value") {
         fail(`${file}: value_* patch edge source must use port value`);
+      }
+      if (op.edge?.from?.node?.startsWith("color_") && op.edge.from.port !== "value") {
+        fail(`${file}: color_* patch edge source must use port value`);
       }
     }
   }

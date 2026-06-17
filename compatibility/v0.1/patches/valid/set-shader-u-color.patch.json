@@ -1,0 +1,21 @@
+{
+  "schema": "skenion.graph.patch",
+  "schemaVersion": "0.1.0",
+  "id": "set-shader-u-color",
+  "baseRevision": "2",
+  "clientId": "examples-smoke",
+  "description": "Change the color node connected to render.fullscreen-shader.u_color.",
+  "ops": [
+    {
+      "op": "setNodeParam",
+      "nodeId": "color_1",
+      "key": "value",
+      "value": [
+        0.2,
+        0.75,
+        1,
+        1
+      ]
+    }
+  ]
+}
