@@ -99,9 +99,10 @@ demo project, dispatches `/v0/session/control/event` requests to `set`, `bang`,
 and `in`, validates emitted values, and reads `/v0/session/control/state`.
 
 Runtime control layer smoke checks use
-`scripts/smoke-runtime-control-layer.sh`. The script loads the control layer
-demo project, verifies toggle flip semantics, string set/in/bang behavior,
-message bang output, comment param reads, and `/v0/session/control/read`.
+`scripts/smoke-runtime-control-layer.sh`. The script first verifies typed F32
+set/bang/in behavior and `/v0/session/control/read`, then loads the control
+layer demo project to verify toggle flip semantics, string set/in/bang behavior,
+message bang output, comment param reads, and port reads.
 
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit

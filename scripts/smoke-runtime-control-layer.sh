@@ -3,8 +3,51 @@ set -euo pipefail
 
 RUNTIME_URL="${SKENION_RUNTIME_URL:-http://127.0.0.1:3761}"
 PROJECT="compatibility/v0.1/projects/valid/control-layer-demo.project.json"
+VALUE_PROJECT="compatibility/v0.1/projects/valid/value-semantics-demo.project.json"
 
 curl --fail --silent "${RUNTIME_URL}/health" >/dev/null
+curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null
+
+curl --fail --silent \
+  -H "content-type: application/json" \
+  --data @"${VALUE_PROJECT}" \
+  "${RUNTIME_URL}/v0/session/load" >/dev/null
+
+F32_SET_RESPONSE="$(curl --fail --silent \
+  -H "content-type: application/json" \
+  --data '{"nodeId":"value_1","portId":"set","value":{"type":"f32","value":32}}' \
+  "${RUNTIME_URL}/v0/session/control/event")"
+
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == []' "${F32_SET_RESPONSE}"
+
+F32_BANG_RESPONSE="$(curl --fail --silent \
+  -H "content-type: application/json" \
+  --data '{"nodeId":"value_1","portId":"bang","value":{"type":"bang"}}' \
+  "${RUNTIME_URL}/v0/session/control/event")"
+
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","value":{"type":"f32","value":32.0}}]' "${F32_BANG_RESPONSE}"
+
+F32_IN_RESPONSE="$(curl --fail --silent \
+  -H "content-type: application/json" \
+  --data '{"nodeId":"value_1","portId":"in","value":{"type":"f32","value":12}}' \
+  "${RUNTIME_URL}/v0/session/control/event")"
+
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","value":{"type":"f32","value":12.0}}]' "${F32_IN_RESPONSE}"
+
+F32_READ_RESPONSE="$(curl --fail --silent \
+  -H "content-type: application/json" \
+  --data '{"nodeId":"value_1","target":"state","id":"value"}' \
+  "${RUNTIME_URL}/v0/session/control/read")"
+
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["value"] == {"type":"f32","value":12.0}' "${F32_READ_RESPONSE}"
+
+WRONG_TYPE_RESPONSE="$(curl --fail --silent \
+  -H "content-type: application/json" \
+  --data '{"nodeId":"value_1","portId":"in","value":{"type":"bool","value":true}}' \
+  "${RUNTIME_URL}/v0/session/control/event")"
+
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["emitted"] == []; assert r["diagnostics"]' "${WRONG_TYPE_RESPONSE}"
+
 curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null
 
 curl --fail --silent \
