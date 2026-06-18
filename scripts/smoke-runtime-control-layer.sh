@@ -88,7 +88,7 @@ MESSAGE_BANG_RESPONSE="$(curl --fail --silent \
   --data '{"nodeId":"message_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"message_1","portId":"value","message":{"selector":"symbol","atoms":[{"type":"string","value":"perform"}]}},{"nodeId":"string_1","portId":"value","message":{"selector":"symbol","atoms":[{"type":"string","value":"perform"}]}}]' "${MESSAGE_BANG_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"message_1","portId":"value","message":{"selector":"symbol","atoms":[{"type":"string","value":"perform"}]}}]' "${MESSAGE_BANG_RESPONSE}"
 
 MESSAGE_SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \

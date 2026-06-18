@@ -139,7 +139,7 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "value",
+              "flow": "event",
               "dataKind": "message.any"
             },
             "required": false,
@@ -150,7 +150,7 @@
             "direction": "input",
             "label": "Set",
             "type": {
-              "flow": "value",
+              "flow": "event",
               "dataKind": "message.any"
             },
             "required": false,
@@ -170,10 +170,10 @@
           {
             "id": "value",
             "direction": "output",
-            "label": "Value",
+            "label": "Message",
             "type": {
-              "flow": "value",
-              "dataKind": "string"
+              "flow": "event",
+              "dataKind": "message.any"
             }
           }
         ]
@@ -185,19 +185,7 @@
         "params": {
           "text": "Bang fans out to toggle, message, and string controls."
         },
-        "ports": [
-          {
-            "id": "set",
-            "direction": "input",
-            "label": "Set",
-            "type": {
-              "flow": "value",
-              "dataKind": "message.any"
-            },
-            "required": false,
-            "activation": "latched"
-          }
-        ]
+        "ports": []
       }
     ],
     "edges": [
@@ -229,16 +217,6 @@
         "to": {
           "node": "message_1",
           "port": "bang"
-        }
-      },
-      {
-        "from": {
-          "node": "message_1",
-          "port": "value"
-        },
-        "to": {
-          "node": "string_1",
-          "port": "in"
         }
       }
     ]
@@ -404,7 +382,7 @@
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "value",
+            "flow": "event",
             "dataKind": "message.any"
           },
           "required": false,
@@ -415,7 +393,7 @@
           "direction": "input",
           "label": "Set",
           "type": {
-            "flow": "value",
+            "flow": "event",
             "dataKind": "message.any"
           },
           "required": false,
@@ -435,10 +413,10 @@
         {
           "id": "value",
           "direction": "output",
-          "label": "Value",
+          "label": "Message",
           "type": {
-            "flow": "value",
-            "dataKind": "string"
+            "flow": "event",
+            "dataKind": "message.any"
           }
         }
       ],
@@ -458,21 +436,9 @@
       "version": "0.1.0",
       "displayName": "Comment",
       "category": "Control",
-      "ports": [
-        {
-          "id": "set",
-          "direction": "input",
-          "label": "Set",
-          "type": {
-            "flow": "value",
-            "dataKind": "message.any"
-          },
-          "required": false,
-          "activation": "latched"
-        }
-      ],
+      "ports": [],
       "execution": {
-        "model": "value"
+        "model": "event"
       },
       "state": {
         "persistent": false

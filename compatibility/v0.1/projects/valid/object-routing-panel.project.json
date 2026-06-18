@@ -12,19 +12,7 @@
         "params": {
           "text": "Panel controls own sendName routing directly. No dedicated Send/Receive objects are used."
         },
-        "ports": [
-          {
-            "id": "set",
-            "direction": "input",
-            "label": "Set",
-            "type": {
-              "flow": "value",
-              "dataKind": "message.any"
-            },
-            "required": false,
-            "activation": "latched"
-          }
-        ]
+        "ports": []
       },
       {
         "id": "slider_speed",
@@ -98,7 +86,7 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "value",
+              "flow": "event",
               "dataKind": "message.any"
             },
             "required": false,
@@ -109,7 +97,7 @@
             "direction": "input",
             "label": "Set",
             "type": {
-              "flow": "value",
+              "flow": "event",
               "dataKind": "message.any"
             },
             "required": false,
@@ -240,21 +228,9 @@
       "version": "0.1.0",
       "displayName": "Comment",
       "category": "Control",
-      "ports": [
-        {
-          "id": "set",
-          "direction": "input",
-          "label": "Set",
-          "type": {
-            "flow": "value",
-            "dataKind": "message.any"
-          },
-          "required": false,
-          "activation": "latched"
-        }
-      ],
+      "ports": [],
       "execution": {
-        "model": "value"
+        "model": "event"
       },
       "state": {
         "persistent": false
@@ -335,7 +311,7 @@
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "value",
+            "flow": "event",
             "dataKind": "message.any"
           },
           "required": false,
@@ -346,7 +322,7 @@
           "direction": "input",
           "label": "Set",
           "type": {
-            "flow": "value",
+            "flow": "event",
             "dataKind": "message.any"
           },
           "required": false,
