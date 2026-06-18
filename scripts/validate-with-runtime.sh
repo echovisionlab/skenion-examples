@@ -3,19 +3,29 @@ set -euo pipefail
 
 runtime_dir="${1:-.deps/skenion-runtime}"
 manifest_path="${runtime_dir}/Cargo.toml"
+runtime_bin="${SKENION_RUNTIME_BIN:-}"
 
-if [[ ! -f "${manifest_path}" ]]; then
+if [[ -n "${runtime_bin}" && ! -x "${runtime_bin}" ]]; then
+  echo "runtime binary is not executable at ${runtime_bin}" >&2
+  exit 1
+fi
+
+if [[ -z "${runtime_bin}" && ! -f "${manifest_path}" ]]; then
   echo "missing runtime Cargo.toml at ${manifest_path}" >&2
   exit 1
 fi
 
 run_runtime() {
-  cargo run --quiet --manifest-path "${manifest_path}" -- "$@"
+  if [[ -n "${runtime_bin}" ]]; then
+    "${runtime_bin}" "$@"
+  else
+    cargo run --quiet --manifest-path "${manifest_path}" -- "$@"
+  fi
 }
 
 runtime_supports() {
   local command="$1"
-  cargo run --quiet --manifest-path "${manifest_path}" -- --help | grep -q "${command}"
+  run_runtime --help | grep -q "${command}"
 }
 
 check_valid() {
