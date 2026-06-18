@@ -135,6 +135,28 @@
         },
         "ports": [
           {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "message.any"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "message.any"
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
             "id": "bang",
             "direction": "input",
             "label": "Bang",
@@ -163,7 +185,19 @@
         "params": {
           "text": "Bang fans out to toggle, message, and string controls."
         },
-        "ports": []
+        "ports": [
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "message.any"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
       }
     ],
     "edges": [
@@ -366,6 +400,28 @@
       "category": "Control",
       "ports": [
         {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
           "id": "bang",
           "direction": "input",
           "label": "Bang",
@@ -402,7 +458,19 @@
       "version": "0.1.0",
       "displayName": "Comment",
       "category": "Control",
-      "ports": [],
+      "ports": [
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "latched"
+        }
+      ],
       "execution": {
         "model": "value"
       },

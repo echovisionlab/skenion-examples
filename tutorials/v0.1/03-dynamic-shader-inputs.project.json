@@ -11,7 +11,19 @@
       "params": {
         "text": "Analyze the shader annotations, sync inputs, then connect typed value nodes to the generated speed and tint inlets."
       },
-      "ports": []
+      "ports": [
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "latched"
+        }
+      ]
     },
     {
       "id": "speed_1",
@@ -21,6 +33,39 @@
         "value": 0.5
       },
       "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
         {
           "id": "value",
           "direction": "output",
@@ -37,9 +82,47 @@
       "kind": "core.color-rgba",
       "kindVersion": "0.1.0",
       "params": {
-        "value": [1, 0.2, 0.1, 1]
+        "value": [
+          1,
+          0.2,
+          0.1,
+          1
+        ]
       },
       "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "color.rgba"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "color.rgba"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
         {
           "id": "value",
           "direction": "output",
@@ -87,7 +170,12 @@
           },
           "required": false,
           "activation": "latched",
-          "default": [1, 0.2, 0.1, 1]
+          "default": [
+            1,
+            0.2,
+            0.1,
+            1
+          ]
         },
         {
           "id": "out",

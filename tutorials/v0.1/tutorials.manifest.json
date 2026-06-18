@@ -9,8 +9,15 @@
       "description": "Shows how in, set, and bang change a stored value and when the value output emits.",
       "path": "tutorials/v0.1/01-value-bang-set.project.json",
       "projectPath": "projects/v0.1/value-bang-set.skenion.json",
-      "helpNodeIds": ["core.value-f32", "core.bang-button", "core.target"],
-      "tags": ["control", "value"]
+      "helpNodeIds": [
+        "core.value-f32",
+        "core.bang-button",
+        "core.target"
+      ],
+      "tags": [
+        "control",
+        "value"
+      ]
     },
     {
       "id": "toggle-message-string",
@@ -18,8 +25,16 @@
       "summary": "Compare stateful values with event-triggered messages.",
       "description": "Demonstrates boolean toggles, saved string values, and message-style event output.",
       "path": "tutorials/v0.1/02-toggle-message-string.project.json",
-      "helpNodeIds": ["core.toggle", "core.message", "core.string"],
-      "tags": ["control", "event", "text"]
+      "helpNodeIds": [
+        "core.toggle",
+        "core.message",
+        "core.string"
+      ],
+      "tags": [
+        "control",
+        "event",
+        "text"
+      ]
     },
     {
       "id": "dynamic-shader-inputs",
@@ -28,8 +43,16 @@
       "description": "Uses shader annotations to expose typed inputs, then drives those inputs from value nodes.",
       "path": "tutorials/v0.1/03-dynamic-shader-inputs.project.json",
       "projectPath": "projects/v0.1/dynamic-shader-interface.skenion.json",
-      "helpNodeIds": ["render.fullscreen-shader", "core.value-f32", "core.color-rgba", "render.output"],
-      "tags": ["shader", "render"]
+      "helpNodeIds": [
+        "render.fullscreen-shader",
+        "core.value-f32",
+        "core.color-rgba",
+        "render.output"
+      ],
+      "tags": [
+        "shader",
+        "render"
+      ]
     },
     {
       "id": "shader-diagnostics",
@@ -37,28 +60,37 @@
       "summary": "Inspect a shader with an intentional annotation error.",
       "description": "Shows how invalid shader interface annotations surface as structured diagnostics.",
       "path": "tutorials/v0.1/04-shader-diagnostics.project.json",
-      "helpNodeIds": ["render.fullscreen-shader", "render.output"],
-      "tags": ["shader", "diagnostics"],
-      "expectedDiagnostics": ["unsupported-uniform-type"]
-    },
-    {
-      "id": "send-receive-panel-controls",
-      "title": "Send / Receive Panel Controls",
-      "summary": "Route typed panel controls into shader uniforms through explicit named channels.",
-      "description": "Shows ui.slider-f32 and ui.toggle writing typed send channels, receive nodes reading those channels, and a fullscreen shader consuming the resolved speed/enabled uniforms.",
-      "path": "tutorials/v0.1/05-send-receive-panel-controls.project.json",
-      "projectPath": "projects/v0.1/send-receive-panel.skenion.json",
       "helpNodeIds": [
-        "ui.slider-f32",
-        "ui.toggle",
-        "core.send-f32",
-        "core.receive-f32",
-        "core.send-bool",
-        "core.receive-bool",
         "render.fullscreen-shader",
         "render.output"
       ],
-      "tags": ["control", "routing", "panel", "shader"]
+      "tags": [
+        "shader",
+        "diagnostics"
+      ],
+      "expectedDiagnostics": [
+        "unsupported-uniform-type"
+      ]
+    },
+    {
+      "id": "object-routing-panel-controls",
+      "title": "Object Routing Panel Controls",
+      "summary": "Route typed panel controls through object-owned sendName channels.",
+      "description": "Shows ui.slider-f32 and ui.toggle owning sendName routing directly while a fullscreen shader consumes explicit cable inputs.",
+      "path": "tutorials/v0.1/05-object-routing-panel-controls.project.json",
+      "projectPath": "projects/v0.1/object-routing-panel.skenion.json",
+      "helpNodeIds": [
+        "ui.slider-f32",
+        "ui.toggle",
+        "render.fullscreen-shader",
+        "render.output"
+      ],
+      "tags": [
+        "control",
+        "routing",
+        "panel",
+        "shader"
+      ]
     }
   ]
 }

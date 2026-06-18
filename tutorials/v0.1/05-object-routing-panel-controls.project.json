@@ -1,7 +1,7 @@
 {
   "schema": "skenion.graph",
   "schemaVersion": "0.1.0",
-  "id": "tutorial-send-receive-panel-controls",
+  "id": "tutorial-object-routing-panel-controls",
   "revision": "1",
   "nodes": [
     {
@@ -9,9 +9,21 @@
       "kind": "core.comment",
       "kindVersion": "0.1.0",
       "params": {
-        "text": "Panel controls write typed send channels. A running preview can consume those control updates live, while graph edits still require restart."
+        "text": "Panel controls own sendName routing directly. No dedicated Send/Receive objects are used."
       },
-      "ports": []
+      "ports": [
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "latched"
+        }
+      ]
     },
     {
       "id": "slider_speed",
@@ -22,26 +34,8 @@
         "value": 0.75,
         "min": 0,
         "max": 2,
-        "step": 0.01
-      },
-      "ports": [
-        {
-          "id": "value",
-          "direction": "output",
-          "label": "Value",
-          "type": {
-            "flow": "value",
-            "dataKind": "number.f32"
-          }
-        }
-      ]
-    },
-    {
-      "id": "send_speed",
-      "kind": "core.send-f32",
-      "kindVersion": "0.1.0",
-      "params": {
-        "name": "speed"
+        "step": 0.01,
+        "sendName": "speed"
       },
       "ports": [
         {
@@ -52,20 +46,20 @@
             "flow": "value",
             "dataKind": "number.f32"
           },
-          "required": true,
+          "required": false,
           "activation": "trigger"
-        }
-      ]
-    },
-    {
-      "id": "receive_speed",
-      "kind": "core.receive-f32",
-      "kindVersion": "0.1.0",
-      "params": {
-        "name": "speed",
-        "default": 0.75
-      },
-      "ports": [
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.f32"
+          },
+          "required": false,
+          "activation": "latched"
+        },
         {
           "id": "bang",
           "direction": "input",
@@ -80,7 +74,7 @@
         {
           "id": "value",
           "direction": "output",
-          "label": "F32",
+          "label": "Value",
           "type": {
             "flow": "value",
             "dataKind": "number.f32"
@@ -94,26 +88,8 @@
       "kindVersion": "0.1.0",
       "params": {
         "label": "Enabled",
-        "value": true
-      },
-      "ports": [
-        {
-          "id": "value",
-          "direction": "output",
-          "label": "Value",
-          "type": {
-            "flow": "value",
-            "dataKind": "boolean"
-          }
-        }
-      ]
-    },
-    {
-      "id": "send_enabled",
-      "kind": "core.send-bool",
-      "kindVersion": "0.1.0",
-      "params": {
-        "name": "enabled"
+        "value": true,
+        "sendName": "enabled"
       },
       "ports": [
         {
@@ -122,37 +98,26 @@
           "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "boolean"
-          },
-          "required": true,
-          "activation": "trigger"
-        }
-      ]
-    },
-    {
-      "id": "receive_enabled",
-      "kind": "core.receive-bool",
-      "kindVersion": "0.1.0",
-      "params": {
-        "name": "enabled",
-        "default": true
-      },
-      "ports": [
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
+            "dataKind": "message.any"
           },
           "required": false,
           "activation": "trigger"
         },
         {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
           "id": "value",
           "direction": "output",
-          "label": "Bool",
+          "label": "Value",
           "type": {
             "flow": "value",
             "dataKind": "boolean"
@@ -240,16 +205,6 @@
         "port": "value"
       },
       "to": {
-        "node": "send_speed",
-        "port": "in"
-      }
-    },
-    {
-      "from": {
-        "node": "receive_speed",
-        "port": "value"
-      },
-      "to": {
         "node": "shader_1",
         "port": "speed"
       }
@@ -257,16 +212,6 @@
     {
       "from": {
         "node": "toggle_enabled",
-        "port": "value"
-      },
-      "to": {
-        "node": "send_enabled",
-        "port": "in"
-      }
-    },
-    {
-      "from": {
-        "node": "receive_enabled",
         "port": "value"
       },
       "to": {

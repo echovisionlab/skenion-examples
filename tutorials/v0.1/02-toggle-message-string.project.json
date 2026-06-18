@@ -11,7 +11,19 @@
       "params": {
         "text": "Toggle flips on bang. Message emits text on bang. String stores text as value data."
       },
-      "ports": []
+      "ports": [
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "latched"
+        }
+      ]
     },
     {
       "id": "bang_1",
@@ -39,6 +51,28 @@
       },
       "ports": [
         {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "boolean"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "boolean"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
           "id": "bang",
           "direction": "input",
           "label": "Bang",
@@ -46,6 +80,7 @@
             "flow": "event",
             "dataKind": "event.bang"
           },
+          "required": false,
           "activation": "trigger"
         },
         {
@@ -68,6 +103,28 @@
       },
       "ports": [
         {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
           "id": "bang",
           "direction": "input",
           "label": "Bang",
@@ -75,6 +132,7 @@
             "flow": "event",
             "dataKind": "event.bang"
           },
+          "required": false,
           "activation": "trigger"
         },
         {
@@ -97,6 +155,28 @@
       },
       "ports": [
         {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "string"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "string"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
           "id": "bang",
           "direction": "input",
           "label": "Bang",
@@ -104,6 +184,7 @@
             "flow": "event",
             "dataKind": "event.bang"
           },
+          "required": false,
           "activation": "trigger"
         },
         {

@@ -1,21 +1,21 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "core.send-bool",
+  "id": "core.panel",
   "version": "0.1.0",
-  "displayName": "Send Bool",
-  "category": "Routing",
+  "displayName": "Panel",
+  "category": "Control",
   "ports": [
     {
-      "id": "in",
+      "id": "set",
       "direction": "input",
-      "label": "In",
+      "label": "Set",
       "type": {
         "flow": "value",
-        "dataKind": "boolean"
+        "dataKind": "message.any"
       },
-      "required": true,
-      "activation": "trigger"
+      "required": false,
+      "activation": "latched"
     }
   ],
   "execution": {
