@@ -7,6 +7,17 @@
   "category": "UI Controls",
   "ports": [
     {
+      "id": "in",
+      "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "value",
+        "dataKind": "message.any"
+      },
+      "required": false,
+      "activation": "trigger"
+    },
+    {
       "id": "bang",
       "direction": "output",
       "label": "Bang",

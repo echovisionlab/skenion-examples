@@ -2,7 +2,7 @@
 set -euo pipefail
 
 RUNTIME_URL="${SKENION_RUNTIME_URL:-http://127.0.0.1:3761}"
-PROJECT="compatibility/v0.1/projects/valid/send-receive-panel.project.json"
+PROJECT="compatibility/v0.1/projects/valid/object-routing-panel.project.json"
 
 curl --fail --silent "${RUNTIME_URL}/health" >/dev/null
 curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null

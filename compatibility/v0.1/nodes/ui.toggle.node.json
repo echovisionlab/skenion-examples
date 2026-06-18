@@ -7,6 +7,28 @@
   "category": "UI Controls",
   "ports": [
     {
+      "id": "in",
+      "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "value",
+        "dataKind": "message.any"
+      },
+      "required": false,
+      "activation": "trigger"
+    },
+    {
+      "id": "set",
+      "direction": "input",
+      "label": "Set",
+      "type": {
+        "flow": "value",
+        "dataKind": "message.any"
+      },
+      "required": false,
+      "activation": "latched"
+    },
+    {
       "id": "value",
       "direction": "output",
       "label": "Value",

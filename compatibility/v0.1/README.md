@@ -109,8 +109,8 @@ message bang output, comment param reads, and port reads.
 
 Runtime live control preview smoke checks use
 `scripts/smoke-runtime-live-control-preview.sh`. The script loads the
-send/receive panel project, starts dry-run preview, dispatches UI slider and
-toggle control events, and verifies that typed channel state and preview
+object-routing panel project, starts dry-run preview, dispatches UI slider and
+toggle control events, and verifies that object-owned channel state and preview
 telemetry report matching control revisions without marking the graph preview
 stale.
 
