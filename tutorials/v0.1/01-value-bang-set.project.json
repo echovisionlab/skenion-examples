@@ -11,19 +11,7 @@
       "params": {
         "text": "set updates silently, bang emits the current value, and in updates plus emits."
       },
-      "ports": [
-        {
-          "id": "set",
-          "direction": "input",
-          "label": "Set",
-          "type": {
-            "flow": "value",
-            "dataKind": "message.any"
-          },
-          "required": false,
-          "activation": "latched"
-        }
-      ]
+      "ports": []
     },
     {
       "id": "bang_1",
@@ -44,7 +32,7 @@
     },
     {
       "id": "value_1",
-      "kind": "core.value-f32",
+      "kind": "core.float",
       "kindVersion": "0.1.0",
       "params": {
         "value": 32
@@ -56,7 +44,8 @@
           "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "trigger"
@@ -67,7 +56,8 @@
           "label": "Set",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "latched"
@@ -89,7 +79,8 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           }
         }
       ]
@@ -106,12 +97,13 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32",
+            "dataKind": "number.float",
             "range": {
               "min": 0,
               "max": 1,
               "step": 0.01
-            }
+            },
+            "format": "f32"
           },
           "required": true,
           "activation": "latched"

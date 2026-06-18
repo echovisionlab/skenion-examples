@@ -208,7 +208,7 @@ for (const file of validV01Files) {
   for (const edge of graphEdges(document)) {
     const sourceNode = graphNodes(document).find((node) => node.id === edge.from?.node);
     if (
-      (sourceNode?.kind === "core.value-f32" || sourceNode?.kind === "core.color-rgba")
+      (sourceNode?.kind === "core.float" || sourceNode?.kind === "core.color")
       && edge.from.port !== "value"
     ) {
       fail(`${file}: ${sourceNode.kind} edge source must use port value`);

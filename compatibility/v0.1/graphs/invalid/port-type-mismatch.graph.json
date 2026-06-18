@@ -6,7 +6,7 @@
   "nodes": [
     {
       "id": "value_1",
-      "kind": "core.value-f32",
+      "kind": "core.float",
       "kindVersion": "0.1.0",
       "params": {},
       "ports": [
@@ -16,7 +16,8 @@
           "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "trigger"
@@ -27,7 +28,8 @@
           "label": "Set",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "latched"
@@ -49,7 +51,8 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "boolean"
+            "dataKind": "number.float",
+            "format": "f32"
           }
         }
       ]

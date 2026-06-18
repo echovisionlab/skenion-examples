@@ -1,9 +1,9 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "core.value-f32",
+  "id": "core.color",
   "version": "0.1.0",
-  "displayName": "F32",
+  "displayName": "Color",
   "category": "Values",
   "ports": [
     {
@@ -12,7 +12,9 @@
       "label": "In",
       "type": {
         "flow": "value",
-        "dataKind": "number.f32"
+        "dataKind": "color",
+        "format": "rgba32f",
+        "colorSpace": "linear"
       },
       "required": false,
       "activation": "trigger"
@@ -23,7 +25,9 @@
       "label": "Set",
       "type": {
         "flow": "value",
-        "dataKind": "number.f32"
+        "dataKind": "color",
+        "format": "rgba32f",
+        "colorSpace": "linear"
       },
       "required": false,
       "activation": "latched"
@@ -42,10 +46,12 @@
     {
       "id": "value",
       "direction": "output",
-      "label": "Value",
+      "label": "Color",
       "type": {
         "flow": "value",
-        "dataKind": "number.f32"
+        "dataKind": "color",
+        "format": "rgba32f",
+        "colorSpace": "linear"
       }
     }
   ],

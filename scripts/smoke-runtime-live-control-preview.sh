@@ -21,14 +21,14 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 SLIDER_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":1.5}]}}' \
+  --data '{"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["changed"] is True; assert r["controlRevision"] == 1; assert r["emitted"][0] == {"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":1.5}]}}' "${SLIDER_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["changed"] is True; assert r["controlRevision"] == 1; assert r["emitted"][0] == {"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}}' "${SLIDER_RESPONSE}"
 
 STATE_AFTER_SLIDER="$(curl --fail --silent "${RUNTIME_URL}/v0/session/control/state")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["controlRevision"] == 1; assert r["channels"]["number.f32:speed"] == {"selector":"float","atoms":[{"type":"f32","value":1.5}]}' "${STATE_AFTER_SLIDER}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["controlRevision"] == 1; assert r["channels"]["number.float:speed"] == {"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}' "${STATE_AFTER_SLIDER}"
 
 TELEMETRY_AFTER_SLIDER="$(curl --fail --silent "${RUNTIME_URL}/v0/session/telemetry")"
 
@@ -43,7 +43,7 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 STATE_AFTER_TOGGLE="$(curl --fail --silent "${RUNTIME_URL}/v0/session/control/state")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["controlRevision"] == 2; assert r["channels"]["number.f32:speed"] == {"selector":"float","atoms":[{"type":"f32","value":1.5}]}; assert r["channels"]["boolean:enabled"] == {"selector":"bool","atoms":[{"type":"bool","value":False}]}' "${STATE_AFTER_TOGGLE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["controlRevision"] == 2; assert r["channels"]["number.float:speed"] == {"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}; assert r["channels"]["boolean:enabled"] == {"selector":"bool","atoms":[{"type":"bool","value":False}]}' "${STATE_AFTER_TOGGLE}"
 
 STATUS_AFTER_TOGGLE="$(curl --fail --silent "${RUNTIME_URL}/v0/session/preview")"
 

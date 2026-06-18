@@ -1,9 +1,9 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "ui.slider-f32",
+  "id": "ui.slider-float",
   "version": "0.1.0",
-  "displayName": "Slider F32",
+  "displayName": "Slider",
   "category": "UI Controls",
   "ports": [
     {
@@ -12,7 +12,8 @@
       "label": "In",
       "type": {
         "flow": "value",
-        "dataKind": "number.f32"
+        "dataKind": "number.float",
+        "format": "f32"
       },
       "required": false,
       "activation": "trigger"
@@ -23,7 +24,8 @@
       "label": "Set",
       "type": {
         "flow": "value",
-        "dataKind": "number.f32"
+        "dataKind": "number.float",
+        "format": "f32"
       },
       "required": false,
       "activation": "latched"
@@ -45,7 +47,8 @@
       "label": "Value",
       "type": {
         "flow": "value",
-        "dataKind": "number.f32"
+        "dataKind": "number.float",
+        "format": "f32"
       }
     }
   ],

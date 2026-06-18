@@ -70,7 +70,7 @@ stale preview state, and restarts preview.
 Runtime shader uniform smoke checks live in
 `scripts/smoke-runtime-shader-uniform.sh`. The script loads the
 `fullscreen-shader-uniform` project, starts dry-run preview, patches the
-connected `core.value-f32` node to `0.8`, verifies stale preview state, and
+connected `core.float` node to `0.8`, verifies stale preview state, and
 restarts preview.
 
 Runtime multi-uniform shader smoke checks live in

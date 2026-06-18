@@ -18,7 +18,7 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32",
+            "dataKind": "number.float",
             "range": {
               "min": 0,
               "max": 1
@@ -39,7 +39,7 @@
           "label": "Radius",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32",
+            "dataKind": "number.float",
             "unit": "px",
             "range": {
               "min": 0,

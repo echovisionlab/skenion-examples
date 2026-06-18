@@ -2,32 +2,16 @@
   "graph": {
     "schema": "skenion.graph",
     "schemaVersion": "0.1.0",
-    "id": "value-semantics-demo-graph",
+    "id": "semantic-representation-conversion",
     "revision": "1",
     "nodes": [
       {
-        "id": "bang_1",
-        "kind": "core.bang-button",
-        "kindVersion": "0.1.0",
-        "params": {},
-        "ports": [
-          {
-            "id": "bang",
-            "direction": "output",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "event.bang"
-            }
-          }
-        ]
-      },
-      {
-        "id": "value_1",
+        "id": "float_1",
         "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {
-          "value": 32
+          "representation": "f32",
+          "value": 300.75
         },
         "ports": [
           {
@@ -78,92 +62,8 @@
         ]
       },
       {
-        "id": "target_1",
-        "kind": "core.target",
-        "kindVersion": "0.1.0",
-        "params": {},
-        "ports": [
-          {
-            "id": "value",
-            "direction": "input",
-            "label": "Value",
-            "type": {
-              "flow": "value",
-              "dataKind": "number.float",
-              "range": {
-                "min": 0,
-                "max": 1,
-                "step": 0.01
-              },
-              "format": "f32"
-            },
-            "required": true,
-            "activation": "latched"
-          }
-        ]
-      },
-      {
-        "id": "shader_1",
-        "kind": "render.fullscreen-shader",
-        "kindVersion": "0.1.0",
-        "params": {
-          "language": "wgsl",
-          "source": "// @skenion.uniform speed number.float default=0.5 min=0 max=1 step=0.01\n// @skenion.uniform tint color default=[1,0.2,0.1,1]\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let animated = vec4<f32>(skenion.speed, 0.2, 1.0 - skenion.speed, 1.0);\n  return animated * skenion.tint;\n}"
-        },
-        "ports": [
-          {
-            "id": "speed",
-            "direction": "input",
-            "label": "Speed",
-            "type": {
-              "flow": "value",
-              "dataKind": "number.float",
-              "format": "f32",
-              "range": {
-                "min": 0,
-                "max": 1,
-                "step": 0.01
-              }
-            },
-            "required": false,
-            "activation": "latched",
-            "default": 0.5
-          },
-          {
-            "id": "tint",
-            "direction": "input",
-            "label": "Tint",
-            "type": {
-              "flow": "value",
-              "dataKind": "color",
-              "format": "rgba32f",
-              "colorSpace": "linear"
-            },
-            "required": false,
-            "activation": "latched",
-            "default": [
-              1,
-              0.2,
-              0.1,
-              1
-            ]
-          },
-          {
-            "id": "out",
-            "direction": "output",
-            "label": "Out",
-            "type": {
-              "flow": "resource",
-              "dataKind": "gpu.texture2d",
-              "format": "rgba8unorm",
-              "colorSpace": "srgb"
-            }
-          }
-        ]
-      },
-      {
-        "id": "output_1",
-        "kind": "render.output",
+        "id": "uint_target_1",
+        "kind": "example.uint-target",
         "kindVersion": "0.1.0",
         "params": {},
         "ports": [
@@ -172,12 +72,92 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "resource",
-              "dataKind": "gpu.texture2d",
+              "flow": "value",
+              "dataKind": "number.uint",
+              "format": "u8"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "color_1",
+        "kind": "core.color",
+        "kindVersion": "0.1.0",
+        "params": {
+          "colorSpace": "linear",
+          "representation": "rgba32f",
+          "value": [1.2, 0.5, -0.1, 1]
+        },
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Color",
+            "type": {
+              "flow": "value",
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
+            }
+          }
+        ]
+      },
+      {
+        "id": "color_target_1",
+        "kind": "example.color-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "color",
               "format": "rgba8unorm",
               "colorSpace": "srgb"
             },
-            "required": true,
+            "required": false,
             "activation": "latched"
           }
         ]
@@ -186,74 +166,27 @@
     "edges": [
       {
         "from": {
-          "node": "bang_1",
-          "port": "bang"
+          "node": "float_1",
+          "port": "value"
         },
         "to": {
-          "node": "value_1",
-          "port": "bang"
+          "node": "uint_target_1",
+          "port": "in"
         }
       },
       {
         "from": {
-          "node": "value_1",
+          "node": "color_1",
           "port": "value"
         },
         "to": {
-          "node": "target_1",
-          "port": "value"
-        }
-      },
-      {
-        "from": {
-          "node": "value_1",
-          "port": "value"
-        },
-        "to": {
-          "node": "shader_1",
-          "port": "speed"
-        }
-      },
-      {
-        "from": {
-          "node": "shader_1",
-          "port": "out"
-        },
-        "to": {
-          "node": "output_1",
+          "node": "color_target_1",
           "port": "in"
         }
       }
     ]
   },
   "nodes": [
-    {
-      "schema": "skenion.node.definition",
-      "schemaVersion": "0.1.0",
-      "id": "core.bang-button",
-      "version": "0.1.0",
-      "displayName": "Bang Button",
-      "category": "Events",
-      "ports": [
-        {
-          "id": "bang",
-          "direction": "output",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          }
-        }
-      ],
-      "execution": {
-        "model": "event"
-      },
-      "state": {
-        "persistent": false
-      },
-      "permissions": [],
-      "capabilities": []
-    },
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
@@ -320,26 +253,21 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.target",
+      "id": "example.uint-target",
       "version": "0.1.0",
-      "displayName": "Value Target",
-      "category": "Values",
+      "displayName": "UInt Target",
+      "category": "Examples",
       "ports": [
         {
-          "id": "value",
+          "id": "in",
           "direction": "input",
-          "label": "Value",
+          "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "number.float",
-            "range": {
-              "min": 0,
-              "max": 1,
-              "step": 0.01
-            },
-            "format": "f32"
+            "dataKind": "number.uint",
+            "format": "u8"
           },
-          "required": true,
+          "required": false,
           "activation": "latched"
         }
       ],
@@ -355,68 +283,99 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "render.fullscreen-shader",
+      "id": "core.color",
       "version": "0.1.0",
-      "displayName": "Fullscreen Shader",
-      "category": "Render",
-      "ports": [
-        {
-          "id": "out",
-          "direction": "output",
-          "label": "Out",
-          "type": {
-            "flow": "resource",
-            "dataKind": "gpu.texture2d",
-            "format": "rgba8unorm",
-            "colorSpace": "srgb"
-          }
-        }
-      ],
-      "execution": {
-        "model": "gpu_pass",
-        "clock": "frame"
-      },
-      "state": {
-        "persistent": false
-      },
-      "permissions": [],
-      "capabilities": [
-        "render.output.fullscreen-shader"
-      ]
-    },
-    {
-      "schema": "skenion.node.definition",
-      "schemaVersion": "0.1.0",
-      "id": "render.output",
-      "version": "0.1.0",
-      "displayName": "Render Output",
-      "category": "Render",
+      "displayName": "Color",
+      "category": "Values",
       "ports": [
         {
           "id": "in",
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "resource",
-            "dataKind": "gpu.texture2d",
-            "format": "rgba8unorm",
-            "colorSpace": "srgb"
+            "flow": "value",
+            "dataKind": "color",
+            "format": "rgba32f",
+            "colorSpace": "linear"
           },
-          "required": true,
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "color",
+            "format": "rgba32f",
+            "colorSpace": "linear"
+          },
+          "required": false,
           "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Color",
+          "type": {
+            "flow": "value",
+            "dataKind": "color",
+            "format": "rgba32f",
+            "colorSpace": "linear"
+          }
         }
       ],
       "execution": {
-        "model": "frame",
-        "clock": "frame"
+        "model": "value"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
-      "capabilities": [
-        "render.output.surface"
-      ]
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "example.color-target",
+      "version": "0.1.0",
+      "displayName": "Color Target",
+      "category": "Examples",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "color",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          },
+          "required": false,
+          "activation": "latched"
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
     }
   ]
 }

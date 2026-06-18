@@ -15,7 +15,7 @@
           "direction": "input",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float"
           },
           "activation": "latched"
         }
@@ -32,7 +32,7 @@
           "direction": "input",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float"
           },
           "activation": "latched"
         }

@@ -7,7 +7,7 @@
     "nodes": [
       {
         "id": "value_1",
-        "kind": "core.value-f32",
+        "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {
           "value": 0.25
@@ -19,7 +19,8 @@
             "label": "In",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "trigger"
@@ -30,7 +31,8 @@
             "label": "Set",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "latched"
@@ -52,14 +54,15 @@
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             }
           }
         ]
       },
       {
         "id": "value_2",
-        "kind": "core.value-f32",
+        "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {
           "value": 0.65
@@ -71,7 +74,8 @@
             "label": "In",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "trigger"
@@ -82,7 +86,8 @@
             "label": "Set",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "latched"
@@ -104,14 +109,15 @@
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             }
           }
         ]
       },
       {
         "id": "color_1",
-        "kind": "core.color-rgba",
+        "kind": "core.color",
         "kindVersion": "0.1.0",
         "params": {
           "value": [
@@ -128,7 +134,9 @@
             "label": "In",
             "type": {
               "flow": "value",
-              "dataKind": "color.rgba"
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
             },
             "required": false,
             "activation": "trigger"
@@ -139,7 +147,9 @@
             "label": "Set",
             "type": {
               "flow": "value",
-              "dataKind": "color.rgba"
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
             },
             "required": false,
             "activation": "latched"
@@ -161,7 +171,9 @@
             "label": "Color",
             "type": {
               "flow": "value",
-              "dataKind": "color.rgba"
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
             }
           }
         ]
@@ -172,7 +184,7 @@
         "kindVersion": "0.1.0",
         "params": {
           "language": "wgsl",
-          "source": "// @skenion.uniform speed number.f32 default=0.25 min=0 max=1 step=0.01\n// @skenion.uniform phase number.f32 default=0.65 min=0 max=1 step=0.01\n// @skenion.uniform tint color.rgba default=[0.95,0.25,0.12,1]\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let pulse = 0.5 + 0.5 * sin(skenion.time + skenion.phase * 6.28318);\n  let gradient = vec3<f32>(skenion.speed, skenion.phase, 1.0 - skenion.speed);\n  return vec4<f32>(mix(gradient, skenion.tint.rgb, pulse * 0.35), skenion.tint.a);\n}"
+          "source": "// @skenion.uniform speed number.float default=0.25 min=0 max=1 step=0.01\n// @skenion.uniform phase number.float default=0.65 min=0 max=1 step=0.01\n// @skenion.uniform tint color default=[0.95,0.25,0.12,1]\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let pulse = 0.5 + 0.5 * sin(skenion.time + skenion.phase * 6.28318);\n  let gradient = vec3<f32>(skenion.speed, skenion.phase, 1.0 - skenion.speed);\n  return vec4<f32>(mix(gradient, skenion.tint.rgb, pulse * 0.35), skenion.tint.a);\n}"
         },
         "ports": [
           {
@@ -181,7 +193,8 @@
             "label": "Speed",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32",
+              "dataKind": "number.float",
+              "format": "f32",
               "range": {
                 "min": 0,
                 "max": 1,
@@ -198,7 +211,8 @@
             "label": "Phase",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32",
+              "dataKind": "number.float",
+              "format": "f32",
               "range": {
                 "min": 0,
                 "max": 1,
@@ -215,7 +229,9 @@
             "label": "Tint",
             "type": {
               "flow": "value",
-              "dataKind": "color.rgba"
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
             },
             "required": false,
             "activation": "latched",
@@ -308,9 +324,9 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.value-f32",
+      "id": "core.float",
       "version": "0.1.0",
-      "displayName": "F32",
+      "displayName": "Float",
       "category": "Values",
       "ports": [
         {
@@ -319,7 +335,8 @@
           "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "trigger"
@@ -330,7 +347,8 @@
           "label": "Set",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "latched"
@@ -352,7 +370,8 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           }
         }
       ],
@@ -368,9 +387,9 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.color-rgba",
+      "id": "core.color",
       "version": "0.1.0",
-      "displayName": "RGBA",
+      "displayName": "Color",
       "category": "Values",
       "ports": [
         {
@@ -379,7 +398,9 @@
           "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "color.rgba"
+            "dataKind": "color",
+            "format": "rgba32f",
+            "colorSpace": "linear"
           },
           "required": false,
           "activation": "trigger"
@@ -390,7 +411,9 @@
           "label": "Set",
           "type": {
             "flow": "value",
-            "dataKind": "color.rgba"
+            "dataKind": "color",
+            "format": "rgba32f",
+            "colorSpace": "linear"
           },
           "required": false,
           "activation": "latched"
@@ -412,7 +435,9 @@
           "label": "Color",
           "type": {
             "flow": "value",
-            "dataKind": "color.rgba"
+            "dataKind": "color",
+            "format": "rgba32f",
+            "colorSpace": "linear"
           }
         }
       ],

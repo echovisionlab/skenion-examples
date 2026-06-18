@@ -7,7 +7,7 @@
     "nodes": [
       {
         "id": "value_1",
-        "kind": "core.value-f32",
+        "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {
           "value": 0.5
@@ -19,7 +19,8 @@
             "label": "In",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "trigger"
@@ -30,7 +31,8 @@
             "label": "Set",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "latched"
@@ -52,7 +54,8 @@
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             }
           }
         ]
@@ -69,12 +72,13 @@
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32",
+              "dataKind": "number.float",
               "range": {
                 "min": 0,
                 "max": 1,
                 "step": 0.01
-              }
+              },
+              "format": "f32"
             },
             "required": true,
             "activation": "latched"
@@ -99,9 +103,9 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.value-f32",
+      "id": "core.float",
       "version": "0.1.0",
-      "displayName": "F32",
+      "displayName": "Float",
       "category": "Values",
       "ports": [
         {
@@ -110,7 +114,8 @@
           "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "trigger"
@@ -121,7 +126,8 @@
           "label": "Set",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "latched"
@@ -143,7 +149,8 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           }
         }
       ],
@@ -170,12 +177,13 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32",
+            "dataKind": "number.float",
             "range": {
               "min": 0,
               "max": 1,
               "step": 0.01
-            }
+            },
+            "format": "f32"
           },
           "required": true,
           "activation": "latched"
