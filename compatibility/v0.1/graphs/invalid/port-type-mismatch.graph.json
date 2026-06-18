@@ -51,8 +51,7 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.float",
-            "format": "f32"
+            "dataKind": "string"
           }
         }
       ]

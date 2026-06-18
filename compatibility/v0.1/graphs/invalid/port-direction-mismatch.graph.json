@@ -47,13 +47,15 @@
         },
         {
           "id": "value",
-          "direction": "output",
+          "direction": "input",
           "label": "Value",
           "type": {
             "flow": "value",
             "dataKind": "number.float",
             "format": "f32"
-          }
+          },
+          "required": false,
+          "activation": "trigger"
         }
       ]
     }
