@@ -50,10 +50,11 @@ jobs:
           workspaces: .deps/skenion-runtime -> target
           cache-all-crates: "true"
           cache-on-failure: "true"
+      - run: cargo build --manifest-path .deps/skenion-runtime/Cargo.toml --all-features
       - run: cargo test --manifest-path .deps/skenion-runtime/Cargo.toml --all-targets --all-features
-      - run: bash scripts/validate-with-runtime.sh .deps/skenion-runtime
+      - run: SKENION_RUNTIME_BIN=.deps/skenion-runtime/target/debug/skenion-runtime bash scripts/validate-with-runtime.sh .deps/skenion-runtime
       - run: |
-          SKENION_PREVIEW_DRY_RUN=1 cargo run --manifest-path .deps/skenion-runtime/Cargo.toml -- serve --host 127.0.0.1 --port 3761 &
+          SKENION_PREVIEW_DRY_RUN=1 .deps/skenion-runtime/target/debug/skenion-runtime serve --host 127.0.0.1 --port 3761 &
           SERVER_PID=$!
           trap "kill $SERVER_PID" EXIT
           READY=false
