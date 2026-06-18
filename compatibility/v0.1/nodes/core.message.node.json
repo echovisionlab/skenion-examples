@@ -11,7 +11,7 @@
       "direction": "input",
       "label": "In",
       "type": {
-        "flow": "value",
+        "flow": "event",
         "dataKind": "message.any"
       },
       "required": false,
@@ -22,7 +22,7 @@
       "direction": "input",
       "label": "Set",
       "type": {
-        "flow": "value",
+        "flow": "event",
         "dataKind": "message.any"
       },
       "required": false,
@@ -42,10 +42,10 @@
     {
       "id": "value",
       "direction": "output",
-      "label": "Value",
+      "label": "Message",
       "type": {
-        "flow": "value",
-        "dataKind": "string"
+        "flow": "event",
+        "dataKind": "message.any"
       }
     }
   ],

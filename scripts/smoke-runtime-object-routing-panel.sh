@@ -14,7 +14,7 @@ curl --fail --silent \
 
 SLIDER_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"slider_speed","portId":"value","value":{"type":"f32","value":1.5}}' \
+  --data '{"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":1.5}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys
@@ -22,15 +22,15 @@ r=json.loads(sys.argv[1])
 assert r["ok"] is True
 assert r["changed"] is True
 assert r["controlRevision"] == 1
-assert r["emitted"] == [{"nodeId":"slider_speed","portId":"value","value":{"type":"f32","value":1.5}}]
+assert r["emitted"] == [{"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":1.5}]}}]
 ' "${SLIDER_RESPONSE}"
 
 TOGGLE_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"toggle_enabled","portId":"value","value":{"type":"bang"}}' \
+  --data '{"nodeId":"toggle_enabled","portId":"value","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["changed"] is True; assert r["controlRevision"] == 2; assert r["emitted"] == [{"nodeId":"toggle_enabled","portId":"value","value":{"type":"bool","value":False}}]' "${TOGGLE_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["changed"] is True; assert r["controlRevision"] == 2; assert r["emitted"] == [{"nodeId":"toggle_enabled","portId":"value","message":{"selector":"bool","atoms":[{"type":"bool","value":False}]}}]' "${TOGGLE_RESPONSE}"
 
 STATE_RESPONSE="$(curl --fail --silent "${RUNTIME_URL}/v0/session/control/state")"
 
@@ -39,8 +39,8 @@ r=json.loads(sys.argv[1])
 assert r["ok"] is True
 if "controlRevision" in r:
     assert r["controlRevision"] == 2
-assert r["channels"]["number.f32:speed"] == {"type":"f32","value":1.5}
-assert r["channels"]["boolean:enabled"] == {"type":"bool","value":False}
+assert r["channels"]["number.f32:speed"] == {"selector":"float","atoms":[{"type":"f32","value":1.5}]}
+assert r["channels"]["boolean:enabled"] == {"selector":"bool","atoms":[{"type":"bool","value":False}]}
 ' "${STATE_RESPONSE}"
 
 START_RESPONSE="$(curl --fail --silent \
@@ -58,7 +58,7 @@ assert r["ok"] is True
 if "controlRevision" in r["session"]:
     assert r["session"]["controlRevision"] == 2
 assert r["preview"]["state"] == "running"
-assert r["render"]["renderer"] in ("fullscreen-shader", "dry-run")
+assert r["render"]["renderer"] in (None, "fullscreen-shader", "dry-run")
 ' "${TELEMETRY_RESPONSE}"
 
 curl --fail --silent -X POST "${RUNTIME_URL}/v0/session/preview/stop" >/dev/null

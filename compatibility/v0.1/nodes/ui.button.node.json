@@ -11,7 +11,7 @@
       "direction": "input",
       "label": "In",
       "type": {
-        "flow": "value",
+        "flow": "event",
         "dataKind": "message.any"
       },
       "required": false,

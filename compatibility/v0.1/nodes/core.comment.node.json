@@ -5,21 +5,9 @@
   "version": "0.1.0",
   "displayName": "Comment",
   "category": "Control",
-  "ports": [
-    {
-      "id": "set",
-      "direction": "input",
-      "label": "Set",
-      "type": {
-        "flow": "value",
-        "dataKind": "message.any"
-      },
-      "required": false,
-      "activation": "latched"
-    }
-  ],
+  "ports": [],
   "execution": {
-    "model": "value"
+    "model": "event"
   },
   "state": {
     "persistent": false
