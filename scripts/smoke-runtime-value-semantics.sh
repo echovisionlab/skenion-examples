@@ -14,31 +14,31 @@ curl --fail --silent \
 
 SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"set","value":{"type":"f32","value":32}}' \
+  --data '{"nodeId":"value_1","portId":"set","message":{"selector":"float","atoms":[{"type":"f32","value":32}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == []' "${SET_RESPONSE}"
 
 BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"bang","value":{"type":"bang"}}' \
+  --data '{"nodeId":"value_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","value":{"type":"f32","value":32.0}}]' "${BANG_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":32.0}]}}]' "${BANG_RESPONSE}"
 
 IN_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"in","value":{"type":"f32","value":12}}' \
+  --data '{"nodeId":"value_1","portId":"in","message":{"selector":"float","atoms":[{"type":"f32","value":12}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","value":{"type":"f32","value":12.0}}]' "${IN_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":12.0}]}}]' "${IN_RESPONSE}"
 
 STATE_RESPONSE="$(curl --fail --silent "${RUNTIME_URL}/v0/session/control/state")"
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["values"]["value_1"] == {"type":"f32","value":12.0}' "${STATE_RESPONSE}"
 
 WRONG_TYPE_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"in","value":{"type":"bool","value":true}}' \
+  --data '{"nodeId":"value_1","portId":"in","message":{"selector":"bool","atoms":[{"type":"bool","value":true}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["emitted"] == []; assert r["diagnostics"]' "${WRONG_TYPE_RESPONSE}"

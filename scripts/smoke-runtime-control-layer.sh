@@ -15,24 +15,24 @@ curl --fail --silent \
 
 F32_SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"set","value":{"type":"f32","value":32}}' \
+  --data '{"nodeId":"value_1","portId":"set","message":{"selector":"float","atoms":[{"type":"f32","value":32}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == []' "${F32_SET_RESPONSE}"
 
 F32_BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"bang","value":{"type":"bang"}}' \
+  --data '{"nodeId":"value_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","value":{"type":"f32","value":32.0}}]' "${F32_BANG_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":32.0}]}}]' "${F32_BANG_RESPONSE}"
 
 F32_IN_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"in","value":{"type":"f32","value":12}}' \
+  --data '{"nodeId":"value_1","portId":"in","message":{"selector":"float","atoms":[{"type":"f32","value":12}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","value":{"type":"f32","value":12.0}}]' "${F32_IN_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":12.0}]}}]' "${F32_IN_RESPONSE}"
 
 F32_READ_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
@@ -43,7 +43,7 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 WRONG_TYPE_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"in","value":{"type":"bool","value":true}}' \
+  --data '{"nodeId":"value_1","portId":"in","message":{"selector":"bool","atoms":[{"type":"bool","value":true}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["emitted"] == []; assert r["diagnostics"]' "${WRONG_TYPE_RESPONSE}"
@@ -57,45 +57,45 @@ curl --fail --silent \
 
 TOGGLE_BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"toggle_1","portId":"bang","value":{"type":"bang"}}' \
+  --data '{"nodeId":"toggle_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"toggle_1","portId":"value","value":{"type":"bool","value":True}}]' "${TOGGLE_BANG_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"toggle_1","portId":"value","message":{"selector":"bool","atoms":[{"type":"bool","value":True}]}}]' "${TOGGLE_BANG_RESPONSE}"
 
 STRING_SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"string_1","portId":"set","value":{"type":"string","value":"armed"}}' \
+  --data '{"nodeId":"string_1","portId":"set","message":{"selector":"symbol","atoms":[{"type":"string","value":"armed"}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == []' "${STRING_SET_RESPONSE}"
 
 STRING_BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"string_1","portId":"bang","value":{"type":"bang"}}' \
+  --data '{"nodeId":"string_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"string_1","portId":"value","value":{"type":"string","value":"armed"}}]' "${STRING_BANG_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"string_1","portId":"value","message":{"selector":"symbol","atoms":[{"type":"string","value":"armed"}]}}]' "${STRING_BANG_RESPONSE}"
 
 STRING_IN_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"string_1","portId":"in","value":{"type":"string","value":"running"}}' \
+  --data '{"nodeId":"string_1","portId":"in","message":{"selector":"symbol","atoms":[{"type":"string","value":"running"}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"string_1","portId":"value","value":{"type":"string","value":"running"}}]' "${STRING_IN_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"string_1","portId":"value","message":{"selector":"symbol","atoms":[{"type":"string","value":"running"}]}}]' "${STRING_IN_RESPONSE}"
 
 MESSAGE_BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"message_1","portId":"bang","value":{"type":"bang"}}' \
+  --data '{"nodeId":"message_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"message_1","portId":"value","value":{"type":"string","value":"perform"}}]' "${MESSAGE_BANG_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"message_1","portId":"value","message":{"selector":"symbol","atoms":[{"type":"string","value":"perform"}]}},{"nodeId":"string_1","portId":"value","message":{"selector":"symbol","atoms":[{"type":"string","value":"perform"}]}}]' "${MESSAGE_BANG_RESPONSE}"
 
 MESSAGE_SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"message_1","portId":"set","value":{"type":"string","value":"blocked"}}' \
+  --data '{"nodeId":"message_1","portId":"set","message":{"selector":"set","atoms":[{"type":"string","value":"queued"}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["emitted"] == []; assert r["diagnostics"]' "${MESSAGE_SET_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == []' "${MESSAGE_SET_RESPONSE}"
 
 STATE_READ_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
