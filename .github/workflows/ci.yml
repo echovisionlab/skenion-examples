@@ -81,8 +81,8 @@ jobs:
           else
             echo "runtime does not support control message payloads yet"
           fi
-          if python3 -c 'import json, sys; r=json.loads(sys.argv[1]); sys.exit(0 if "session.preview.controlState" in r.get("capabilities", []) else 1)' "${INFO}"; then
+          if python3 -c 'import json, sys; caps=json.loads(sys.argv[1]).get("capabilities", []); sys.exit(0 if "session.preview.controlState" in caps and "session.control.messages" in caps else 1)' "${INFO}"; then
             SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-live-control-preview.sh
           else
-            echo "runtime does not support live preview control snapshots yet"
+            echo "runtime does not support message-based live preview control snapshots yet"
           fi
