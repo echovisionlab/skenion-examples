@@ -5,7 +5,19 @@
   "version": "0.1.0",
   "displayName": "Comment",
   "category": "Control",
-  "ports": [],
+  "ports": [
+    {
+      "id": "in",
+      "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "event",
+        "dataKind": "message.any"
+      },
+      "required": false,
+      "activation": "trigger"
+    }
+  ],
   "execution": {
     "model": "event"
   },

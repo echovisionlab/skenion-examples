@@ -67,8 +67,9 @@ control events separate from graph patches.
 The `control-layer-demo.project.json` payload covers the non-render control
 surface: `core.bool`, `core.string`, `core.message`, and `core.comment`.
 `core.message` is a stored message box with `in`/`out`; `set ...` updates the
-stored message silently and `bang` emits it. `core.comment` is a persisted
-annotation with no runtime behavior.
+stored message silently and `bang` emits it. `core.comment` is a compact
+annotation object with an `in` inlet; `set <text>` updates runtime display text
+silently while graph text edits remain persisted graph changes.
 
 Built-in node manifests whose IDs appear in
 `skenion-contracts/builtins/v0.1/builtins.manifest.json` must stay structurally
