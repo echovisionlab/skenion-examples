@@ -5,6 +5,47 @@
   "revision": "1",
   "nodes": [
     {
+      "id": "source_1",
+      "kind": "core.float",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "event",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "cold",
+          "direction": "input",
+          "label": "Cold",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.float",
+            "format": "f32"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.float",
+            "format": "f32"
+          }
+        }
+      ]
+    },
+    {
       "id": "value_1",
       "kind": "core.float",
       "kindVersion": "0.1.0",
@@ -15,17 +56,16 @@
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "value",
-            "dataKind": "number.float",
-            "format": "f32"
+            "flow": "event",
+            "dataKind": "message.any"
           },
           "required": false,
           "activation": "trigger"
         },
         {
-          "id": "set",
+          "id": "cold",
           "direction": "input",
-          "label": "Set",
+          "label": "Cold",
           "type": {
             "flow": "value",
             "dataKind": "number.float",
@@ -33,17 +73,6 @@
           },
           "required": false,
           "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
         },
         {
           "id": "value",
@@ -59,5 +88,16 @@
       ]
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "from": {
+        "node": "source_1",
+        "port": "value"
+      },
+      "to": {
+        "node": "value_1",
+        "port": "value"
+      }
+    }
+  ]
 }

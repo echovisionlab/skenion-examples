@@ -15,14 +15,14 @@ curl --fail --silent \
 
 F32_SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"set","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":32}]}}' \
+  --data '{"nodeId":"value_1","portId":"in","message":{"selector":"set","atoms":[{"type":"float","representation":"f32","value":32}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == []' "${F32_SET_RESPONSE}"
 
 F32_BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
+  --data '{"nodeId":"value_1","portId":"in","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c '
@@ -71,21 +71,21 @@ curl --fail --silent \
 
 TOGGLE_BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"toggle_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
+  --data '{"nodeId":"toggle_1","portId":"in","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"toggle_1","portId":"value","message":{"selector":"bool","atoms":[{"type":"bool","value":True}]}}]' "${TOGGLE_BANG_RESPONSE}"
 
 STRING_SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"string_1","portId":"set","message":{"selector":"symbol","atoms":[{"type":"string","value":"armed"}]}}' \
+  --data '{"nodeId":"string_1","portId":"in","message":{"selector":"set","atoms":[{"type":"string","value":"armed"}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == []' "${STRING_SET_RESPONSE}"
 
 STRING_BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"string_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
+  --data '{"nodeId":"string_1","portId":"in","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"string_1","portId":"value","message":{"selector":"symbol","atoms":[{"type":"string","value":"armed"}]}}]' "${STRING_BANG_RESPONSE}"
@@ -99,14 +99,14 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 MESSAGE_BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"message_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
+  --data '{"nodeId":"message_1","portId":"in","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"message_1","portId":"value","message":{"selector":"symbol","atoms":[{"type":"string","value":"perform"}]}}]' "${MESSAGE_BANG_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"message_1","portId":"out","message":{"selector":"symbol","atoms":[{"type":"string","value":"perform"}]}},{"nodeId":"bang_2","portId":"out","message":{"selector":"bang","atoms":[]}}]' "${MESSAGE_BANG_RESPONSE}"
 
 MESSAGE_SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"message_1","portId":"set","message":{"selector":"set","atoms":[{"type":"string","value":"queued"}]}}' \
+  --data '{"nodeId":"message_1","portId":"in","message":{"selector":"set","atoms":[{"type":"string","value":"queued"}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == []' "${MESSAGE_SET_RESPONSE}"

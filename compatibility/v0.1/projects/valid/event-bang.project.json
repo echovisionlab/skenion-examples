@@ -23,7 +23,7 @@
             "activation": "trigger"
           },
           {
-            "id": "bang",
+            "id": "out",
             "direction": "output",
             "label": "Bang",
             "type": {
@@ -51,29 +51,7 @@
             "activation": "trigger"
           },
           {
-            "id": "set",
-            "direction": "input",
-            "label": "Set",
-            "type": {
-              "flow": "event",
-              "dataKind": "message.any"
-            },
-            "required": false,
-            "activation": "latched"
-          },
-          {
-            "id": "bang",
-            "direction": "input",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "event.bang"
-            },
-            "required": false,
-            "activation": "trigger"
-          },
-          {
-            "id": "value",
+            "id": "out",
             "direction": "output",
             "label": "Message",
             "type": {
@@ -88,11 +66,11 @@
       {
         "from": {
           "node": "bang_1",
-          "port": "bang"
+          "port": "out"
         },
         "to": {
           "node": "event_log_1",
-          "port": "bang"
+          "port": "in"
         }
       }
     ]
@@ -118,7 +96,7 @@
           "activation": "trigger"
         },
         {
-          "id": "bang",
+          "id": "out",
           "direction": "output",
           "label": "Bang",
           "type": {
@@ -156,29 +134,7 @@
           "activation": "trigger"
         },
         {
-          "id": "set",
-          "direction": "input",
-          "label": "Set",
-          "type": {
-            "flow": "event",
-            "dataKind": "message.any"
-          },
-          "required": false,
-          "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
-        },
-        {
-          "id": "value",
+          "id": "out",
           "direction": "output",
           "label": "Message",
           "type": {
