@@ -22,7 +22,7 @@
           "activation": "trigger"
         },
         {
-          "id": "bang",
+          "id": "out",
           "direction": "output",
           "label": "Bang",
           "type": {
@@ -55,7 +55,7 @@
     {
       "from": {
         "node": "button_1",
-        "port": "bang"
+        "port": "out"
       },
       "to": {
         "node": "burst_1",

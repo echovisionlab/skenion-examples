@@ -14,14 +14,14 @@ curl --fail --silent \
 
 SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"set","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":32}]}}' \
+  --data '{"nodeId":"value_1","portId":"in","message":{"selector":"set","atoms":[{"type":"float","representation":"f32","value":32}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == []' "${SET_RESPONSE}"
 
 BANG_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"value_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
+  --data '{"nodeId":"value_1","portId":"in","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c '

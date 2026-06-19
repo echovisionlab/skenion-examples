@@ -54,17 +54,21 @@ shader interface path: WGSL annotations produce `speed`, `enabled`,
 
 Typed value nodes are stateful control nodes. `core.float`,
 `core.int`, `core.bool`, `core.color`, and `core.string` expose
-`in`, `set`, `bang`, and `value` ports. `core.bool` with `widget: "toggle"`
-uses the same boolean surface, but `bang` flips the stored value before
-emitting. The `value-semantics-demo.project.json` payload wires `core.bang:bang` into
-`core.float:bang`, routes `core.float:value` to both
+`in`, `cold`, and `value` ports. `in` is the Pd-style hot inlet: typed
+messages update and emit, `bang` emits the stored value, and `set ...` updates
+silently. `cold` is the silent storage inlet for compatible typed messages and
+`set ...`. `core.bool` with `widget: "toggle"` uses the same boolean surface,
+but `bang` at `in` flips the stored value before emitting. The
+`value-semantics-demo.project.json` payload wires `core.bang:out` into
+`core.float:in`, routes `core.float:value` to both
 `core.float:in` and `render.fullscreen-shader:speed`, and keeps runtime
 control events separate from graph patches.
 
 The `control-layer-demo.project.json` payload covers the non-render control
 surface: `core.bool`, `core.string`, `core.message`, and `core.comment`.
-`core.message` is intentionally a simple string message box in v0.1, and
-`core.comment` is a persisted annotation with no runtime behavior.
+`core.message` is a stored message box with `in`/`out`; `set ...` updates the
+stored message silently and `bang` emits it. `core.comment` is a persisted
+annotation with no runtime behavior.
 
 Built-in node manifests whose IDs appear in
 `skenion-contracts/builtins/v0.1/builtins.manifest.json` must stay structurally

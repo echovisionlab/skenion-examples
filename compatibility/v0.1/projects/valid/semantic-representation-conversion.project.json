@@ -19,17 +19,16 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "value",
-              "dataKind": "number.float",
-              "format": "f32"
+              "flow": "event",
+              "dataKind": "message.any"
             },
             "required": false,
             "activation": "trigger"
           },
           {
-            "id": "set",
+            "id": "cold",
             "direction": "input",
-            "label": "Set",
+            "label": "Cold",
             "type": {
               "flow": "value",
               "dataKind": "number.float",
@@ -37,17 +36,6 @@
             },
             "required": false,
             "activation": "latched"
-          },
-          {
-            "id": "bang",
-            "direction": "input",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "event.bang"
-            },
-            "required": false,
-            "activation": "trigger"
           },
           {
             "id": "value",
@@ -138,17 +126,16 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "value",
-              "dataKind": "number.int",
-              "format": "i32"
+              "flow": "event",
+              "dataKind": "message.any"
             },
             "required": false,
             "activation": "trigger"
           },
           {
-            "id": "set",
+            "id": "cold",
             "direction": "input",
-            "label": "Set",
+            "label": "Cold",
             "type": {
               "flow": "value",
               "dataKind": "number.int",
@@ -156,17 +143,6 @@
             },
             "required": false,
             "activation": "latched"
-          },
-          {
-            "id": "bang",
-            "direction": "input",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "event.bang"
-            },
-            "required": false,
-            "activation": "trigger"
           },
           {
             "id": "value",
@@ -194,17 +170,16 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "value",
-              "dataKind": "number.uint",
-              "format": "u32"
+              "flow": "event",
+              "dataKind": "message.any"
             },
             "required": false,
             "activation": "trigger"
           },
           {
-            "id": "set",
+            "id": "cold",
             "direction": "input",
-            "label": "Set",
+            "label": "Cold",
             "type": {
               "flow": "value",
               "dataKind": "number.uint",
@@ -212,17 +187,6 @@
             },
             "required": false,
             "activation": "latched"
-          },
-          {
-            "id": "bang",
-            "direction": "input",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "event.bang"
-            },
-            "required": false,
-            "activation": "trigger"
           },
           {
             "id": "value",
@@ -256,18 +220,16 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "value",
-              "dataKind": "color",
-              "format": "rgba32f",
-              "colorSpace": "linear"
+              "flow": "event",
+              "dataKind": "message.any"
             },
             "required": false,
             "activation": "trigger"
           },
           {
-            "id": "set",
+            "id": "cold",
             "direction": "input",
-            "label": "Set",
+            "label": "Cold",
             "type": {
               "flow": "value",
               "dataKind": "color",
@@ -276,17 +238,6 @@
             },
             "required": false,
             "activation": "latched"
-          },
-          {
-            "id": "bang",
-            "direction": "input",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "event.bang"
-            },
-            "required": false,
-            "activation": "trigger"
           },
           {
             "id": "value",
@@ -948,17 +899,16 @@
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "value",
-            "dataKind": "number.float",
-            "format": "f32"
+            "flow": "event",
+            "dataKind": "message.any"
           },
           "required": false,
           "activation": "trigger"
         },
         {
-          "id": "set",
+          "id": "cold",
           "direction": "input",
-          "label": "Set",
+          "label": "Cold",
           "type": {
             "flow": "value",
             "dataKind": "number.float",
@@ -966,17 +916,6 @@
           },
           "required": false,
           "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
         },
         {
           "id": "value",
@@ -1039,17 +978,16 @@
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "value",
-            "dataKind": "number.int",
-            "format": "i32"
+            "flow": "event",
+            "dataKind": "message.any"
           },
           "required": false,
           "activation": "trigger"
         },
         {
-          "id": "set",
+          "id": "cold",
           "direction": "input",
-          "label": "Set",
+          "label": "Cold",
           "type": {
             "flow": "value",
             "dataKind": "number.int",
@@ -1057,17 +995,6 @@
           },
           "required": false,
           "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
         },
         {
           "id": "value",
@@ -1102,17 +1029,16 @@
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "value",
-            "dataKind": "number.uint",
-            "format": "u32"
+            "flow": "event",
+            "dataKind": "message.any"
           },
           "required": false,
           "activation": "trigger"
         },
         {
-          "id": "set",
+          "id": "cold",
           "direction": "input",
-          "label": "Set",
+          "label": "Cold",
           "type": {
             "flow": "value",
             "dataKind": "number.uint",
@@ -1120,17 +1046,6 @@
           },
           "required": false,
           "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
         },
         {
           "id": "value",
@@ -1165,18 +1080,16 @@
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "value",
-            "dataKind": "color",
-            "format": "rgba32f",
-            "colorSpace": "linear"
+            "flow": "event",
+            "dataKind": "message.any"
           },
           "required": false,
           "activation": "trigger"
         },
         {
-          "id": "set",
+          "id": "cold",
           "direction": "input",
-          "label": "Set",
+          "label": "Cold",
           "type": {
             "flow": "value",
             "dataKind": "color",
@@ -1185,17 +1098,6 @@
           },
           "required": false,
           "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
         },
         {
           "id": "value",

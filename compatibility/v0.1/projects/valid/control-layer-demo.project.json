@@ -23,7 +23,7 @@
             "activation": "trigger"
           },
           {
-            "id": "bang",
+            "id": "out",
             "direction": "output",
             "label": "Bang",
             "type": {
@@ -47,33 +47,22 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "value",
-              "dataKind": "boolean"
+              "flow": "event",
+              "dataKind": "message.any"
             },
             "required": false,
             "activation": "trigger"
           },
           {
-            "id": "set",
+            "id": "cold",
             "direction": "input",
-            "label": "Set",
+            "label": "Cold",
             "type": {
               "flow": "value",
               "dataKind": "boolean"
             },
             "required": false,
             "activation": "latched"
-          },
-          {
-            "id": "bang",
-            "direction": "input",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "event.bang"
-            },
-            "required": false,
-            "activation": "trigger"
           },
           {
             "id": "value",
@@ -99,33 +88,22 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "value",
-              "dataKind": "string"
+              "flow": "event",
+              "dataKind": "message.any"
             },
             "required": false,
             "activation": "trigger"
           },
           {
-            "id": "set",
+            "id": "cold",
             "direction": "input",
-            "label": "Set",
+            "label": "Cold",
             "type": {
               "flow": "value",
               "dataKind": "string"
             },
             "required": false,
             "activation": "latched"
-          },
-          {
-            "id": "bang",
-            "direction": "input",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "event.bang"
-            },
-            "required": false,
-            "activation": "trigger"
           },
           {
             "id": "value",
@@ -158,29 +136,7 @@
             "activation": "trigger"
           },
           {
-            "id": "set",
-            "direction": "input",
-            "label": "Set",
-            "type": {
-              "flow": "event",
-              "dataKind": "message.any"
-            },
-            "required": false,
-            "activation": "latched"
-          },
-          {
-            "id": "bang",
-            "direction": "input",
-            "label": "Bang",
-            "type": {
-              "flow": "event",
-              "dataKind": "event.bang"
-            },
-            "required": false,
-            "activation": "trigger"
-          },
-          {
-            "id": "value",
+            "id": "out",
             "direction": "output",
             "label": "Message",
             "type": {
@@ -198,37 +154,75 @@
           "text": "Bang fans out to toggle, message, and string controls."
         },
         "ports": []
+      },
+      {
+        "id": "bang_2",
+        "kind": "core.bang",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "event",
+              "dataKind": "message.any"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "out",
+            "direction": "output",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            }
+          }
+        ]
       }
     ],
     "edges": [
       {
         "from": {
           "node": "bang_1",
-          "port": "bang"
+          "port": "out"
         },
         "to": {
           "node": "toggle_1",
-          "port": "bang"
+          "port": "in"
         }
       },
       {
         "from": {
           "node": "bang_1",
-          "port": "bang"
+          "port": "out"
         },
         "to": {
           "node": "string_1",
-          "port": "bang"
+          "port": "in"
         }
       },
       {
         "from": {
           "node": "bang_1",
-          "port": "bang"
+          "port": "out"
         },
         "to": {
           "node": "message_1",
-          "port": "bang"
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "message_1",
+          "port": "out"
+        },
+        "to": {
+          "node": "bang_2",
+          "port": "in"
         }
       }
     ]
@@ -254,7 +248,7 @@
           "activation": "trigger"
         },
         {
-          "id": "bang",
+          "id": "out",
           "direction": "output",
           "label": "Bang",
           "type": {
@@ -285,33 +279,22 @@
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "value",
-            "dataKind": "boolean"
+            "flow": "event",
+            "dataKind": "message.any"
           },
           "required": false,
           "activation": "trigger"
         },
         {
-          "id": "set",
+          "id": "cold",
           "direction": "input",
-          "label": "Set",
+          "label": "Cold",
           "type": {
             "flow": "value",
             "dataKind": "boolean"
           },
           "required": false,
           "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
         },
         {
           "id": "value",
@@ -345,33 +328,22 @@
           "direction": "input",
           "label": "In",
           "type": {
-            "flow": "value",
-            "dataKind": "string"
+            "flow": "event",
+            "dataKind": "message.any"
           },
           "required": false,
           "activation": "trigger"
         },
         {
-          "id": "set",
+          "id": "cold",
           "direction": "input",
-          "label": "Set",
+          "label": "Cold",
           "type": {
             "flow": "value",
             "dataKind": "string"
           },
           "required": false,
           "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
         },
         {
           "id": "value",
@@ -412,29 +384,7 @@
           "activation": "trigger"
         },
         {
-          "id": "set",
-          "direction": "input",
-          "label": "Set",
-          "type": {
-            "flow": "event",
-            "dataKind": "message.any"
-          },
-          "required": false,
-          "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
-        },
-        {
-          "id": "value",
+          "id": "out",
           "direction": "output",
           "label": "Message",
           "type": {
