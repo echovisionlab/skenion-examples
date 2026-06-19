@@ -16,7 +16,8 @@
           "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "number.float"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "trigger"
@@ -27,7 +28,8 @@
           "label": "Set",
           "type": {
             "flow": "value",
-            "dataKind": "number.float"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "latched"
@@ -49,7 +51,8 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.float"
+            "dataKind": "number.float",
+            "format": "f32"
           }
         },
         {
@@ -58,32 +61,62 @@
           "label": "Ghost",
           "type": {
             "flow": "value",
-            "dataKind": "number.float"
+            "dataKind": "number.float",
+            "format": "f32"
           }
         }
       ]
     },
     {
       "id": "target_1",
-      "kind": "core.target",
+      "kind": "core.float",
       "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
-          "id": "value",
+          "id": "in",
           "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.float",
+            "format": "f32"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.float",
+            "format": "f32"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "value",
+          "direction": "output",
           "label": "Value",
           "type": {
             "flow": "value",
             "dataKind": "number.float",
-            "range": {
-              "min": 0,
-              "max": 1,
-              "step": 0.01
-            }
-          },
-          "required": true,
-          "activation": "latched"
+            "format": "f32"
+          }
         }
       ]
     }
@@ -96,7 +129,7 @@
       },
       "to": {
         "node": "target_1",
-        "port": "value"
+        "port": "in"
       }
     }
   ]

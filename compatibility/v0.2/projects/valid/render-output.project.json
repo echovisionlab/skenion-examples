@@ -10,7 +10,12 @@
         "kind": "render.clear-color",
         "kindVersion": "0.2.0",
         "params": {
-          "color": [0.12, 0.2, 0.34, 1]
+          "color": [
+            0.12,
+            0.2,
+            0.34,
+            1
+          ]
         },
         "ports": [
           {
@@ -76,7 +81,9 @@
         "persistent": false
       },
       "permissions": [],
-      "capabilities": ["render.frame.v0.2"]
+      "capabilities": [
+        "render.output.clear-color"
+      ]
     },
     {
       "schema": "skenion.node.definition",
@@ -95,14 +102,16 @@
         }
       ],
       "execution": {
-        "model": "gpu_pass",
+        "model": "frame",
         "clock": "frame"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
-      "capabilities": ["render.output.v0.2"]
+      "capabilities": [
+        "render.output.surface"
+      ]
     }
   ]
 }

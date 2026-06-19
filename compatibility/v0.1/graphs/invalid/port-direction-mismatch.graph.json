@@ -54,8 +54,7 @@
             "dataKind": "number.float",
             "format": "f32"
           },
-          "required": false,
-          "activation": "trigger"
+          "activation": "latched"
         }
       ]
     }

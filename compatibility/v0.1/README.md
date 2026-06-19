@@ -54,15 +54,15 @@ shader interface path: WGSL annotations produce `speed`, `enabled`,
 
 Typed value nodes are stateful control nodes. `core.float`,
 `core.int`, `core.bool`, `core.color`, and `core.string` expose
-`in`, `set`, `bang`, and `value` ports. `core.toggle` has the same boolean
-surface, but `bang` flips the stored value before emitting. The
-`value-semantics-demo.project.json` payload wires `core.bang-button:bang` into
+`in`, `set`, `bang`, and `value` ports. `core.bool` with `widget: "toggle"`
+uses the same boolean surface, but `bang` flips the stored value before
+emitting. The `value-semantics-demo.project.json` payload wires `core.bang:bang` into
 `core.float:bang`, routes `core.float:value` to both
-`core.target:value` and `render.fullscreen-shader:speed`, and keeps runtime
+`core.float:in` and `render.fullscreen-shader:speed`, and keeps runtime
 control events separate from graph patches.
 
 The `control-layer-demo.project.json` payload covers the non-render control
-surface: `core.toggle`, `core.string`, `core.message`, and `core.comment`.
+surface: `core.bool`, `core.string`, `core.message`, and `core.comment`.
 `core.message` is intentionally a simple string message box in v0.1, and
 `core.comment` is a persisted annotation with no runtime behavior.
 

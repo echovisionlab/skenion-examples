@@ -12,6 +12,10 @@
   "state": {
     "persistent": false
   },
-  "permissions": ["filesystem.read"],
-  "capabilities": ["script.api.v0.1"]
+  "permissions": [
+    "filesystem.read"
+  ],
+  "capabilities": [
+    "script.api.v0.1"
+  ]
 }

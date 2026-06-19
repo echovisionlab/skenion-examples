@@ -107,7 +107,9 @@
         "persistent": false
       },
       "permissions": [],
-      "capabilities": ["gpu.texture2d.v0.2"]
+      "capabilities": [
+        "gpu.texture2d.v0.2"
+      ]
     },
     {
       "schema": "skenion.node.definition",
@@ -138,7 +140,9 @@
         "persistent": false
       },
       "permissions": [],
-      "capabilities": ["adapter.explicit.v0.2"]
+      "capabilities": [
+        "adapter.explicit.v0.2"
+      ]
     },
     {
       "schema": "skenion.node.definition",
@@ -157,14 +161,16 @@
         }
       ],
       "execution": {
-        "model": "gpu_pass",
+        "model": "frame",
         "clock": "frame"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
-      "capabilities": ["render.output.v0.2"]
+      "capabilities": [
+        "render.output.surface"
+      ]
     }
   ]
 }

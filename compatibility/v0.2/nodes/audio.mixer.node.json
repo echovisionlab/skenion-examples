@@ -49,5 +49,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["signal.audio.v0.2"]
+  "capabilities": [
+    "signal.audio.v0.2"
+  ]
 }

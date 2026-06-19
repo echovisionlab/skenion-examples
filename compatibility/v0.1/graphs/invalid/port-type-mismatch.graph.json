@@ -51,7 +51,7 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "string"
+            "dataKind": "boolean"
           }
         }
       ]

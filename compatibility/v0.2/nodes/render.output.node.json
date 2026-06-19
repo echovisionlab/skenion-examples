@@ -22,5 +22,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["render.output.v0.2"]
+  "capabilities": [
+    "render.output.v0.2"
+  ]
 }

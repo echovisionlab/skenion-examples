@@ -1001,6 +1001,34 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
+      "id": "example.float-source",
+      "version": "0.1.0",
+      "displayName": "Float Source",
+      "category": "Examples",
+      "ports": [
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.float",
+            "format": "f32"
+          }
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
       "id": "core.int",
       "version": "0.1.0",
       "displayName": "Int",
@@ -1178,34 +1206,6 @@
             "dataKind": "color",
             "format": "rgba32f",
             "colorSpace": "linear"
-          }
-        }
-      ],
-      "execution": {
-        "model": "value"
-      },
-      "state": {
-        "persistent": false
-      },
-      "permissions": [],
-      "capabilities": []
-    },
-    {
-      "schema": "skenion.node.definition",
-      "schemaVersion": "0.1.0",
-      "id": "example.float-source",
-      "version": "0.1.0",
-      "displayName": "Float Source",
-      "category": "Examples",
-      "ports": [
-        {
-          "id": "value",
-          "direction": "output",
-          "label": "Value",
-          "type": {
-            "flow": "value",
-            "dataKind": "number.float",
-            "format": "f32"
           }
         }
       ],

@@ -21,5 +21,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["gpu.texture2d.v0.2"]
+  "capabilities": [
+    "gpu.texture2d.v0.2"
+  ]
 }

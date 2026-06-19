@@ -40,5 +40,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["audio.analysis.rms"]
+  "capabilities": [
+    "audio.analysis.rms"
+  ]
 }

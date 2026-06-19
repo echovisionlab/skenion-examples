@@ -21,5 +21,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["render.frame.v0.2"]
+  "capabilities": [
+    "render.frame.v0.2"
+  ]
 }

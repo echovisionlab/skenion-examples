@@ -456,104 +456,6 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.color",
-      "version": "0.1.0",
-      "displayName": "Color",
-      "category": "Values",
-      "ports": [
-        {
-          "id": "in",
-          "direction": "input",
-          "label": "In",
-          "type": {
-            "flow": "value",
-            "dataKind": "color",
-            "format": "rgba32f",
-            "colorSpace": "linear"
-          },
-          "required": false,
-          "activation": "trigger"
-        },
-        {
-          "id": "set",
-          "direction": "input",
-          "label": "Set",
-          "type": {
-            "flow": "value",
-            "dataKind": "color",
-            "format": "rgba32f",
-            "colorSpace": "linear"
-          },
-          "required": false,
-          "activation": "latched"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "label": "Bang",
-          "type": {
-            "flow": "event",
-            "dataKind": "event.bang"
-          },
-          "required": false,
-          "activation": "trigger"
-        },
-        {
-          "id": "value",
-          "direction": "output",
-          "label": "Color",
-          "type": {
-            "flow": "value",
-            "dataKind": "color",
-            "format": "rgba32f",
-            "colorSpace": "linear"
-          }
-        }
-      ],
-      "execution": {
-        "model": "value"
-      },
-      "state": {
-        "persistent": false
-      },
-      "permissions": [],
-      "capabilities": []
-    },
-    {
-      "schema": "skenion.node.definition",
-      "schemaVersion": "0.1.0",
-      "id": "render.fullscreen-shader",
-      "version": "0.1.0",
-      "displayName": "Fullscreen Shader",
-      "category": "Render",
-      "ports": [
-        {
-          "id": "out",
-          "direction": "output",
-          "label": "Out",
-          "type": {
-            "flow": "resource",
-            "dataKind": "gpu.texture2d",
-            "format": "rgba8unorm",
-            "colorSpace": "srgb"
-          }
-        }
-      ],
-      "execution": {
-        "model": "gpu_pass",
-        "clock": "frame"
-      },
-      "state": {
-        "persistent": false
-      },
-      "permissions": [],
-      "capabilities": [
-        "render.output.fullscreen-shader"
-      ]
-    },
-    {
-      "schema": "skenion.node.definition",
-      "schemaVersion": "0.1.0",
       "id": "core.bool",
       "version": "0.1.0",
       "displayName": "Bool",
@@ -673,6 +575,104 @@
       },
       "permissions": [],
       "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "core.color",
+      "version": "0.1.0",
+      "displayName": "Color",
+      "category": "Values",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "color",
+            "format": "rgba32f",
+            "colorSpace": "linear"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "color",
+            "format": "rgba32f",
+            "colorSpace": "linear"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Color",
+          "type": {
+            "flow": "value",
+            "dataKind": "color",
+            "format": "rgba32f",
+            "colorSpace": "linear"
+          }
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "render.fullscreen-shader",
+      "version": "0.1.0",
+      "displayName": "Fullscreen Shader",
+      "category": "Render",
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "label": "Out",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          }
+        }
+      ],
+      "execution": {
+        "model": "gpu_pass",
+        "clock": "frame"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "render.output.fullscreen-shader"
+      ]
     },
     {
       "schema": "skenion.node.definition",

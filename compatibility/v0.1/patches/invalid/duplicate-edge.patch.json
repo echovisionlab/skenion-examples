@@ -14,7 +14,7 @@
         },
         "to": {
           "node": "target_1",
-          "port": "value"
+          "port": "in"
         }
       }
     }

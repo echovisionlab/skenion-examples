@@ -25,14 +25,28 @@ F32_BANG_RESPONSE="$(curl --fail --silent \
   --data '{"nodeId":"value_1","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":32.0}]}}]' "${F32_BANG_RESPONSE}"
+python3 -c '
+import json, sys
+r=json.loads(sys.argv[1])
+expected={"selector":"float","atoms":[{"type":"float","representation":"f32","value":32.0}]}
+assert r["ok"] is True
+assert {"nodeId":"value_1","portId":"value","message":expected} in r["emitted"]
+assert {"nodeId":"target_1","portId":"value","message":expected} in r["emitted"]
+' "${F32_BANG_RESPONSE}"
 
 F32_IN_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
   --data '{"nodeId":"value_1","portId":"in","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":12}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"value_1","portId":"value","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":12.0}]}}]' "${F32_IN_RESPONSE}"
+python3 -c '
+import json, sys
+r=json.loads(sys.argv[1])
+expected={"selector":"float","atoms":[{"type":"float","representation":"f32","value":12.0}]}
+assert r["ok"] is True
+assert {"nodeId":"value_1","portId":"value","message":expected} in r["emitted"]
+assert {"nodeId":"target_1","portId":"value","message":expected} in r["emitted"]
+' "${F32_IN_RESPONSE}"
 
 F32_READ_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
