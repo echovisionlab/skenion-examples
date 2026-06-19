@@ -62,35 +62,74 @@
       },
       {
         "id": "target_1",
-        "kind": "core.target",
+        "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
-            "id": "value",
+            "id": "in",
             "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f32"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f32"
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
             "label": "Value",
             "type": {
               "flow": "value",
               "dataKind": "number.float",
-              "range": {
-                "min": 0,
-                "max": 1,
-                "step": 0.01
-              },
               "format": "f32"
-            },
-            "required": true,
-            "activation": "latched"
+            }
           }
         ]
       },
       {
         "id": "bang_1",
-        "kind": "core.bang-button",
+        "kind": "core.bang",
         "kindVersion": "0.1.0",
         "params": {},
         "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "event",
+              "dataKind": "message.any"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
           {
             "id": "bang",
             "direction": "output",
@@ -104,10 +143,32 @@
       },
       {
         "id": "event_log_1",
-        "kind": "core.event-log",
+        "kind": "core.message",
         "kindVersion": "0.1.0",
         "params": {},
         "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "event",
+              "dataKind": "message.any"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "event",
+              "dataKind": "message.any"
+            },
+            "required": false,
+            "activation": "latched"
+          },
           {
             "id": "bang",
             "direction": "input",
@@ -116,8 +177,17 @@
               "flow": "event",
               "dataKind": "event.bang"
             },
-            "required": true,
+            "required": false,
             "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Message",
+            "type": {
+              "flow": "event",
+              "dataKind": "message.any"
+            }
           }
         ]
       },
@@ -228,7 +298,7 @@
         },
         "to": {
           "node": "target_1",
-          "port": "value"
+          "port": "in"
         }
       },
       {
@@ -320,46 +390,22 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.target",
+      "id": "core.bang",
       "version": "0.1.0",
-      "displayName": "Value Target",
-      "category": "Values",
-      "ports": [
-        {
-          "id": "value",
-          "direction": "input",
-          "label": "Value",
-          "type": {
-            "flow": "value",
-            "dataKind": "number.float",
-            "range": {
-              "min": 0,
-              "max": 1,
-              "step": 0.01
-            },
-            "format": "f32"
-          },
-          "required": true,
-          "activation": "latched"
-        }
-      ],
-      "execution": {
-        "model": "value"
-      },
-      "state": {
-        "persistent": false
-      },
-      "permissions": [],
-      "capabilities": []
-    },
-    {
-      "schema": "skenion.node.definition",
-      "schemaVersion": "0.1.0",
-      "id": "core.bang-button",
-      "version": "0.1.0",
-      "displayName": "Bang Button",
+      "displayName": "Bang",
       "category": "Events",
       "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "event",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
         {
           "id": "bang",
           "direction": "output",
@@ -382,11 +428,33 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.event-log",
+      "id": "core.message",
       "version": "0.1.0",
-      "displayName": "Event Log",
-      "category": "Events",
+      "displayName": "Message",
+      "category": "Control",
       "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "event",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "event",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "latched"
+        },
         {
           "id": "bang",
           "direction": "input",
@@ -395,8 +463,17 @@
             "flow": "event",
             "dataKind": "event.bang"
           },
-          "required": true,
+          "required": false,
           "activation": "trigger"
+        },
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Message",
+          "type": {
+            "flow": "event",
+            "dataKind": "message.any"
+          }
         }
       ],
       "execution": {

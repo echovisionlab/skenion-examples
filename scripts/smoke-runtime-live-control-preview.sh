@@ -21,7 +21,7 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 SLIDER_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}}' \
+  --data '{"nodeId":"slider_speed","portId":"in","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["changed"] is True; assert r["controlRevision"] == 1; assert r["emitted"][0] == {"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}}' "${SLIDER_RESPONSE}"
@@ -36,7 +36,7 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 TOGGLE_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"toggle_enabled","portId":"value","message":{"selector":"bang","atoms":[]}}' \
+  --data '{"nodeId":"toggle_enabled","portId":"bang","message":{"selector":"bang","atoms":[]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["changed"] is True; assert r["controlRevision"] == 2; assert r["emitted"][0] == {"nodeId":"toggle_enabled","portId":"value","message":{"selector":"bool","atoms":[{"type":"bool","value":False}]}}' "${TOGGLE_RESPONSE}"

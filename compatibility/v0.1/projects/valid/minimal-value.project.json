@@ -62,26 +62,54 @@
       },
       {
         "id": "target_1",
-        "kind": "core.target",
+        "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
-            "id": "value",
+            "id": "in",
             "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f32"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f32"
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
             "label": "Value",
             "type": {
               "flow": "value",
               "dataKind": "number.float",
-              "range": {
-                "min": 0,
-                "max": 1,
-                "step": 0.01
-              },
               "format": "f32"
-            },
-            "required": true,
-            "activation": "latched"
+            }
           }
         ]
       }
@@ -94,7 +122,7 @@
         },
         "to": {
           "node": "target_1",
-          "port": "value"
+          "port": "in"
         }
       }
     ]
@@ -152,41 +180,6 @@
             "dataKind": "number.float",
             "format": "f32"
           }
-        }
-      ],
-      "execution": {
-        "model": "value"
-      },
-      "state": {
-        "persistent": false
-      },
-      "permissions": [],
-      "capabilities": []
-    },
-    {
-      "schema": "skenion.node.definition",
-      "schemaVersion": "0.1.0",
-      "id": "core.target",
-      "version": "0.1.0",
-      "displayName": "Value Target",
-      "category": "Values",
-      "ports": [
-        {
-          "id": "value",
-          "direction": "input",
-          "label": "Value",
-          "type": {
-            "flow": "value",
-            "dataKind": "number.float",
-            "range": {
-              "min": 0,
-              "max": 1,
-              "step": 0.01
-            },
-            "format": "f32"
-          },
-          "required": true,
-          "activation": "latched"
         }
       ],
       "execution": {

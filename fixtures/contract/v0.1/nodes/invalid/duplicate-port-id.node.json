@@ -31,5 +31,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["script.api.v0.1"]
+  "capabilities": [
+    "script.api.v0.1"
+  ]
 }

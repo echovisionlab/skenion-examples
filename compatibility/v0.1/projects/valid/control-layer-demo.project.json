@@ -7,10 +7,21 @@
     "nodes": [
       {
         "id": "bang_1",
-        "kind": "core.bang-button",
+        "kind": "core.bang",
         "kindVersion": "0.1.0",
         "params": {},
         "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "event",
+              "dataKind": "message.any"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
           {
             "id": "bang",
             "direction": "output",
@@ -24,10 +35,11 @@
       },
       {
         "id": "toggle_1",
-        "kind": "core.toggle",
+        "kind": "core.bool",
         "kindVersion": "0.1.0",
         "params": {
-          "value": false
+          "value": false,
+          "widget": "toggle"
         },
         "ports": [
           {
@@ -225,11 +237,22 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.bang-button",
+      "id": "core.bang",
       "version": "0.1.0",
-      "displayName": "Bang Button",
+      "displayName": "Bang",
       "category": "Events",
       "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "event",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
         {
           "id": "bang",
           "direction": "output",
@@ -252,9 +275,9 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.toggle",
+      "id": "core.bool",
       "version": "0.1.0",
-      "displayName": "Toggle",
+      "displayName": "Bool",
       "category": "Values",
       "ports": [
         {

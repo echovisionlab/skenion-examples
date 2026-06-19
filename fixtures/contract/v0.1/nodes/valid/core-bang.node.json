@@ -1,11 +1,22 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "core.bang-button",
+  "id": "core.bang",
   "version": "0.1.0",
-  "displayName": "Bang Button",
+  "displayName": "Bang",
   "category": "Events",
   "ports": [
+    {
+      "id": "in",
+      "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "event",
+        "dataKind": "message.any"
+      },
+      "required": false,
+      "activation": "trigger"
+    },
     {
       "id": "bang",
       "direction": "output",

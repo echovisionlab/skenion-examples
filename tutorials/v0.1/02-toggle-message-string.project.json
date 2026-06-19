@@ -15,10 +15,21 @@
     },
     {
       "id": "bang_1",
-      "kind": "core.bang-button",
+      "kind": "core.bang",
       "kindVersion": "0.1.0",
       "params": {},
       "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "event",
+            "dataKind": "message.any"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
         {
           "id": "bang",
           "direction": "output",
@@ -32,10 +43,11 @@
     },
     {
       "id": "toggle_1",
-      "kind": "core.toggle",
+      "kind": "core.bool",
       "kindVersion": "0.1.0",
       "params": {
-        "value": false
+        "value": false,
+        "widget": "toggle"
       },
       "ports": [
         {

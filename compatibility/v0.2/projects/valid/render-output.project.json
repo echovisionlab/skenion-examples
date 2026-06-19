@@ -10,7 +10,12 @@
         "kind": "render.clear-color",
         "kindVersion": "0.2.0",
         "params": {
-          "color": [0.12, 0.2, 0.34, 1]
+          "color": [
+            0.12,
+            0.2,
+            0.34,
+            1
+          ]
         },
         "ports": [
           {
@@ -55,17 +60,22 @@
   "nodes": [
     {
       "schema": "skenion.node.definition",
-      "schemaVersion": "0.2.0",
+      "schemaVersion": "0.1.0",
       "id": "render.clear-color",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "displayName": "Clear Color",
       "category": "Render",
       "ports": [
         {
           "id": "out",
           "direction": "output",
-          "type": "render.frame",
-          "rate": "render"
+          "label": "Out",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          }
         }
       ],
       "execution": {
@@ -76,33 +86,43 @@
         "persistent": false
       },
       "permissions": [],
-      "capabilities": ["render.frame.v0.2"]
+      "capabilities": [
+        "render.output.clear-color"
+      ]
     },
     {
       "schema": "skenion.node.definition",
-      "schemaVersion": "0.2.0",
+      "schemaVersion": "0.1.0",
       "id": "render.output",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "displayName": "Render Output",
       "category": "Render",
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "render.frame",
-          "rate": "render",
-          "required": true
+          "label": "In",
+          "type": {
+            "flow": "resource",
+            "dataKind": "gpu.texture2d",
+            "format": "rgba8unorm",
+            "colorSpace": "srgb"
+          },
+          "required": true,
+          "activation": "latched"
         }
       ],
       "execution": {
-        "model": "gpu_pass",
+        "model": "frame",
         "clock": "frame"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
-      "capabilities": ["render.output.v0.2"]
+      "capabilities": [
+        "render.output.surface"
+      ]
     }
   ]
 }

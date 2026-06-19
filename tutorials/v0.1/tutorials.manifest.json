@@ -11,8 +11,8 @@
       "projectPath": "projects/v0.1/value-bang-set.skenion.json",
       "helpNodeIds": [
         "core.float",
-        "core.bang-button",
-        "core.target"
+        "core.bang",
+        "core.float"
       ],
       "tags": [
         "control",
@@ -26,7 +26,7 @@
       "description": "Demonstrates boolean toggles, saved string values, and message-style event output.",
       "path": "tutorials/v0.1/02-toggle-message-string.project.json",
       "helpNodeIds": [
-        "core.toggle",
+        "core.bool",
         "core.message",
         "core.string"
       ],
@@ -76,12 +76,12 @@
       "id": "object-routing-panel-controls",
       "title": "Object Routing Panel Controls",
       "summary": "Route typed panel controls through object-owned sendName channels.",
-      "description": "Shows ui.slider-float and ui.toggle owning sendName routing directly while a fullscreen shader consumes explicit cable inputs.",
+      "description": "Shows core.float with widget=slider and core.bool with widget=toggle owning sendName routing directly while a fullscreen shader consumes explicit cable inputs.",
       "path": "tutorials/v0.1/05-object-routing-panel-controls.project.json",
       "projectPath": "projects/v0.1/object-routing-panel.skenion.json",
       "helpNodeIds": [
-        "ui.slider-float",
-        "ui.toggle",
+        "core.float",
+        "core.bool",
         "render.fullscreen-shader",
         "render.output"
       ],

@@ -21,5 +21,8 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": ["render.frame.v0.2", "shader.wgsl.v0.1"]
+  "capabilities": [
+    "render.frame.v0.2",
+    "shader.wgsl.v0.1"
+  ]
 }

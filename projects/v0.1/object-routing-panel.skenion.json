@@ -26,7 +26,7 @@
       },
       {
         "id": "slider_speed",
-        "kind": "ui.slider-float",
+        "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {
           "label": "Speed",
@@ -86,7 +86,7 @@
       },
       {
         "id": "toggle_enabled",
-        "kind": "ui.toggle",
+        "kind": "core.bool",
         "kindVersion": "0.1.0",
         "params": {
           "label": "Enabled",
@@ -99,8 +99,8 @@
             "direction": "input",
             "label": "In",
             "type": {
-              "flow": "event",
-              "dataKind": "message.any"
+              "flow": "value",
+              "dataKind": "boolean"
             },
             "required": false,
             "activation": "trigger"
@@ -110,11 +110,22 @@
             "direction": "input",
             "label": "Set",
             "type": {
-              "flow": "event",
-              "dataKind": "message.any"
+              "flow": "value",
+              "dataKind": "boolean"
             },
             "required": false,
             "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
           },
           {
             "id": "value",

@@ -1,21 +1,30 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "core.event-log",
+  "id": "core.bang",
   "version": "0.1.0",
-  "displayName": "Event Log",
+  "displayName": "Bang",
   "category": "Events",
   "ports": [
     {
-      "id": "bang",
+      "id": "in",
       "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "event",
+        "dataKind": "message.any"
+      },
+      "required": false,
+      "activation": "trigger"
+    },
+    {
+      "id": "bang",
+      "direction": "output",
       "label": "Bang",
       "type": {
         "flow": "event",
         "dataKind": "event.bang"
-      },
-      "required": true,
-      "activation": "trigger"
+      }
     }
   ],
   "execution": {
