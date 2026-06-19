@@ -6,7 +6,7 @@
     "revision": "1",
     "nodes": [
       {
-        "id": "float_1",
+        "id": "float_f32",
         "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {
@@ -62,10 +62,132 @@
         ]
       },
       {
-        "id": "uint_target_1",
-        "kind": "example.uint-target",
+        "id": "float_f8",
+        "kind": "example.float-source",
         "kindVersion": "0.1.0",
-        "params": {},
+        "params": {
+          "representation": "f8.e4m3",
+          "value": 1.25
+        },
+        "ports": [
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f8.e4m3"
+            }
+          }
+        ]
+      },
+      {
+        "id": "float_ufloat8",
+        "kind": "example.float-source",
+        "kindVersion": "0.1.0",
+        "params": {
+          "representation": "ufloat8",
+          "value": 12.75
+        },
+        "ports": [
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "ufloat8"
+            }
+          }
+        ]
+      },
+      {
+        "id": "float_ufloat16",
+        "kind": "example.float-source",
+        "kindVersion": "0.1.0",
+        "params": {
+          "representation": "ufloat16",
+          "value": 1024.5
+        },
+        "ports": [
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "ufloat16"
+            }
+          }
+        ]
+      },
+      {
+        "id": "int_i32",
+        "kind": "core.int",
+        "kindVersion": "0.1.0",
+        "params": {
+          "representation": "i32",
+          "value": -42
+        },
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.int",
+              "format": "i32"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.int",
+              "format": "i32"
+            },
+            "required": false,
+            "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.int",
+              "format": "i32"
+            }
+          }
+        ]
+      },
+      {
+        "id": "uint_u32",
+        "kind": "core.uint",
+        "kindVersion": "0.1.0",
+        "params": {
+          "representation": "u32",
+          "value": 300
+        },
         "ports": [
           {
             "id": "in",
@@ -74,21 +196,59 @@
             "type": {
               "flow": "value",
               "dataKind": "number.uint",
-              "format": "u8"
+              "format": "u32"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "set",
+            "direction": "input",
+            "label": "Set",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.uint",
+              "format": "u32"
             },
             "required": false,
             "activation": "latched"
+          },
+          {
+            "id": "bang",
+            "direction": "input",
+            "label": "Bang",
+            "type": {
+              "flow": "event",
+              "dataKind": "event.bang"
+            },
+            "required": false,
+            "activation": "trigger"
+          },
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Value",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.uint",
+              "format": "u32"
+            }
           }
         ]
       },
       {
-        "id": "color_1",
+        "id": "color_rgba32f",
         "kind": "core.color",
         "kindVersion": "0.1.0",
         "params": {
-          "colorSpace": "linear",
           "representation": "rgba32f",
-          "value": [1.2, 0.5, -0.1, 1]
+          "value": [
+            1.2,
+            0.5,
+            -0.1,
+            1
+          ],
+          "colorSpace": "linear"
         },
         "ports": [
           {
@@ -142,7 +302,303 @@
         ]
       },
       {
-        "id": "color_target_1",
+        "id": "color_rgb8",
+        "kind": "example.color-source",
+        "kindVersion": "0.1.0",
+        "params": {
+          "representation": "rgb8unorm",
+          "value": [
+            0.25,
+            0.5,
+            0.75,
+            1
+          ],
+          "colorSpace": "srgb"
+        },
+        "ports": [
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Color",
+            "type": {
+              "flow": "value",
+              "dataKind": "color",
+              "format": "rgb8unorm",
+              "colorSpace": "srgb"
+            }
+          }
+        ]
+      },
+      {
+        "id": "color_rgba8",
+        "kind": "example.color-source",
+        "kindVersion": "0.1.0",
+        "params": {
+          "representation": "rgba8unorm",
+          "value": [
+            0.25,
+            0.5,
+            0.75,
+            0.25
+          ],
+          "colorSpace": "srgb"
+        },
+        "ports": [
+          {
+            "id": "value",
+            "direction": "output",
+            "label": "Color",
+            "type": {
+              "flow": "value",
+              "dataKind": "color",
+              "format": "rgba8unorm",
+              "colorSpace": "srgb"
+            }
+          }
+        ]
+      },
+      {
+        "id": "target_float_f16",
+        "kind": "example.float-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f16"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_int_i32",
+        "kind": "example.int-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.int",
+              "format": "i32"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_uint_u32",
+        "kind": "example.uint-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.uint",
+              "format": "u32"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_int_i8",
+        "kind": "example.int-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.int",
+              "format": "i8"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_uint_u32_from_int",
+        "kind": "example.uint-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.uint",
+              "format": "u32"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_float_f32_from_int",
+        "kind": "example.float-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f32"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_uint_u8",
+        "kind": "example.uint-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.uint",
+              "format": "u8"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_int_i32_from_uint",
+        "kind": "example.int-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.int",
+              "format": "i32"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_float_f32_from_uint",
+        "kind": "example.float-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f32"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_float_f32_from_ufloat",
+        "kind": "example.float-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f32"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_int_i32_from_ufloat",
+        "kind": "example.int-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.int",
+              "format": "i32"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_uint_u32_from_ufloat",
+        "kind": "example.uint-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.uint",
+              "format": "u32"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_color_rgba8",
         "kind": "example.color-target",
         "kindVersion": "0.1.0",
         "params": {},
@@ -161,26 +617,318 @@
             "activation": "latched"
           }
         ]
+      },
+      {
+        "id": "target_float_f8",
+        "kind": "example.float-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f8.e4m3"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_float_f16_from_f8",
+        "kind": "example.float-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float",
+              "format": "f16"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_uint_u8_from_ufloat8",
+        "kind": "example.uint-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.uint",
+              "format": "u8"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_int_i16_from_ufloat16",
+        "kind": "example.int-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.int",
+              "format": "i16"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_color_rgba8_from_rgb",
+        "kind": "example.color-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "color",
+              "format": "rgba8unorm",
+              "colorSpace": "srgb"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
+      },
+      {
+        "id": "target_color_rgb8_from_rgba",
+        "kind": "example.color-target",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "label": "In",
+            "type": {
+              "flow": "value",
+              "dataKind": "color",
+              "format": "rgb8unorm",
+              "colorSpace": "srgb"
+            },
+            "required": false,
+            "activation": "latched"
+          }
+        ]
       }
     ],
     "edges": [
       {
         "from": {
-          "node": "float_1",
+          "node": "float_f32",
           "port": "value"
         },
         "to": {
-          "node": "uint_target_1",
+          "node": "target_float_f16",
           "port": "in"
         }
       },
       {
         "from": {
-          "node": "color_1",
+          "node": "float_f32",
           "port": "value"
         },
         "to": {
-          "node": "color_target_1",
+          "node": "target_int_i32",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "float_f32",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_uint_u32",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "int_i32",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_int_i8",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "int_i32",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_uint_u32_from_int",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "int_i32",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_float_f32_from_int",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "uint_u32",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_uint_u8",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "uint_u32",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_int_i32_from_uint",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "uint_u32",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_float_f32_from_uint",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "float_ufloat8",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_float_f32_from_ufloat",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "float_ufloat16",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_int_i32_from_ufloat",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "float_ufloat8",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_uint_u32_from_ufloat",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "color_rgba32f",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_color_rgba8",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "float_f32",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_float_f8",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "float_f8",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_float_f16_from_f8",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "float_ufloat8",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_uint_u8_from_ufloat8",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "float_ufloat16",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_int_i16_from_ufloat16",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "color_rgb8",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_color_rgba8_from_rgb",
+          "port": "in"
+        }
+      },
+      {
+        "from": {
+          "node": "color_rgba8",
+          "port": "value"
+        },
+        "to": {
+          "node": "target_color_rgb8_from_rgba",
           "port": "in"
         }
       }
@@ -253,10 +1001,73 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "example.uint-target",
+      "id": "core.int",
       "version": "0.1.0",
-      "displayName": "UInt Target",
-      "category": "Examples",
+      "displayName": "Int",
+      "category": "Values",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.int",
+            "format": "i32"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.int",
+            "format": "i32"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.int",
+            "format": "i32"
+          }
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "core.uint",
+      "version": "0.1.0",
+      "displayName": "UInt",
+      "category": "Values",
       "ports": [
         {
           "id": "in",
@@ -265,10 +1076,43 @@
           "type": {
             "flow": "value",
             "dataKind": "number.uint",
-            "format": "u8"
+            "format": "u32"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "set",
+          "direction": "input",
+          "label": "Set",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.uint",
+            "format": "u32"
           },
           "required": false,
           "activation": "latched"
+        },
+        {
+          "id": "bang",
+          "direction": "input",
+          "label": "Bang",
+          "type": {
+            "flow": "event",
+            "dataKind": "event.bang"
+          },
+          "required": false,
+          "activation": "trigger"
+        },
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.uint",
+            "format": "u32"
+          }
         }
       ],
       "execution": {
@@ -349,6 +1193,149 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
+      "id": "example.float-source",
+      "version": "0.1.0",
+      "displayName": "Float Source",
+      "category": "Examples",
+      "ports": [
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Value",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.float",
+            "format": "f32"
+          }
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "example.color-source",
+      "version": "0.1.0",
+      "displayName": "Color Source",
+      "category": "Examples",
+      "ports": [
+        {
+          "id": "value",
+          "direction": "output",
+          "label": "Color",
+          "type": {
+            "flow": "value",
+            "dataKind": "color",
+            "format": "rgba32f"
+          }
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "example.float-target",
+      "version": "0.1.0",
+      "displayName": "Float Target",
+      "category": "Examples",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.float"
+          },
+          "required": false,
+          "activation": "latched"
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "example.int-target",
+      "version": "0.1.0",
+      "displayName": "Int Target",
+      "category": "Examples",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.int"
+          },
+          "required": false,
+          "activation": "latched"
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "example.uint-target",
+      "version": "0.1.0",
+      "displayName": "UInt Target",
+      "category": "Examples",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "value",
+            "dataKind": "number.uint"
+          },
+          "required": false,
+          "activation": "latched"
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": []
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
       "id": "example.color-target",
       "version": "0.1.0",
       "displayName": "Color Target",
@@ -360,9 +1347,7 @@
           "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "color",
-            "format": "rgba8unorm",
-            "colorSpace": "srgb"
+            "dataKind": "color"
           },
           "required": false,
           "activation": "latched"
