@@ -104,6 +104,13 @@ MESSAGE_BANG_RESPONSE="$(curl --fail --silent \
 
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"message_1","portId":"out","message":{"selector":"symbol","atoms":[{"type":"string","value":"perform"}]}},{"nodeId":"bang_2","portId":"out","message":{"selector":"bang","atoms":[]}}]' "${MESSAGE_BANG_RESPONSE}"
 
+BANG_FLOAT_RESPONSE="$(curl --fail --silent \
+  -H "content-type: application/json" \
+  --data '{"nodeId":"bang_2","portId":"in","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":9.5}]}}' \
+  "${RUNTIME_URL}/v0/session/control/event")"
+
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["emitted"] == [{"nodeId":"bang_2","portId":"out","message":{"selector":"bang","atoms":[]}}]' "${BANG_FLOAT_RESPONSE}"
+
 MESSAGE_SET_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
   --data '{"nodeId":"message_1","portId":"in","message":{"selector":"set","atoms":[{"type":"string","value":"queued"}]}}' \
