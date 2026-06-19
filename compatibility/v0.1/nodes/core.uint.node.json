@@ -1,0 +1,63 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.uint",
+  "version": "0.1.0",
+  "displayName": "UInt",
+  "category": "Values",
+  "ports": [
+    {
+      "id": "in",
+      "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.uint",
+        "format": "u32"
+      },
+      "required": false,
+      "activation": "trigger"
+    },
+    {
+      "id": "set",
+      "direction": "input",
+      "label": "Set",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.uint",
+        "format": "u32"
+      },
+      "required": false,
+      "activation": "latched"
+    },
+    {
+      "id": "bang",
+      "direction": "input",
+      "label": "Bang",
+      "type": {
+        "flow": "event",
+        "dataKind": "event.bang"
+      },
+      "required": false,
+      "activation": "trigger"
+    },
+    {
+      "id": "value",
+      "direction": "output",
+      "label": "Value",
+      "type": {
+        "flow": "value",
+        "dataKind": "number.uint",
+        "format": "u32"
+      }
+    }
+  ],
+  "execution": {
+    "model": "value"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": []
+}

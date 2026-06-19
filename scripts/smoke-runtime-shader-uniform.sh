@@ -3,7 +3,7 @@ set -euo pipefail
 
 RUNTIME_URL="${SKENION_RUNTIME_URL:-http://127.0.0.1:3761}"
 PROJECT="compatibility/v0.1/projects/valid/fullscreen-shader-uniform.project.json"
-PATCH="compatibility/v0.1/patches/valid/set-value-f32-to-0-8.patch.json"
+PATCH="compatibility/v0.1/patches/valid/set-float-value-to-0-8.patch.json"
 
 curl --fail --silent "${RUNTIME_URL}/health" >/dev/null
 curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null

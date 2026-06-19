@@ -14,7 +14,7 @@ curl --fail --silent \
 
 SLIDER_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data '{"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":1.5}]}}' \
+  --data '{"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
 python3 -c 'import json, sys
@@ -22,7 +22,7 @@ r=json.loads(sys.argv[1])
 assert r["ok"] is True
 assert r["changed"] is True
 assert r["controlRevision"] == 1
-assert r["emitted"] == [{"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"f32","value":1.5}]}}]
+assert r["emitted"] == [{"nodeId":"slider_speed","portId":"value","message":{"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}}]
 ' "${SLIDER_RESPONSE}"
 
 TOGGLE_RESPONSE="$(curl --fail --silent \
@@ -39,7 +39,7 @@ r=json.loads(sys.argv[1])
 assert r["ok"] is True
 if "controlRevision" in r:
     assert r["controlRevision"] == 2
-assert r["channels"]["number.f32:speed"] == {"selector":"float","atoms":[{"type":"f32","value":1.5}]}
+assert r["channels"]["number.float:speed"] == {"selector":"float","atoms":[{"type":"float","representation":"f32","value":1.5}]}
 assert r["channels"]["boolean:enabled"] == {"selector":"bool","atoms":[{"type":"bool","value":False}]}
 ' "${STATE_RESPONSE}"
 

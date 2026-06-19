@@ -16,7 +16,7 @@
           "label": "Speed",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32",
+            "dataKind": "number.float",
             "range": {
               "min": 0,
               "max": 2,
@@ -45,7 +45,7 @@
           "label": "Iterations",
           "type": {
             "flow": "value",
-            "dataKind": "number.i32"
+            "dataKind": "number.int"
           },
           "required": false,
           "activation": "latched",
@@ -57,7 +57,7 @@
           "label": "Tint",
           "type": {
             "flow": "value",
-            "dataKind": "color.rgba"
+            "dataKind": "color"
           },
           "required": false,
           "activation": "latched",

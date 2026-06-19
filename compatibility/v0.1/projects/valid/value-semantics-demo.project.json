@@ -24,7 +24,7 @@
       },
       {
         "id": "value_1",
-        "kind": "core.value-f32",
+        "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {
           "value": 32
@@ -36,7 +36,8 @@
             "label": "In",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "trigger"
@@ -47,7 +48,8 @@
             "label": "Set",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "latched"
@@ -69,7 +71,8 @@
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             }
           }
         ]
@@ -86,12 +89,13 @@
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32",
+              "dataKind": "number.float",
               "range": {
                 "min": 0,
                 "max": 1,
                 "step": 0.01
-              }
+              },
+              "format": "f32"
             },
             "required": true,
             "activation": "latched"
@@ -104,7 +108,7 @@
         "kindVersion": "0.1.0",
         "params": {
           "language": "wgsl",
-          "source": "// @skenion.uniform speed number.f32 default=0.5 min=0 max=1 step=0.01\n// @skenion.uniform tint color.rgba default=[1,0.2,0.1,1]\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let animated = vec4<f32>(skenion.speed, 0.2, 1.0 - skenion.speed, 1.0);\n  return animated * skenion.tint;\n}"
+          "source": "// @skenion.uniform speed number.float default=0.5 min=0 max=1 step=0.01\n// @skenion.uniform tint color default=[1,0.2,0.1,1]\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let animated = vec4<f32>(skenion.speed, 0.2, 1.0 - skenion.speed, 1.0);\n  return animated * skenion.tint;\n}"
         },
         "ports": [
           {
@@ -113,7 +117,8 @@
             "label": "Speed",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32",
+              "dataKind": "number.float",
+              "format": "f32",
               "range": {
                 "min": 0,
                 "max": 1,
@@ -130,7 +135,9 @@
             "label": "Tint",
             "type": {
               "flow": "value",
-              "dataKind": "color.rgba"
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
             },
             "required": false,
             "activation": "latched",
@@ -250,9 +257,9 @@
     {
       "schema": "skenion.node.definition",
       "schemaVersion": "0.1.0",
-      "id": "core.value-f32",
+      "id": "core.float",
       "version": "0.1.0",
-      "displayName": "F32",
+      "displayName": "Float",
       "category": "Values",
       "ports": [
         {
@@ -261,7 +268,8 @@
           "label": "In",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "trigger"
@@ -272,7 +280,8 @@
           "label": "Set",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           },
           "required": false,
           "activation": "latched"
@@ -294,7 +303,8 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float",
+            "format": "f32"
           }
         }
       ],
@@ -321,12 +331,13 @@
           "label": "Value",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32",
+            "dataKind": "number.float",
             "range": {
               "min": 0,
               "max": 1,
               "step": 0.01
-            }
+            },
+            "format": "f32"
           },
           "required": true,
           "activation": "latched"

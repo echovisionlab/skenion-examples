@@ -1,9 +1,9 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "core.value-i32",
+  "id": "core.float",
   "version": "0.1.0",
-  "displayName": "I32",
+  "displayName": "Float",
   "category": "Values",
   "ports": [
     {
@@ -12,7 +12,8 @@
       "label": "In",
       "type": {
         "flow": "value",
-        "dataKind": "number.i32"
+        "dataKind": "number.float",
+        "format": "f32"
       },
       "required": false,
       "activation": "trigger"
@@ -23,7 +24,8 @@
       "label": "Set",
       "type": {
         "flow": "value",
-        "dataKind": "number.i32"
+        "dataKind": "number.float",
+        "format": "f32"
       },
       "required": false,
       "activation": "latched"
@@ -45,7 +47,8 @@
       "label": "Value",
       "type": {
         "flow": "value",
-        "dataKind": "number.i32"
+        "dataKind": "number.float",
+        "format": "f32"
       }
     }
   ],

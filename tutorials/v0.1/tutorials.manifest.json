@@ -10,7 +10,7 @@
       "path": "tutorials/v0.1/01-value-bang-set.project.json",
       "projectPath": "projects/v0.1/value-bang-set.skenion.json",
       "helpNodeIds": [
-        "core.value-f32",
+        "core.float",
         "core.bang-button",
         "core.target"
       ],
@@ -45,8 +45,8 @@
       "projectPath": "projects/v0.1/dynamic-shader-interface.skenion.json",
       "helpNodeIds": [
         "render.fullscreen-shader",
-        "core.value-f32",
-        "core.color-rgba",
+        "core.float",
+        "core.color",
         "render.output"
       ],
       "tags": [
@@ -76,11 +76,11 @@
       "id": "object-routing-panel-controls",
       "title": "Object Routing Panel Controls",
       "summary": "Route typed panel controls through object-owned sendName channels.",
-      "description": "Shows ui.slider-f32 and ui.toggle owning sendName routing directly while a fullscreen shader consumes explicit cable inputs.",
+      "description": "Shows ui.slider-float and ui.toggle owning sendName routing directly while a fullscreen shader consumes explicit cable inputs.",
       "path": "tutorials/v0.1/05-object-routing-panel-controls.project.json",
       "projectPath": "projects/v0.1/object-routing-panel.skenion.json",
       "helpNodeIds": [
-        "ui.slider-f32",
+        "ui.slider-float",
         "ui.toggle",
         "render.fullscreen-shader",
         "render.output"

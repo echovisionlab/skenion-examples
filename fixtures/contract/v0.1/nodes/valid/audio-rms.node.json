@@ -24,7 +24,7 @@
       "label": "Level",
       "type": {
         "flow": "signal",
-        "dataKind": "number.f32",
+        "dataKind": "number.float",
         "range": {
           "min": 0,
           "max": 1

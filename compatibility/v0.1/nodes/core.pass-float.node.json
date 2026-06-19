@@ -12,7 +12,7 @@
       "label": "In",
       "type": {
         "flow": "value",
-        "dataKind": "number.f32"
+        "dataKind": "number.float"
       },
       "activation": "latched"
     },
@@ -22,7 +22,7 @@
       "label": "Out",
       "type": {
         "flow": "value",
-        "dataKind": "number.f32"
+        "dataKind": "number.float"
       }
     }
   ],

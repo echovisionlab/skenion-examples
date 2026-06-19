@@ -17,7 +17,7 @@
     "nodes": [
       {
         "id": "value_1",
-        "kind": "core.value-f32",
+        "kind": "core.float",
         "kindVersion": "0.1.0",
         "params": {
           "value": 0.75
@@ -29,7 +29,8 @@
             "label": "In",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "trigger"
@@ -40,7 +41,8 @@
             "label": "Set",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             },
             "required": false,
             "activation": "latched"
@@ -62,14 +64,15 @@
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32"
+              "dataKind": "number.float",
+              "format": "f32"
             }
           }
         ]
       },
       {
         "id": "enabled_1",
-        "kind": "core.value-bool",
+        "kind": "core.bool",
         "kindVersion": "0.1.0",
         "params": {
           "value": true
@@ -121,7 +124,7 @@
       },
       {
         "id": "iterations_1",
-        "kind": "core.value-i32",
+        "kind": "core.int",
         "kindVersion": "0.1.0",
         "params": {
           "value": 8
@@ -133,7 +136,8 @@
             "label": "In",
             "type": {
               "flow": "value",
-              "dataKind": "number.i32"
+              "dataKind": "number.int",
+              "format": "i32"
             },
             "required": false,
             "activation": "trigger"
@@ -144,7 +148,8 @@
             "label": "Set",
             "type": {
               "flow": "value",
-              "dataKind": "number.i32"
+              "dataKind": "number.int",
+              "format": "i32"
             },
             "required": false,
             "activation": "latched"
@@ -166,14 +171,15 @@
             "label": "Value",
             "type": {
               "flow": "value",
-              "dataKind": "number.i32"
+              "dataKind": "number.int",
+              "format": "i32"
             }
           }
         ]
       },
       {
         "id": "tint_1",
-        "kind": "core.color-rgba",
+        "kind": "core.color",
         "kindVersion": "0.1.0",
         "params": {
           "value": [
@@ -190,7 +196,9 @@
             "label": "In",
             "type": {
               "flow": "value",
-              "dataKind": "color.rgba"
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
             },
             "required": false,
             "activation": "trigger"
@@ -201,7 +209,9 @@
             "label": "Set",
             "type": {
               "flow": "value",
-              "dataKind": "color.rgba"
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
             },
             "required": false,
             "activation": "latched"
@@ -223,7 +233,9 @@
             "label": "Color",
             "type": {
               "flow": "value",
-              "dataKind": "color.rgba"
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
             }
           }
         ]
@@ -234,7 +246,7 @@
         "kindVersion": "0.1.0",
         "params": {
           "language": "wgsl",
-          "source": "// @skenion.uniform speed number.f32 default=0.5 min=0 max=2 step=0.01\n// @skenion.uniform enabled boolean default=true\n// @skenion.uniform iterations number.i32 default=8\n// @skenion.uniform tint color.rgba default=[1,0.2,0.1,1]\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let enabled = sk_bool(skenion.enabled);\n  let bands = max(f32(skenion.iterations), 1.0);\n  let pulse = 0.5 + 0.5 * sin(skenion.time * skenion.speed + bands * 0.05);\n  let base = vec4<f32>(pulse, skenion.speed / 2.0, 1.0 - pulse, 1.0) * skenion.tint;\n  return select(vec4<f32>(0.02, 0.02, 0.02, 1.0), base, enabled);\n}"
+          "source": "// @skenion.uniform speed number.float default=0.5 min=0 max=2 step=0.01\n// @skenion.uniform enabled boolean default=true\n// @skenion.uniform iterations number.int default=8\n// @skenion.uniform tint color default=[1,0.2,0.1,1]\n@fragment\nfn fs_main() -> @location(0) vec4<f32> {\n  let enabled = sk_bool(skenion.enabled);\n  let bands = max(f32(skenion.iterations), 1.0);\n  let pulse = 0.5 + 0.5 * sin(skenion.time * skenion.speed + bands * 0.05);\n  let base = vec4<f32>(pulse, skenion.speed / 2.0, 1.0 - pulse, 1.0) * skenion.tint;\n  return select(vec4<f32>(0.02, 0.02, 0.02, 1.0), base, enabled);\n}"
         },
         "ports": [
           {
@@ -243,7 +255,8 @@
             "label": "Speed",
             "type": {
               "flow": "value",
-              "dataKind": "number.f32",
+              "dataKind": "number.float",
+              "format": "f32",
               "range": {
                 "min": 0,
                 "max": 2,
@@ -272,7 +285,8 @@
             "label": "Iterations",
             "type": {
               "flow": "value",
-              "dataKind": "number.i32"
+              "dataKind": "number.int",
+              "format": "i32"
             },
             "required": false,
             "activation": "latched",
@@ -284,7 +298,9 @@
             "label": "Tint",
             "type": {
               "flow": "value",
-              "dataKind": "color.rgba"
+              "dataKind": "color",
+              "format": "rgba32f",
+              "colorSpace": "linear"
             },
             "required": false,
             "activation": "latched",

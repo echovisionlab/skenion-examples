@@ -15,7 +15,7 @@
           "direction": "output",
           "type": {
             "flow": "value",
-            "dataKind": "number.f32"
+            "dataKind": "number.float"
           }
         }
       ]

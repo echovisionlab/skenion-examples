@@ -40,11 +40,11 @@ pass, provide a generated Skenion frame/uniform header, and report shader
 compile or render errors through preview telemetry. Dynamic value inputs are
 declared with `// @skenion.uniform <portId> <dataKind>` comments.
 The `fullscreen-shader-uniform.project.json` payload connects
-`core.value-f32:value` to `render.fullscreen-shader:speed` and then routes the
+`core.float:value` to `render.fullscreen-shader:speed` and then routes the
 shader output into `render.output:in`.
 
 The `fullscreen-shader-multi-uniform.project.json` payload connects two
-`core.value-f32` nodes and one `core.color-rgba` node to
+`core.float` nodes and one `core.color` node to
 `render.fullscreen-shader:speed`, `phase`, and `tint`, then routes the shader
 output into `render.output:in`.
 
@@ -52,12 +52,12 @@ The `dynamic-shader-interface.project.json` payload covers the v0 dynamic
 shader interface path: WGSL annotations produce `speed`, `enabled`,
 `iterations`, and `tint` input ports, plus the static `out` render output.
 
-Typed value nodes are stateful control nodes. `core.value-f32`,
-`core.value-i32`, `core.value-bool`, `core.color-rgba`, and `core.string` expose
+Typed value nodes are stateful control nodes. `core.float`,
+`core.int`, `core.bool`, `core.color`, and `core.string` expose
 `in`, `set`, `bang`, and `value` ports. `core.toggle` has the same boolean
 surface, but `bang` flips the stored value before emitting. The
 `value-semantics-demo.project.json` payload wires `core.bang-button:bang` into
-`core.value-f32:bang`, routes `core.value-f32:value` to both
+`core.float:bang`, routes `core.float:value` to both
 `core.target:value` and `render.fullscreen-shader:speed`, and keeps runtime
 control events separate from graph patches.
 
