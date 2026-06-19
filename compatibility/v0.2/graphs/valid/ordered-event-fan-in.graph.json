@@ -57,26 +57,12 @@
           "direction": "input",
           "type": "message.any",
           "rate": "event",
-          "triggerMode": "trigger"
-        },
-        {
-          "id": "set",
-          "direction": "input",
-          "type": "message.any",
-          "rate": "event",
-          "triggerMode": "passive"
-        },
-        {
-          "id": "bang",
-          "direction": "input",
-          "type": "event.bang",
-          "rate": "event",
           "maxConnections": 8,
           "mergePolicy": "ordered-events",
           "triggerMode": "trigger"
         },
         {
-          "id": "value",
+          "id": "out",
           "direction": "output",
           "type": "message.any",
           "rate": "event"
@@ -93,7 +79,7 @@
       },
       "target": {
         "nodeId": "event_log",
-        "portId": "bang"
+        "portId": "in"
       },
       "resolvedType": "event.bang",
       "order": 0
@@ -106,7 +92,7 @@
       },
       "target": {
         "nodeId": "event_log",
-        "portId": "bang"
+        "portId": "in"
       },
       "resolvedType": "event.bang",
       "order": 1
