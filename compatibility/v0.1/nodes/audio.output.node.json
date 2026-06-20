@@ -1,33 +1,32 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "audio.rms",
+  "id": "audio.output",
   "version": "0.1.0",
-  "displayName": "Audio RMS",
+  "displayName": "Audio Output",
   "category": "Audio",
   "ports": [
     {
-      "id": "audio",
+      "id": "left",
       "direction": "input",
-      "label": "Audio",
+      "label": "Left",
       "type": {
         "flow": "signal",
         "dataKind": "signal.audio"
       },
-      "activation": "trigger"
+      "required": false,
+      "activation": "latched"
     },
     {
-      "id": "level",
-      "direction": "output",
-      "label": "Level",
+      "id": "right",
+      "direction": "input",
+      "label": "Right",
       "type": {
         "flow": "signal",
-        "dataKind": "number.float",
-        "range": {
-          "min": 0,
-          "max": 1
-        }
-      }
+        "dataKind": "signal.audio"
+      },
+      "required": false,
+      "activation": "latched"
     }
   ],
   "execution": {
@@ -39,6 +38,7 @@
   },
   "permissions": [],
   "capabilities": [
-    "audio.analysis.rms"
+    "audio.backend.v0.1",
+    "pd.audio.v0.1"
   ]
 }

@@ -1,32 +1,29 @@
 {
   "schema": "skenion.node.definition",
   "schemaVersion": "0.1.0",
-  "id": "audio.rms",
+  "id": "audio.resample",
   "version": "0.1.0",
-  "displayName": "Audio RMS",
+  "displayName": "Audio Resample",
   "category": "Audio",
   "ports": [
     {
-      "id": "audio",
+      "id": "in",
       "direction": "input",
-      "label": "Audio",
+      "label": "In",
       "type": {
         "flow": "signal",
         "dataKind": "signal.audio"
       },
-      "activation": "trigger"
+      "required": false,
+      "activation": "latched"
     },
     {
-      "id": "level",
+      "id": "out",
       "direction": "output",
-      "label": "Level",
+      "label": "Out",
       "type": {
         "flow": "signal",
-        "dataKind": "number.float",
-        "range": {
-          "min": 0,
-          "max": 1
-        }
+        "dataKind": "signal.audio"
       }
     }
   ],
@@ -39,6 +36,7 @@
   },
   "permissions": [],
   "capabilities": [
-    "audio.analysis.rms"
+    "audio.resample.v0.1",
+    "validation-only.v0.1"
   ]
 }

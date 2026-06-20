@@ -25,6 +25,7 @@ jobs:
         with:
           repository: echovisionlab/skenion-runtime
           path: .deps/skenion-runtime
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libasound2-dev pkg-config
       - name: Align cross-repo dependency branches
         if: github.event_name == 'pull_request'
         run: |
@@ -66,6 +67,7 @@ jobs:
       - run: cargo build --manifest-path .deps/skenion-runtime/Cargo.toml --all-features
       - run: cargo test --manifest-path .deps/skenion-runtime/Cargo.toml --all-targets --all-features
       - run: SKENION_RUNTIME_BIN=.deps/skenion-runtime/target/debug/skenion-runtime bash scripts/validate-with-runtime.sh .deps/skenion-runtime
+      - run: SKENION_RUNTIME_BIN=.deps/skenion-runtime/target/debug/skenion-runtime bash scripts/smoke-runtime-audio-clock-domains.sh .deps/skenion-runtime
       - run: |
           SKENION_PREVIEW_DRY_RUN=1 .deps/skenion-runtime/target/debug/skenion-runtime serve --host 127.0.0.1 --port 3761 &
           SERVER_PID=$!

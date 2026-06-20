@@ -7,14 +7,21 @@
   "category": "Audio",
   "ports": [
     {
-      "id": "audio",
+      "id": "left",
       "direction": "output",
-      "label": "Audio",
+      "label": "Left",
       "type": {
-        "flow": "stream",
-        "dataKind": "audio.buffer",
-        "channels": 2,
-        "sampleRate": 48000
+        "flow": "signal",
+        "dataKind": "signal.audio"
+      }
+    },
+    {
+      "id": "right",
+      "direction": "output",
+      "label": "Right",
+      "type": {
+        "flow": "signal",
+        "dataKind": "signal.audio"
       }
     }
   ],
@@ -27,6 +34,7 @@
   },
   "permissions": [],
   "capabilities": [
-    "audio.input"
+    "audio.input.v0.1",
+    "pd.audio.v0.1"
   ]
 }

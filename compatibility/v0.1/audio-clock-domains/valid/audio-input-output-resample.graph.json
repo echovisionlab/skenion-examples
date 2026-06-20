@@ -1,0 +1,118 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "audio-input-output-resample",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "audio_in_1",
+      "kind": "audio.input",
+      "kindVersion": "0.1.0",
+      "params": {
+        "clockDomain": "device:input-clock"
+      },
+      "ports": [
+        {
+          "id": "left",
+          "direction": "output",
+          "label": "Left",
+          "type": {
+            "flow": "signal",
+            "dataKind": "signal.audio"
+          }
+        },
+        {
+          "id": "right",
+          "direction": "output",
+          "label": "Right",
+          "type": {
+            "flow": "signal",
+            "dataKind": "signal.audio"
+          }
+        }
+      ]
+    },
+    {
+      "id": "resample_1",
+      "kind": "audio.resample",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "label": "In",
+          "type": {
+            "flow": "signal",
+            "dataKind": "signal.audio"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "out",
+          "direction": "output",
+          "label": "Out",
+          "type": {
+            "flow": "signal",
+            "dataKind": "signal.audio"
+          }
+        }
+      ]
+    },
+    {
+      "id": "audio_out_1",
+      "kind": "audio.output",
+      "kindVersion": "0.1.0",
+      "params": {
+        "clockDomain": "device:output-clock"
+      },
+      "ports": [
+        {
+          "id": "left",
+          "direction": "input",
+          "label": "Left",
+          "type": {
+            "flow": "signal",
+            "dataKind": "signal.audio"
+          },
+          "required": false,
+          "activation": "latched"
+        },
+        {
+          "id": "right",
+          "direction": "input",
+          "label": "Right",
+          "type": {
+            "flow": "signal",
+            "dataKind": "signal.audio"
+          },
+          "required": false,
+          "activation": "latched"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": {
+        "node": "audio_in_1",
+        "port": "left"
+      },
+      "to": {
+        "node": "resample_1",
+        "port": "in"
+      }
+    },
+    {
+      "from": {
+        "node": "resample_1",
+        "port": "out"
+      },
+      "to": {
+        "node": "audio_out_1",
+        "port": "left"
+      }
+    }
+  ]
+}
