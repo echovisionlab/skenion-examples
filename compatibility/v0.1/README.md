@@ -141,6 +141,13 @@ It also verifies song-position provenance: SPP is authoritative, tick
 accumulation is derived, continue without SPP leaves song position unavailable,
 and meterless bar/beat fields stay unavailable.
 
+The same runtime MIDI smoke script covers the M05.3 physical MIDI input adapter
+boundary without depending on hardware. It verifies `clock-midi --list-inputs`
+in no-device environments and confirms that an invalid `--input-port` returns a
+structured diagnostic instead of failing CI or starting audio.
+`--input-port` is the current runtime enumeration index, not a stable device
+identity across reconnects or device order changes.
+
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
 converter or processing nodes.
