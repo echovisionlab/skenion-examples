@@ -1,0 +1,11 @@
+{
+  "schema": "skenion.clock.midi.fixture",
+  "schemaVersion": "0.1.0",
+  "sourceId": "runtime-midi-spp-meterless",
+  "events": [
+    {
+      "atNs": 0,
+      "bytes": [242, 16, 0]
+    }
+  ]
+}

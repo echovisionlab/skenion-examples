@@ -1,0 +1,15 @@
+{
+  "schema": "skenion.clock.midi.fixture",
+  "schemaVersion": "0.1.0",
+  "sourceId": "runtime-midi-spp-valid-meter",
+  "timeSignature": {
+    "numerator": 4,
+    "denominator": 4
+  },
+  "events": [
+    {
+      "atNs": 0,
+      "bytes": [242, 16, 0]
+    }
+  ]
+}

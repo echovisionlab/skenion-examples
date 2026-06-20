@@ -1,0 +1,23 @@
+{
+  "schema": "skenion.clock.midi.fixture",
+  "schemaVersion": "0.1.0",
+  "sourceId": "runtime-midi-start-stop",
+  "timeSignature": {
+    "numerator": 4,
+    "denominator": 4
+  },
+  "events": [
+    {
+      "atNs": 0,
+      "bytes": [250]
+    },
+    {
+      "atNs": 1000000,
+      "bytes": [248]
+    },
+    {
+      "atNs": 2000000,
+      "bytes": [252]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "skenion.clock.midi.fixture",
+  "schemaVersion": "0.1.0",
+  "sourceId": "runtime-midi-invalid-spp",
+  "events": [
+    {
+      "atNs": 0,
+      "bytes": [242, 128, 0]
+    }
+  ]
+}
