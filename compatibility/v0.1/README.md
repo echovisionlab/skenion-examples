@@ -131,8 +131,15 @@ MIDI Clock parser fixtures under `clock-midi-fixtures` validate the M05.1
 contract/parser slice without requiring a real MIDI device. They cover
 start/stop transport, 14-bit Song Position Pointer, meter-derived bar/beat,
 meterless unavailable bar/beat, unavailable tempo/timecode, and invalid SPP
-diagnostics. Runtime MIDI adapter smoke will be added separately when Runtime
-consumes simulated or real MIDI source snapshots.
+diagnostics.
+
+Runtime MIDI Clock fixtures under `runtime-midi-clock-fixtures` validate the
+M05.2 adapter path with timestamped raw MIDI bytes. The smoke script runs
+`skenion-runtime clock-midi --simulate ... --format json` and checks that the
+Runtime stores a `ClockState` snapshot without requiring a physical MIDI device.
+It also verifies song-position provenance: SPP is authoritative, tick
+accumulation is derived, continue without SPP leaves song position unavailable,
+and meterless bar/beat fields stay unavailable.
 
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit

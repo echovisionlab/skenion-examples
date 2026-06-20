@@ -1,0 +1,15 @@
+{
+  "schema": "skenion.clock.midi.fixture",
+  "schemaVersion": "0.1.0",
+  "sourceId": "runtime-midi-continue-without-spp",
+  "events": [
+    {
+      "atNs": 0,
+      "bytes": [251]
+    },
+    {
+      "atNs": 1000000,
+      "bytes": [248]
+    }
+  ]
+}

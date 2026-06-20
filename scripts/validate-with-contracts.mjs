@@ -179,6 +179,7 @@ const compatibilityFiles = [
   ...await walk(path.join(root, "compatibility/v0.2"))
 ];
 const clockMidiFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}clock-midi-fixtures${path.sep}`));
+const runtimeClockMidiFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-midi-clock-fixtures${path.sep}`));
 const supportsClockMidiFixtures =
   typeof contracts.createInitialMidiClockSnapshotV01 === "function"
   && typeof contracts.midiClockSnapshotToClockStateV01 === "function"
@@ -186,7 +187,7 @@ const supportsClockMidiFixtures =
 const patchFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}patches${path.sep}`));
 const validPatchFiles = patchFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
 const invalidPatchFiles = patchFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
-const compatibilityDocumentFiles = compatibilityFiles.filter((file) => !file.includes(`${path.sep}patches${path.sep}`) && !file.includes(`${path.sep}clock-midi-fixtures${path.sep}`));
+const compatibilityDocumentFiles = compatibilityFiles.filter((file) => !file.includes(`${path.sep}patches${path.sep}`) && !file.includes(`${path.sep}clock-midi-fixtures${path.sep}`) && !file.includes(`${path.sep}runtime-midi-clock-fixtures${path.sep}`));
 const validCompatibilityDocumentFiles = compatibilityDocumentFiles.filter((file) => !file.includes(`${path.sep}invalid${path.sep}`));
 const invalidCompatibilityDocumentFiles = compatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`) && file.includes(`${path.sep}v0.2${path.sep}`));
 const documentValidCompatibilityFiles = compatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`) && file.includes(`${path.sep}v0.1${path.sep}`));
@@ -354,5 +355,5 @@ const clockMidiSummary = supportsClockMidiFixtures
   : `0 MIDI Clock fixtures (${clockMidiFixtureFiles.length} skipped; @skenion/contracts does not expose clock.midi-clock parser yet)`;
 
 console.log(
-  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${clockMidiSummary}, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
+  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${clockMidiSummary}, ${runtimeClockMidiFixtureFiles.length} runtime MIDI Clock fixtures reserved for runtime smoke, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
 );
