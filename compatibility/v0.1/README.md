@@ -119,6 +119,14 @@ toggle control events, and verifies that object-owned channel state and preview
 telemetry report matching control revisions without marking the graph preview
 stale.
 
+Runtime audio clock-domain smoke checks use
+`scripts/smoke-runtime-audio-clock-domains.sh`. The script builds audio DSP
+plans for same-domain input-to-output routing, explicit `audio.clock-bridge`
+routing, and explicit `audio.resample` routing. It also verifies that an
+independent `audio.input` to `audio.output` route is rejected unless a bridge or
+resampler is present, even when both endpoints can otherwise validate as audio
+signal nodes.
+
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
 converter or processing nodes.

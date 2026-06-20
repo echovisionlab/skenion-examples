@@ -1,14 +1,16 @@
 {
   "schema": "skenion.graph",
   "schemaVersion": "0.1.0",
-  "id": "audio-rms-signal",
+  "id": "audio-input-output-without-bridge",
   "revision": "1",
   "nodes": [
     {
       "id": "audio_in_1",
       "kind": "audio.input",
       "kindVersion": "0.1.0",
-      "params": {},
+      "params": {
+        "clockDomain": "device:input-clock"
+      },
       "ports": [
         {
           "id": "left",
@@ -31,33 +33,34 @@
       ]
     },
     {
-      "id": "rms_1",
-      "kind": "audio.rms",
+      "id": "audio_out_1",
+      "kind": "audio.output",
       "kindVersion": "0.1.0",
-      "params": {},
+      "params": {
+        "clockDomain": "device:output-clock"
+      },
       "ports": [
         {
-          "id": "audio",
+          "id": "left",
           "direction": "input",
-          "label": "Audio",
+          "label": "Left",
           "type": {
             "flow": "signal",
             "dataKind": "signal.audio"
           },
-          "activation": "trigger"
+          "required": false,
+          "activation": "latched"
         },
         {
-          "id": "level",
-          "direction": "output",
-          "label": "Level",
+          "id": "right",
+          "direction": "input",
+          "label": "Right",
           "type": {
             "flow": "signal",
-            "dataKind": "number.float",
-            "range": {
-              "min": 0,
-              "max": 1
-            }
-          }
+            "dataKind": "signal.audio"
+          },
+          "required": false,
+          "activation": "latched"
         }
       ]
     }
@@ -69,8 +72,8 @@
         "port": "left"
       },
       "to": {
-        "node": "rms_1",
-        "port": "audio"
+        "node": "audio_out_1",
+        "port": "left"
       }
     }
   ]

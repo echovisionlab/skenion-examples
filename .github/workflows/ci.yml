@@ -66,6 +66,7 @@ jobs:
       - run: cargo build --manifest-path .deps/skenion-runtime/Cargo.toml --all-features
       - run: cargo test --manifest-path .deps/skenion-runtime/Cargo.toml --all-targets --all-features
       - run: SKENION_RUNTIME_BIN=.deps/skenion-runtime/target/debug/skenion-runtime bash scripts/validate-with-runtime.sh .deps/skenion-runtime
+      - run: SKENION_RUNTIME_BIN=.deps/skenion-runtime/target/debug/skenion-runtime bash scripts/smoke-runtime-audio-clock-domains.sh .deps/skenion-runtime
       - run: |
           SKENION_PREVIEW_DRY_RUN=1 .deps/skenion-runtime/target/debug/skenion-runtime serve --host 127.0.0.1 --port 3761 &
           SERVER_PID=$!
