@@ -1,0 +1,30 @@
+{
+  "schema": "skenion.clock-midi.fixture",
+  "schemaVersion": "0.1.0",
+  "sourceId": "midi-clock-spp-no-meter",
+  "events": [
+    {
+      "atNs": 0,
+      "message": "spp",
+      "songPositionSixteenth": 16
+    }
+  ],
+  "expected": {
+    "songPositionSixteenth": {
+      "value": 16,
+      "authority": "authoritative"
+    },
+    "bar": {
+      "value": null,
+      "authority": "unavailable"
+    },
+    "beat": {
+      "value": null,
+      "authority": "unavailable"
+    },
+    "tempoBpm": {
+      "value": null,
+      "authority": "unavailable"
+    }
+  }
+}

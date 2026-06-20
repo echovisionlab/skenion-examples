@@ -1,0 +1,33 @@
+{
+  "schema": "skenion.clock-midi.fixture",
+  "schemaVersion": "0.1.0",
+  "sourceId": "midi-clock-start-stop",
+  "events": [
+    {
+      "atNs": 0,
+      "message": "start"
+    },
+    {
+      "atNs": 1000000,
+      "message": "tick"
+    },
+    {
+      "atNs": 2000000,
+      "message": "stop"
+    }
+  ],
+  "expected": {
+    "running": {
+      "value": false,
+      "authority": "authoritative"
+    },
+    "tickIndex": {
+      "value": 1,
+      "authority": "authoritative"
+    },
+    "tempoBpm": {
+      "value": null,
+      "authority": "unavailable"
+    }
+  }
+}
