@@ -1,0 +1,34 @@
+{
+  "schema": "skenion.clock-midi.fixture",
+  "schemaVersion": "0.1.0",
+  "sourceId": "midi-clock-spp-derived",
+  "timeSignature": {
+    "numerator": 4,
+    "denominator": 4
+  },
+  "events": [
+    {
+      "atNs": 0,
+      "message": "spp",
+      "songPositionSixteenth": 16
+    }
+  ],
+  "expected": {
+    "songPositionSixteenth": {
+      "value": 16,
+      "authority": "authoritative"
+    },
+    "bar": {
+      "value": 2,
+      "authority": "derived"
+    },
+    "beat": {
+      "value": 1,
+      "authority": "derived"
+    },
+    "timecode": {
+      "value": null,
+      "authority": "unavailable"
+    }
+  }
+}

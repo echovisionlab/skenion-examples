@@ -1,0 +1,13 @@
+{
+  "schema": "skenion.clock-midi.fixture",
+  "schemaVersion": "0.1.0",
+  "sourceId": "midi-clock-invalid-spp",
+  "events": [
+    {
+      "atNs": 0,
+      "message": "spp",
+      "songPositionSixteenth": 16384
+    }
+  ],
+  "expectedDiagnostic": "invalid-midi-song-position-pointer"
+}

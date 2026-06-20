@@ -127,6 +127,13 @@ independent `audio.input` to `audio.output` route is rejected unless a bridge or
 resampler is present, even when both endpoints can otherwise validate as audio
 signal nodes.
 
+MIDI Clock parser fixtures under `clock-midi-fixtures` validate the M05.1
+contract/parser slice without requiring a real MIDI device. They cover
+start/stop transport, 14-bit Song Position Pointer, meter-derived bar/beat,
+meterless unavailable bar/beat, unavailable tempo/timecode, and invalid SPP
+diagnostics. Runtime MIDI adapter smoke will be added separately when Runtime
+consumes simulated or real MIDI source snapshots.
+
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
 converter or processing nodes.

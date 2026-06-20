@@ -85,6 +85,91 @@ function validateDocument(file, document, contracts) {
   };
 }
 
+function clockMidiMessage(event) {
+  if (event.message === "tick") {
+    return { kind: "tick", receivedHostTimeNs: event.atNs };
+  }
+  if (event.message === "start") {
+    return { kind: "start", receivedHostTimeNs: event.atNs };
+  }
+  if (event.message === "stop") {
+    return { kind: "stop", receivedHostTimeNs: event.atNs };
+  }
+  if (event.message === "continue") {
+    return { kind: "continue", receivedHostTimeNs: event.atNs };
+  }
+  if (event.message === "spp") {
+    return {
+      kind: "song-position-pointer",
+      songPositionSixteenth: event.songPositionSixteenth,
+      receivedHostTimeNs: event.atNs
+    };
+  }
+  return null;
+}
+
+function validateClockMidiFixture(file, fixture, contracts) {
+  const errors = [];
+  if (fixture.schema !== "skenion.clock-midi.fixture") {
+    errors.push(`expected schema skenion.clock-midi.fixture, got ${fixture.schema ?? "<missing>"}`);
+  }
+  if (fixture.schemaVersion !== "0.1.0") {
+    errors.push(`expected schemaVersion 0.1.0, got ${fixture.schemaVersion ?? "<missing>"}`);
+  }
+  if (!Array.isArray(fixture.events)) {
+    errors.push("events must be an array");
+  }
+  if (errors.length > 0) {
+    return { ok: false, errors };
+  }
+
+  let snapshot = contracts.createInitialMidiClockSnapshotV01({
+    sourceId: fixture.sourceId,
+    timeSignature: fixture.timeSignature ?? null
+  });
+  let state = contracts.midiClockSnapshotToClockStateV01(snapshot);
+  const diagnostics = [];
+
+  for (const [index, event] of fixture.events.entries()) {
+    const message = clockMidiMessage(event);
+    if (!message) {
+      errors.push(`events[${index}] unsupported message ${event.message ?? "<missing>"}`);
+      continue;
+    }
+    const result = contracts.applyMidiClockMessageV01(snapshot, message);
+    snapshot = result.snapshot;
+    state = result.clockState;
+    diagnostics.push(...result.diagnostics);
+  }
+
+  if (fixture.expectedDiagnostic) {
+    if (!diagnostics.some((diagnostic) => diagnostic.code === fixture.expectedDiagnostic)) {
+      errors.push(`expected diagnostic ${fixture.expectedDiagnostic}, got ${diagnostics.map((diagnostic) => diagnostic.code).join(", ") || "<none>"}`);
+    }
+    return { ok: errors.length === 0, errors };
+  }
+
+  if (diagnostics.length > 0) {
+    errors.push(`unexpected diagnostics: ${diagnostics.map((diagnostic) => diagnostic.code).join(", ")}`);
+  }
+
+  for (const [fieldName, expected] of Object.entries(fixture.expected ?? {})) {
+    const field = state[fieldName];
+    if (!field) {
+      errors.push(`missing expected ClockState field ${fieldName}`);
+      continue;
+    }
+    if (field.value !== expected.value) {
+      errors.push(`${fieldName}.value expected ${expected.value}, got ${field.value}`);
+    }
+    if (field.authority !== expected.authority) {
+      errors.push(`${fieldName}.authority expected ${expected.authority}, got ${field.authority}`);
+    }
+  }
+
+  return { ok: errors.length === 0, errors };
+}
+
 const contracts = await importContracts();
 const fixtureRoot = path.join(root, "fixtures/contract/v0.1");
 const validFiles = (await walk(fixtureRoot)).filter((file) => file.includes(`${path.sep}valid${path.sep}`));
@@ -93,10 +178,15 @@ const compatibilityFiles = [
   ...await walk(path.join(root, "compatibility/v0.1")),
   ...await walk(path.join(root, "compatibility/v0.2"))
 ];
+const clockMidiFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}clock-midi-fixtures${path.sep}`));
+const supportsClockMidiFixtures =
+  typeof contracts.createInitialMidiClockSnapshotV01 === "function"
+  && typeof contracts.midiClockSnapshotToClockStateV01 === "function"
+  && typeof contracts.applyMidiClockMessageV01 === "function";
 const patchFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}patches${path.sep}`));
 const validPatchFiles = patchFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
 const invalidPatchFiles = patchFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
-const compatibilityDocumentFiles = compatibilityFiles.filter((file) => !file.includes(`${path.sep}patches${path.sep}`));
+const compatibilityDocumentFiles = compatibilityFiles.filter((file) => !file.includes(`${path.sep}patches${path.sep}`) && !file.includes(`${path.sep}clock-midi-fixtures${path.sep}`));
 const validCompatibilityDocumentFiles = compatibilityDocumentFiles.filter((file) => !file.includes(`${path.sep}invalid${path.sep}`));
 const invalidCompatibilityDocumentFiles = compatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`) && file.includes(`${path.sep}v0.2${path.sep}`));
 const documentValidCompatibilityFiles = compatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`) && file.includes(`${path.sep}v0.1${path.sep}`));
@@ -130,6 +220,15 @@ for (const file of invalidCompatibilityDocumentFiles) {
   const result = validateDocument(file, await readJson(file), contracts);
   if (result.ok) {
     failures.push(`${file}: expected contract-invalid compatibility fixture, got valid`);
+  }
+}
+
+if (supportsClockMidiFixtures) {
+  for (const file of clockMidiFixtureFiles) {
+    const result = validateClockMidiFixture(file, await readJson(file), contracts);
+    if (!result.ok) {
+      failures.push(`${file}: expected MIDI Clock fixture to validate, got ${result.errors.join("; ")}`);
+    }
   }
 }
 
@@ -250,6 +349,10 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
+const clockMidiSummary = supportsClockMidiFixtures
+  ? `${clockMidiFixtureFiles.length} MIDI Clock fixtures`
+  : `0 MIDI Clock fixtures (${clockMidiFixtureFiles.length} skipped; @skenion/contracts does not expose clock.midi-clock parser yet)`;
+
 console.log(
-  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
+  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${clockMidiSummary}, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
 );
