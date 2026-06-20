@@ -101,6 +101,13 @@ control events, and verifies that session control revision, named object routing
 preview control revision, and telemetry stay live without creating a graph patch
 or restarting preview.
 
+Runtime clock source API smoke checks live in
+`scripts/smoke-runtime-clock-source-api.sh`. The script verifies clock source
+list/read, MIDI input listing, invalid MIDI Clock start diagnostics, unknown
+stop diagnostics, and that project load does not auto-start external clock
+sources. MIDI `inputPortIndex` values are current Runtime enumeration indices,
+not stable device identities.
+
 ## Tutorials
 
 Learning-oriented tutorial graphs live under `tutorials/v0.1`. They are
