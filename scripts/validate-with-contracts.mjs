@@ -229,30 +229,44 @@ const contracts = await importContracts();
 const fixtureRoot = path.join(root, "fixtures/contract/v0.1");
 const validFiles = (await walk(fixtureRoot)).filter((file) => file.includes(`${path.sep}valid${path.sep}`));
 const invalidFiles = (await walk(fixtureRoot)).filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
-const compatibilityFiles = [
-  ...await walk(path.join(root, "compatibility/v0.1")),
-  ...await walk(path.join(root, "compatibility/v0.2"))
-];
-const graphFragmentFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}graph-fragments${path.sep}`));
-const runtimeOperationFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-operations${path.sep}`));
-const collaborationFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}collaboration${path.sep}`));
-const runtimeSessionFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-session-fixtures${path.sep}`));
-const clockMidiFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}clock-midi-fixtures${path.sep}`));
-const runtimeClockMidiFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-midi-clock-fixtures${path.sep}`));
+const legacyCompatibilityFiles = await walk(path.join(root, "compatibility/v0.1"));
+const activeCompatibilityFiles = await walk(path.join(root, "compatibility/v0.2"));
+const graphFragmentFiles = activeCompatibilityFiles.filter((file) => file.includes(`${path.sep}graph-fragments${path.sep}`));
+const runtimeOperationFiles = activeCompatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-operations${path.sep}`));
+const collaborationFixtureFiles = activeCompatibilityFiles.filter((file) => file.includes(`${path.sep}collaboration${path.sep}`));
+const legacyRuntimeSessionFixtureFiles = legacyCompatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-session-fixtures${path.sep}`));
+const activeRuntimeSessionFixtureFiles = activeCompatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-session-fixtures${path.sep}`));
+const clockMidiFixtureFiles = legacyCompatibilityFiles.filter((file) => file.includes(`${path.sep}clock-midi-fixtures${path.sep}`));
+const runtimeClockMidiFixtureFiles = legacyCompatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-midi-clock-fixtures${path.sep}`));
 const supportsClockMidiFixtures =
   typeof contracts.createInitialMidiClockSnapshotV01 === "function"
   && typeof contracts.midiClockSnapshotToClockStateV01 === "function"
   && typeof contracts.applyMidiClockMessageV01 === "function";
-const patchFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}patches${path.sep}`));
+const patchFiles = legacyCompatibilityFiles.filter((file) => file.includes(`${path.sep}patches${path.sep}`));
 const validPatchFiles = patchFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
 const invalidPatchFiles = patchFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
-const compatibilityDocumentFiles = compatibilityFiles.filter((file) => !file.includes(`${path.sep}patches${path.sep}`) && !file.includes(`${path.sep}clock-midi-fixtures${path.sep}`) && !file.includes(`${path.sep}runtime-midi-clock-fixtures${path.sep}`) && !file.includes(`${path.sep}runtime-session-fixtures${path.sep}`));
-const validCompatibilityDocumentFiles = compatibilityDocumentFiles.filter((file) => !file.includes(`${path.sep}invalid${path.sep}`));
-const invalidCompatibilityDocumentFiles = compatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`) && file.includes(`${path.sep}v0.2${path.sep}`));
-const documentValidCompatibilityFiles = compatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`) && file.includes(`${path.sep}v0.1${path.sep}`));
-const tutorialManifestFile = path.join(root, "tutorials/v0.1/tutorials.manifest.json");
-const tutorialManifest = await readJson(tutorialManifestFile);
-const projectDocumentFiles = (await walk(path.join(root, "projects"))).filter((file) => file.endsWith(".skenion.json"));
+const ignoredCompatibilityDocumentDirs = [
+  `${path.sep}patches${path.sep}`,
+  `${path.sep}clock-midi-fixtures${path.sep}`,
+  `${path.sep}runtime-midi-clock-fixtures${path.sep}`,
+  `${path.sep}runtime-session-fixtures${path.sep}`
+];
+const isCompatibilityDocumentFile = (file) => ignoredCompatibilityDocumentDirs.every((dir) => !file.includes(dir));
+const legacyCompatibilityDocumentFiles = legacyCompatibilityFiles.filter(isCompatibilityDocumentFile);
+const activeCompatibilityDocumentFiles = activeCompatibilityFiles.filter(isCompatibilityDocumentFile);
+const validActiveCompatibilityDocumentFiles = activeCompatibilityDocumentFiles.filter((file) => !file.includes(`${path.sep}invalid${path.sep}`));
+const invalidActiveCompatibilityDocumentFiles = activeCompatibilityDocumentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
+const validLegacyCompatibilityDocumentFiles = legacyCompatibilityDocumentFiles;
+const activeTutorialManifestFile = path.join(root, "tutorials/v0.2/tutorials.manifest.json");
+const legacyTutorialManifestFile = path.join(root, "tutorials/v0.1/tutorials.manifest.json");
+const activeTutorialManifest = await readJson(activeTutorialManifestFile);
+const legacyTutorialManifest = await readJson(legacyTutorialManifestFile);
+const activeProjectDocumentFiles = (await walk(path.join(root, "projects/v0.2"))).filter((file) => file.endsWith(".skenion.json"));
+const legacyProjectDocumentFiles = (await walk(path.join(root, "projects/v0.1"))).filter((file) => file.endsWith(".skenion.json"));
+const projectDocumentFiles = [
+  ...activeProjectDocumentFiles,
+  ...legacyProjectDocumentFiles
+];
 const extensionManifestFiles = (await walk(path.join(root, "extensions"))).filter((file) => path.basename(file) === "skenion.extension.json");
 const failures = [];
 
@@ -270,14 +284,14 @@ for (const file of invalidFiles) {
   }
 }
 
-for (const file of [...validCompatibilityDocumentFiles, ...documentValidCompatibilityFiles]) {
+for (const file of [...validActiveCompatibilityDocumentFiles, ...validLegacyCompatibilityDocumentFiles]) {
   const result = validateDocument(file, await readJson(file), contracts);
   if (!result.ok) {
     failures.push(`${file}: expected document-valid compatibility fixture, got ${result.errors.join("; ")}`);
   }
 }
 
-for (const file of invalidCompatibilityDocumentFiles) {
+for (const file of invalidActiveCompatibilityDocumentFiles) {
   const result = validateDocument(file, await readJson(file), contracts);
   if (result.ok) {
     failures.push(`${file}: expected contract-invalid compatibility fixture, got valid`);
@@ -367,81 +381,137 @@ if (liveHelpProject.help?.promoteOperation !== "compatibility/v0.2/runtime-opera
   failures.push(`${liveHelpProjectFile}: expected help.promoteOperation to point at the promote-to-project paste operation fixture`);
 }
 
-if (tutorialManifest.schema !== "skenion.examples.tutorials.manifest") {
-  failures.push(`${tutorialManifestFile}: expected schema skenion.examples.tutorials.manifest`);
-}
-if (tutorialManifest.schemaVersion !== "0.1.0") {
-  failures.push(`${tutorialManifestFile}: expected schemaVersion 0.1.0`);
-}
-if (!Array.isArray(tutorialManifest.tutorials) || tutorialManifest.tutorials.length === 0) {
-  failures.push(`${tutorialManifestFile}: tutorials must be a non-empty array`);
-}
-const tutorialIds = new Set();
-for (const [index, tutorial] of (tutorialManifest.tutorials ?? []).entries()) {
-  if (typeof tutorial.id !== "string" || tutorial.id.length === 0) {
-    failures.push(`${tutorialManifestFile}: tutorials[${index}].id must be a non-empty string`);
-    continue;
+async function validateTutorialManifest(manifestFile, manifest, options) {
+  if (manifest.schema !== "skenion.examples.tutorials.manifest") {
+    failures.push(`${manifestFile}: expected schema skenion.examples.tutorials.manifest`);
   }
-  if (tutorialIds.has(tutorial.id)) {
-    failures.push(`${tutorialManifestFile}: duplicate tutorial id ${tutorial.id}`);
+  if (manifest.schemaVersion !== options.schemaVersion) {
+    failures.push(`${manifestFile}: expected schemaVersion ${options.schemaVersion}`);
   }
-  tutorialIds.add(tutorial.id);
-  if (typeof tutorial.title !== "string" || tutorial.title.length === 0) {
-    failures.push(`${tutorialManifestFile}: ${tutorial.id} title must be a non-empty string`);
+  if (options.active && manifest.active !== true) {
+    failures.push(`${manifestFile}: expected active true`);
   }
-  if (typeof tutorial.description !== "string" || tutorial.description.length === 0) {
-    failures.push(`${tutorialManifestFile}: ${tutorial.id} description must be a non-empty string`);
+  if (!options.active && manifest.coverage !== "legacy-import-migration") {
+    failures.push(`${manifestFile}: expected legacy import/migration coverage label`);
   }
-  if (!Array.isArray(tutorial.tags) || tutorial.tags.length === 0) {
-    failures.push(`${tutorialManifestFile}: ${tutorial.id} tags must be a non-empty array`);
-  }
-  if (typeof tutorial.path !== "string" || tutorial.path.length === 0) {
-    failures.push(`${tutorialManifestFile}: ${tutorial.id} path must be a non-empty string`);
-    continue;
-  }
-  const tutorialFile = path.join(root, tutorial.path);
-  const tutorialGraph = await readJson(tutorialFile);
-  const result = validateDocument(tutorialFile, tutorialGraph, contracts);
-  if (!result.ok) {
-    failures.push(`${tutorialFile}: expected valid tutorial graph, got ${result.errors.join("; ")}`);
-  }
-  if (!(tutorialGraph.nodes ?? []).some((node) => node.kind === "core.comment")) {
-    failures.push(`${tutorialFile}: tutorial graph must include at least one core.comment node`);
-  }
-  for (const helpNodeId of tutorial.helpNodeIds ?? []) {
-    if (!contracts.getBuiltinNodeHelp(helpNodeId)) {
-      failures.push(`${tutorialManifestFile}: ${tutorial.id} references missing help ${helpNodeId}`);
-    }
-    if (!contracts.getBuiltinNodeHelpGraph(helpNodeId)) {
-      failures.push(`${tutorialManifestFile}: ${tutorial.id} references missing help graph ${helpNodeId}`);
-    }
+  if (!Array.isArray(manifest.tutorials) || manifest.tutorials.length === 0) {
+    failures.push(`${manifestFile}: tutorials must be a non-empty array`);
   }
 
-  if (tutorial.projectPath !== undefined) {
-    if (typeof tutorial.projectPath !== "string" || tutorial.projectPath.length === 0) {
-      failures.push(`${tutorialManifestFile}: ${tutorial.id} projectPath must be a non-empty string`);
+  const tutorialIds = new Set();
+  for (const [index, tutorial] of (manifest.tutorials ?? []).entries()) {
+    if (typeof tutorial.id !== "string" || tutorial.id.length === 0) {
+      failures.push(`${manifestFile}: tutorials[${index}].id must be a non-empty string`);
+      continue;
+    }
+    if (tutorialIds.has(tutorial.id)) {
+      failures.push(`${manifestFile}: duplicate tutorial id ${tutorial.id}`);
+    }
+    tutorialIds.add(tutorial.id);
+    if (typeof tutorial.title !== "string" || tutorial.title.length === 0) {
+      failures.push(`${manifestFile}: ${tutorial.id} title must be a non-empty string`);
+    }
+    if (typeof tutorial.description !== "string" || tutorial.description.length === 0) {
+      failures.push(`${manifestFile}: ${tutorial.id} description must be a non-empty string`);
+    }
+    if (!Array.isArray(tutorial.tags) || tutorial.tags.length === 0) {
+      failures.push(`${manifestFile}: ${tutorial.id} tags must be a non-empty array`);
+    }
+    if (typeof tutorial.path !== "string" || tutorial.path.length === 0) {
+      failures.push(`${manifestFile}: ${tutorial.id} path must be a non-empty string`);
+      continue;
+    }
+
+    const tutorialFile = path.join(root, tutorial.path);
+    const tutorialDocument = await readJson(tutorialFile);
+    const result = validateDocument(tutorialFile, tutorialDocument, contracts);
+    if (!result.ok) {
+      failures.push(`${tutorialFile}: expected valid tutorial document, got ${result.errors.join("; ")}`);
+    }
+
+    const tutorialGraph = tutorialDocument.schema === "skenion.project"
+      ? tutorialDocument.graph
+      : tutorialDocument;
+    if (options.active) {
+      if (tutorial.requiresV02ProjectDocument !== true) {
+        failures.push(`${manifestFile}: ${tutorial.id} must require a v0.2 project document`);
+      }
+      if (tutorialDocument.schema !== "skenion.project" || tutorialDocument.schemaVersion !== "0.2.0") {
+        failures.push(`${tutorialFile}: active tutorial must be ProjectDocumentV02`);
+      }
+      if (tutorialGraph?.schemaVersion !== "0.2.0") {
+        failures.push(`${tutorialFile}: active tutorial graph must be GraphDocumentV02`);
+      }
+      if (!Array.isArray(tutorialDocument.patchLibrary)) {
+        failures.push(`${tutorialFile}: active tutorial project must declare patchLibrary`);
+      }
+      if (!tutorial.tags.includes("v0.2")) {
+        failures.push(`${manifestFile}: ${tutorial.id} active tutorial tags must include v0.2`);
+      }
+      if (tutorial.tags.includes("live-help") && !(tutorialGraph?.nodes ?? []).some((node) => node.kind === "core.live-help")) {
+        failures.push(`${tutorialFile}: live-help tutorial must include a core.live-help node`);
+      }
+      if (tutorial.tags.includes("subpatch") && !tutorialDocument.patchLibrary?.some((patch) => patch.graph?.schemaVersion === "0.2.0")) {
+        failures.push(`${tutorialFile}: subpatch tutorial must include a v0.2 patch library graph`);
+      }
     } else {
-      const projectFile = path.join(root, tutorial.projectPath);
-      const project = await readJson(projectFile);
-      const projectResult = validateDocument(projectFile, project, contracts);
-      if (!projectResult.ok) {
-        failures.push(`${projectFile}: expected valid tutorial project, got ${projectResult.errors.join("; ")}`);
+      if (tutorialGraph?.schemaVersion !== "0.1.0") {
+        failures.push(`${tutorialFile}: legacy tutorial graph must remain v0.1`);
+      }
+      if (!(tutorialGraph?.nodes ?? []).some((node) => node.kind === "core.comment")) {
+        failures.push(`${tutorialFile}: legacy tutorial graph must include at least one core.comment node`);
+      }
+      for (const helpNodeId of tutorial.helpNodeIds ?? []) {
+        if (!contracts.getBuiltinNodeHelp(helpNodeId)) {
+          failures.push(`${manifestFile}: ${tutorial.id} references missing help ${helpNodeId}`);
+        }
+        if (!contracts.getBuiltinNodeHelpGraph(helpNodeId)) {
+          failures.push(`${manifestFile}: ${tutorial.id} references missing help graph ${helpNodeId}`);
+        }
+      }
+
+      const shaderSources = (tutorialGraph?.nodes ?? [])
+        .filter((node) => node.kind === "render.fullscreen-shader")
+        .map((node) => node.params?.source ?? "");
+      const diagnostics = shaderSources.flatMap((source) => (
+        contracts.analyzeShaderInterfaceV01(source, { language: "wgsl" }).diagnostics.map((diagnostic) => diagnostic.code)
+      ));
+      for (const expectedDiagnostic of tutorial.expectedDiagnostics ?? []) {
+        if (!diagnostics.includes(expectedDiagnostic)) {
+          failures.push(`${tutorialFile}: expected shader diagnostic ${expectedDiagnostic}, got ${diagnostics.join(", ") || "<none>"}`);
+        }
+      }
+    }
+
+    if (tutorial.projectPath !== undefined) {
+      if (typeof tutorial.projectPath !== "string" || tutorial.projectPath.length === 0) {
+        failures.push(`${manifestFile}: ${tutorial.id} projectPath must be a non-empty string`);
+      } else {
+        const projectFile = path.join(root, tutorial.projectPath);
+        const project = await readJson(projectFile);
+        const projectResult = validateDocument(projectFile, project, contracts);
+        if (!projectResult.ok) {
+          failures.push(`${projectFile}: expected valid tutorial project, got ${projectResult.errors.join("; ")}`);
+        }
+        if (options.active && project.schemaVersion !== "0.2.0") {
+          failures.push(`${projectFile}: active tutorial projectPath must point to ProjectDocumentV02`);
+        }
+        if (!options.active && project.schemaVersion !== "0.1.0") {
+          failures.push(`${projectFile}: legacy tutorial projectPath must remain ProjectDocument v0.1`);
+        }
       }
     }
   }
-
-  const shaderSources = (tutorialGraph.nodes ?? [])
-    .filter((node) => node.kind === "render.fullscreen-shader")
-    .map((node) => node.params?.source ?? "");
-  const diagnostics = shaderSources.flatMap((source) => (
-    contracts.analyzeShaderInterfaceV01(source, { language: "wgsl" }).diagnostics.map((diagnostic) => diagnostic.code)
-  ));
-  for (const expectedDiagnostic of tutorial.expectedDiagnostics ?? []) {
-    if (!diagnostics.includes(expectedDiagnostic)) {
-      failures.push(`${tutorialFile}: expected shader diagnostic ${expectedDiagnostic}, got ${diagnostics.join(", ") || "<none>"}`);
-    }
-  }
 }
+
+await validateTutorialManifest(activeTutorialManifestFile, activeTutorialManifest, {
+  active: true,
+  schemaVersion: "0.2.0"
+});
+await validateTutorialManifest(legacyTutorialManifestFile, legacyTutorialManifest, {
+  active: false,
+  schemaVersion: "0.1.0"
+});
 
 if (failures.length > 0) {
   for (const failure of failures) {
@@ -455,5 +525,5 @@ const clockMidiSummary = supportsClockMidiFixtures
   : `0 MIDI Clock fixtures (${clockMidiFixtureFiles.length} skipped; @skenion/contracts does not expose clock.midi-clock parser yet)`;
 
 console.log(
-  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${graphFragmentFiles.length} graph fragments, ${runtimeOperationFiles.length} runtime operation fixtures, ${collaborationFixtureFiles.length} collaboration fixtures, ${clockMidiSummary}, ${runtimeClockMidiFixtureFiles.length} runtime MIDI Clock fixtures reserved for runtime smoke, ${runtimeSessionFixtureFiles.length} runtime session smoke fixtures reserved for runtime smoke, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, ${extensionManifestFiles.length} extension manifests, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
+  `validated active v0.2 fixtures: ${validActiveCompatibilityDocumentFiles.length} document-valid compatibility fixtures, ${invalidActiveCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${graphFragmentFiles.length} graph fragments, ${runtimeOperationFiles.length} runtime operation fixtures, ${collaborationFixtureFiles.length} collaboration fixtures, ${activeRuntimeSessionFixtureFiles.length} runtime session smoke fixtures reserved for runtime smoke, ${activeProjectDocumentFiles.length} project documents, and ${activeTutorialManifest.tutorials.length} tutorials; legacy v0.1 fixtures: ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validLegacyCompatibilityDocumentFiles.length} document-valid compatibility fixtures, ${clockMidiSummary}, ${runtimeClockMidiFixtureFiles.length} runtime MIDI Clock fixtures reserved for runtime smoke, ${legacyRuntimeSessionFixtureFiles.length} runtime session smoke fixtures reserved for runtime smoke, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${legacyProjectDocumentFiles.length} project documents, and ${legacyTutorialManifest.tutorials.length} tutorials; shared: ${extensionManifestFiles.length} extension manifests with @skenion/contracts`
 );

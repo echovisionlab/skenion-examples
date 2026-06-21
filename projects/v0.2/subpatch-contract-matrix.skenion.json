@@ -1,0 +1,644 @@
+{
+  "schema": "skenion.project",
+  "schemaVersion": "0.2.0",
+  "id": "project-subpatch-contract-matrix",
+  "revision": "1",
+  "metadata": {
+    "title": "Subpatch Contract Matrix",
+    "description": "PatchDefinitionV02 fixture covering zero-port, input-only, output-only, and N/M inlet/outlet patch contracts."
+  },
+  "graph": {
+    "schema": "skenion.graph",
+    "schemaVersion": "0.2.0",
+    "id": "subpatch-contract-matrix-v02",
+    "revision": "1",
+    "nodes": [
+      {
+        "id": "source_left",
+        "kind": "core.value-number",
+        "kindVersion": "0.2.0",
+        "params": {
+          "value": 0.25
+        },
+        "ports": [
+          {
+            "id": "out",
+            "direction": "output",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Left value for subpatch inputs."
+          }
+        ]
+      },
+      {
+        "id": "source_right",
+        "kind": "core.value-number",
+        "kindVersion": "0.2.0",
+        "params": {
+          "value": 0.75
+        },
+        "ports": [
+          {
+            "id": "out",
+            "direction": "output",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Right value for subpatch inputs."
+          }
+        ]
+      },
+      {
+        "id": "zero_patch",
+        "kind": "core.subpatch",
+        "kindVersion": "0.2.0",
+        "params": {
+          "patchId": "zero_port",
+          "objectText": "p zero_port",
+          "description": "A patch-backed node with no external ports."
+        },
+        "ports": []
+      },
+      {
+        "id": "input_patch",
+        "kind": "core.subpatch",
+        "kindVersion": "0.2.0",
+        "params": {
+          "patchId": "input_only",
+          "objectText": "p input_only",
+          "description": "A patch-backed node with one external input and no external outputs."
+        },
+        "ports": [
+          {
+            "id": "value",
+            "direction": "input",
+            "type": "value.number",
+            "rate": "control",
+            "required": true,
+            "description": "External input materialized from input_only.value_in."
+          }
+        ]
+      },
+      {
+        "id": "output_patch",
+        "kind": "core.subpatch",
+        "kindVersion": "0.2.0",
+        "params": {
+          "patchId": "output_only",
+          "objectText": "p output_only",
+          "description": "A patch-backed node with one external output and no external inputs."
+        },
+        "ports": [
+          {
+            "id": "value",
+            "direction": "output",
+            "type": "value.number",
+            "rate": "control",
+            "description": "External output materialized from output_only.value_out."
+          }
+        ]
+      },
+      {
+        "id": "matrix_patch",
+        "kind": "core.subpatch",
+        "kindVersion": "0.2.0",
+        "params": {
+          "patchId": "two_in_three_out",
+          "objectText": "p two_in_three_out",
+          "description": "A patch-backed node with two external inputs and three external outputs."
+        },
+        "ports": [
+          {
+            "id": "left",
+            "direction": "input",
+            "type": "value.number",
+            "rate": "control",
+            "required": true,
+            "description": "Left external input."
+          },
+          {
+            "id": "right",
+            "direction": "input",
+            "type": "value.number",
+            "rate": "control",
+            "required": true,
+            "description": "Right external input."
+          },
+          {
+            "id": "sum",
+            "direction": "output",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Left value routed to the first output."
+          },
+          {
+            "id": "difference",
+            "direction": "output",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Left-derived output."
+          },
+          {
+            "id": "thru",
+            "direction": "output",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Right-derived output."
+          }
+        ]
+      },
+      {
+        "id": "meter_output",
+        "kind": "core.meter",
+        "kindVersion": "0.2.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Displays the output-only patch value."
+          }
+        ]
+      },
+      {
+        "id": "meter_sum",
+        "kind": "core.meter",
+        "kindVersion": "0.2.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Displays the merged output."
+          }
+        ]
+      },
+      {
+        "id": "meter_difference",
+        "kind": "core.meter",
+        "kindVersion": "0.2.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Displays the left-derived output."
+          }
+        ]
+      },
+      {
+        "id": "meter_thru",
+        "kind": "core.meter",
+        "kindVersion": "0.2.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Displays the right-derived output."
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge_left_input_patch",
+        "source": {
+          "nodeId": "source_left",
+          "portId": "out"
+        },
+        "target": {
+          "nodeId": "input_patch",
+          "portId": "value"
+        },
+        "resolvedType": "value.number"
+      },
+      {
+        "id": "edge_output_meter",
+        "source": {
+          "nodeId": "output_patch",
+          "portId": "value"
+        },
+        "target": {
+          "nodeId": "meter_output",
+          "portId": "in"
+        },
+        "resolvedType": "value.number"
+      },
+      {
+        "id": "edge_left_matrix",
+        "source": {
+          "nodeId": "source_left",
+          "portId": "out"
+        },
+        "target": {
+          "nodeId": "matrix_patch",
+          "portId": "left"
+        },
+        "resolvedType": "value.number"
+      },
+      {
+        "id": "edge_right_matrix",
+        "source": {
+          "nodeId": "source_right",
+          "portId": "out"
+        },
+        "target": {
+          "nodeId": "matrix_patch",
+          "portId": "right"
+        },
+        "resolvedType": "value.number"
+      },
+      {
+        "id": "edge_matrix_sum_meter",
+        "source": {
+          "nodeId": "matrix_patch",
+          "portId": "sum"
+        },
+        "target": {
+          "nodeId": "meter_sum",
+          "portId": "in"
+        },
+        "resolvedType": "value.number"
+      },
+      {
+        "id": "edge_matrix_difference_meter",
+        "source": {
+          "nodeId": "matrix_patch",
+          "portId": "difference"
+        },
+        "target": {
+          "nodeId": "meter_difference",
+          "portId": "in"
+        },
+        "resolvedType": "value.number"
+      },
+      {
+        "id": "edge_matrix_thru_meter",
+        "source": {
+          "nodeId": "matrix_patch",
+          "portId": "thru"
+        },
+        "target": {
+          "nodeId": "meter_thru",
+          "portId": "in"
+        },
+        "resolvedType": "value.number"
+      }
+    ]
+  },
+  "viewState": {
+    "schema": "skenion.view-state",
+    "schemaVersion": "0.1.0",
+    "canvas": {
+      "nodes": {
+        "source_left": {
+          "x": 96,
+          "y": 120
+        },
+        "source_right": {
+          "x": 96,
+          "y": 260
+        },
+        "zero_patch": {
+          "x": 360,
+          "y": 40
+        },
+        "input_patch": {
+          "x": 360,
+          "y": 120
+        },
+        "output_patch": {
+          "x": 360,
+          "y": 220
+        },
+        "matrix_patch": {
+          "x": 360,
+          "y": 360
+        },
+        "meter_output": {
+          "x": 680,
+          "y": 220
+        },
+        "meter_sum": {
+          "x": 680,
+          "y": 320
+        },
+        "meter_difference": {
+          "x": 680,
+          "y": 420
+        },
+        "meter_thru": {
+          "x": 680,
+          "y": 520
+        }
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  },
+  "patchLibrary": [
+    {
+      "id": "zero_port",
+      "revision": "1",
+      "metadata": {
+        "title": "Zero Port",
+        "description": "A patch definition with no core.inlet or core.outlet boundary nodes."
+      },
+      "graph": {
+        "schema": "skenion.graph",
+        "schemaVersion": "0.2.0",
+        "id": "patch-zero-port-v02",
+        "revision": "1",
+        "nodes": [],
+        "edges": []
+      }
+    },
+    {
+      "id": "input_only",
+      "revision": "1",
+      "metadata": {
+        "title": "Input Only",
+        "description": "A patch definition with one external input and no external outputs."
+      },
+      "graph": {
+        "schema": "skenion.graph",
+        "schemaVersion": "0.2.0",
+        "id": "patch-input-only-v02",
+        "revision": "1",
+        "nodes": [
+          {
+            "id": "value_in",
+            "kind": "core.inlet",
+            "kindVersion": "0.2.0",
+            "params": {
+              "portId": "value",
+              "label": "Value",
+              "order": 0
+            },
+            "ports": [
+              {
+                "id": "out",
+                "direction": "output",
+                "type": "value.number",
+                "rate": "control",
+                "description": "Value entering the input-only patch."
+              }
+            ]
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "id": "output_only",
+      "revision": "1",
+      "metadata": {
+        "title": "Output Only",
+        "description": "A patch definition with one external output and no external inputs."
+      },
+      "graph": {
+        "schema": "skenion.graph",
+        "schemaVersion": "0.2.0",
+        "id": "patch-output-only-v02",
+        "revision": "1",
+        "nodes": [
+          {
+            "id": "value_out",
+            "kind": "core.outlet",
+            "kindVersion": "0.2.0",
+            "params": {
+              "portId": "value",
+              "label": "Value",
+              "order": 0
+            },
+            "ports": [
+              {
+                "id": "in",
+                "direction": "input",
+                "type": "value.number",
+                "rate": "control",
+                "description": "Value leaving the output-only patch."
+              }
+            ]
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "id": "two_in_three_out",
+      "revision": "1",
+      "metadata": {
+        "title": "Two In Three Out",
+        "description": "A patch definition with two external inputs and three external outputs."
+      },
+      "graph": {
+        "schema": "skenion.graph",
+        "schemaVersion": "0.2.0",
+        "id": "patch-two-in-three-out-v02",
+        "revision": "1",
+        "nodes": [
+          {
+            "id": "left_in",
+            "kind": "core.inlet",
+            "kindVersion": "0.2.0",
+            "params": {
+              "portId": "left",
+              "label": "Left",
+              "order": 0
+            },
+            "ports": [
+              {
+                "id": "out",
+                "direction": "output",
+                "type": "value.number",
+                "rate": "control",
+                "description": "Left value entering the patch."
+              }
+            ]
+          },
+          {
+            "id": "right_in",
+            "kind": "core.inlet",
+            "kindVersion": "0.2.0",
+            "params": {
+              "portId": "right",
+              "label": "Right",
+              "order": 1
+            },
+            "ports": [
+              {
+                "id": "out",
+                "direction": "output",
+                "type": "value.number",
+                "rate": "control",
+                "description": "Right value entering the patch."
+              }
+            ]
+          },
+          {
+            "id": "sum_out",
+            "kind": "core.outlet",
+            "kindVersion": "0.2.0",
+            "params": {
+              "portId": "sum",
+              "label": "Sum",
+              "order": 0
+            },
+            "ports": [
+              {
+                "id": "in",
+                "direction": "input",
+                "type": "value.number",
+                "rate": "control",
+                "description": "Left value routed to the first output."
+              }
+            ]
+          },
+          {
+            "id": "difference_out",
+            "kind": "core.outlet",
+            "kindVersion": "0.2.0",
+            "params": {
+              "portId": "difference",
+              "label": "Difference",
+              "order": 1
+            },
+            "ports": [
+              {
+                "id": "in",
+                "direction": "input",
+                "type": "value.number",
+                "rate": "control",
+                "description": "Left-derived value leaving the patch."
+              }
+            ]
+          },
+          {
+            "id": "thru_out",
+            "kind": "core.outlet",
+            "kindVersion": "0.2.0",
+            "params": {
+              "portId": "thru",
+              "label": "Thru",
+              "order": 2
+            },
+            "ports": [
+              {
+                "id": "in",
+                "direction": "input",
+                "type": "value.number",
+                "rate": "control",
+                "description": "Right-derived value leaving the patch."
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": "edge_left_sum",
+            "source": {
+              "nodeId": "left_in",
+              "portId": "out"
+            },
+            "target": {
+              "nodeId": "sum_out",
+              "portId": "in"
+            },
+            "resolvedType": "value.number",
+            "order": 0
+          },
+          {
+            "id": "edge_left_difference",
+            "source": {
+              "nodeId": "left_in",
+              "portId": "out"
+            },
+            "target": {
+              "nodeId": "difference_out",
+              "portId": "in"
+            },
+            "resolvedType": "value.number"
+          },
+          {
+            "id": "edge_right_thru",
+            "source": {
+              "nodeId": "right_in",
+              "portId": "out"
+            },
+            "target": {
+              "nodeId": "thru_out",
+              "portId": "in"
+            },
+            "resolvedType": "value.number"
+          }
+        ]
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.2.0",
+      "id": "core.value-number",
+      "version": "0.2.0",
+      "displayName": "Number Value",
+      "category": "Core",
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "value.number",
+          "rate": "control"
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "value.number.v0.2"
+      ]
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.2.0",
+      "id": "core.meter",
+      "version": "0.2.0",
+      "displayName": "Meter",
+      "category": "Core",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "value.number",
+          "rate": "control"
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "value.number.v0.2"
+      ]
+    }
+  ]
+}

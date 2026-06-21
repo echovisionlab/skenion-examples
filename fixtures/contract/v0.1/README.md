@@ -1,7 +1,8 @@
-# Contract Fixtures v0.1
+# Legacy Contract Fixtures v0.1
 
 These fixtures are canonical compatibility examples for Skenion Graph Document
-v0.1 and Skenion Node Definition Manifest v0.1.
+v0.1 and Skenion Node Definition Manifest v0.1. They are retained as legacy
+import and migration coverage only; active product fixtures use graph v0.2.
 
 Valid fixtures must pass both:
 

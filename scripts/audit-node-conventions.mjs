@@ -144,9 +144,11 @@ for (const fixture of expectedProjectFixtures) {
   await readJson(file);
 }
 
+const legacyCompatibilityFiles = await walk(path.join(root, "compatibility/v0.1"));
+const activeCompatibilityFiles = await walk(path.join(root, "compatibility/v0.2"));
 const compatibilityFiles = [
-  ...await walk(path.join(root, "compatibility/v0.1")),
-  ...await walk(path.join(root, "compatibility/v0.2"))
+  ...legacyCompatibilityFiles,
+  ...activeCompatibilityFiles
 ];
 
 for (const file of compatibilityFiles) {
@@ -231,5 +233,5 @@ for (const file of validV01Files) {
 }
 
 console.log(
-  `audited ${nodeManifestFiles.length} v0.1 node manifests, ${validV01Files.length} valid v0.1 compatibility files, and ${builtinFiles.length} contracts builtins`
+  `audited legacy v0.1 fixtures: ${nodeManifestFiles.length} node manifests, ${validV01Files.length} valid compatibility files, and ${builtinFiles.length} contracts builtins; scanned active v0.2 fixtures: ${activeCompatibilityFiles.length} files for canonical type spelling`
 );

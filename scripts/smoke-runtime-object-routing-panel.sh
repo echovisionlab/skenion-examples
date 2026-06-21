@@ -2,6 +2,8 @@
 set -euo pipefail
 
 RUNTIME_URL="${SKENION_RUNTIME_URL:-http://127.0.0.1:3761}"
+source scripts/runtime-smoke-legacy-v01.sh
+skip_legacy_v01_smoke_if_active_v02 "$0"
 PROJECT="compatibility/v0.1/projects/valid/object-routing-panel.project.json"
 
 curl --fail --silent "${RUNTIME_URL}/health" >/dev/null

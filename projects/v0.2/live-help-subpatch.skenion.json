@@ -1,0 +1,337 @@
+{
+  "schema": "skenion.project",
+  "schemaVersion": "0.2.0",
+  "id": "project-live-help-subpatch",
+  "revision": "1",
+  "metadata": {
+    "title": "Live Help Subpatch",
+    "description": "A live help fixture whose help topic points at a PatchDefinitionV02 example."
+  },
+  "graph": {
+    "schema": "skenion.graph",
+    "schemaVersion": "0.2.0",
+    "id": "live-help-subpatch-v02",
+    "revision": "1",
+    "nodes": [
+      {
+        "id": "open_help",
+        "kind": "core.bang",
+        "kindVersion": "0.2.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "type": "message.any",
+            "rate": "event",
+            "triggerMode": "trigger"
+          },
+          {
+            "id": "bang",
+            "direction": "output",
+            "type": "event.bang",
+            "rate": "event"
+          }
+        ]
+      },
+      {
+        "id": "subpatch_help",
+        "kind": "core.live-help",
+        "kindVersion": "0.2.0",
+        "params": {
+          "topic": "core.subpatch",
+          "manualVersion": "0.33",
+          "manualRoute": "/manual/0.33/model/subpatches",
+          "patchId": "help.core.subpatch",
+          "fixture": "compatibility/v0.2/projects/valid/subpatch-boundary.project.json",
+          "summary": "Open the v0.2 subpatch boundary fixture from the Skenion Manual."
+        },
+        "ports": [
+          {
+            "id": "open",
+            "direction": "input",
+            "type": "event.bang",
+            "rate": "event",
+            "triggerMode": "trigger"
+          },
+          {
+            "id": "help",
+            "direction": "output",
+            "type": "message.any",
+            "rate": "event",
+            "description": "Emits live help patch metadata."
+          }
+        ]
+      },
+      {
+        "id": "help_message",
+        "kind": "core.message",
+        "kindVersion": "0.2.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "type": "message.any",
+            "rate": "event",
+            "triggerMode": "trigger"
+          },
+          {
+            "id": "out",
+            "direction": "output",
+            "type": "message.any",
+            "rate": "event"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge_open_help",
+        "source": {
+          "nodeId": "open_help",
+          "portId": "bang"
+        },
+        "target": {
+          "nodeId": "subpatch_help",
+          "portId": "open"
+        },
+        "resolvedType": "event.bang"
+      },
+      {
+        "id": "edge_help_message",
+        "source": {
+          "nodeId": "subpatch_help",
+          "portId": "help"
+        },
+        "target": {
+          "nodeId": "help_message",
+          "portId": "in"
+        },
+        "resolvedType": "message.any"
+      }
+    ]
+  },
+  "viewState": {
+    "schema": "skenion.view-state",
+    "schemaVersion": "0.1.0",
+    "canvas": {
+      "nodes": {
+        "open_help": {
+          "x": 96,
+          "y": 160
+        },
+        "subpatch_help": {
+          "x": 360,
+          "y": 160
+        },
+        "help_message": {
+          "x": 640,
+          "y": 160
+        }
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  },
+  "patchLibrary": [
+    {
+      "id": "help.core.subpatch",
+      "revision": "1",
+      "metadata": {
+        "title": "Core Subpatch Help",
+        "description": "The copyable live help patch used by the core.subpatch Manual topic."
+      },
+      "graph": {
+        "schema": "skenion.graph",
+        "schemaVersion": "0.2.0",
+        "id": "patch-core-subpatch-help-v02",
+        "revision": "1",
+        "nodes": [
+          {
+            "id": "patch_in",
+            "kind": "core.inlet",
+            "kindVersion": "0.2.0",
+            "params": {
+              "portId": "in",
+              "label": "In"
+            },
+            "ports": [
+              {
+                "id": "out",
+                "direction": "output",
+                "type": "value.number",
+                "rate": "control",
+                "description": "A value entering the help patch."
+              }
+            ]
+          },
+          {
+            "id": "patch_out",
+            "kind": "core.outlet",
+            "kindVersion": "0.2.0",
+            "params": {
+              "portId": "out",
+              "label": "Out"
+            },
+            "ports": [
+              {
+                "id": "in",
+                "direction": "input",
+                "type": "value.number",
+                "rate": "control",
+                "required": true,
+                "description": "The same value leaving the help patch."
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": "edge_help_passthrough",
+            "source": {
+              "nodeId": "patch_in",
+              "portId": "out"
+            },
+            "target": {
+              "nodeId": "patch_out",
+              "portId": "in"
+            },
+            "resolvedType": "value.number"
+          }
+        ]
+      },
+      "viewState": {
+        "schema": "skenion.view-state",
+        "schemaVersion": "0.1.0",
+        "canvas": {
+          "nodes": {
+            "patch_in": {
+              "x": 96,
+              "y": 160
+            },
+            "patch_out": {
+              "x": 360,
+              "y": 160
+            }
+          },
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "zoom": 1
+          }
+        }
+      }
+    }
+  ],
+  "help": {
+    "topic": "core.subpatch",
+    "manualVersion": "0.33",
+    "manualRoute": "/manual/0.33/model/subpatches",
+    "patchId": "help.core.subpatch"
+  },
+  "nodes": [
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.2.0",
+      "id": "core.bang",
+      "version": "0.2.0",
+      "displayName": "Bang",
+      "category": "Core",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "message.any",
+          "rate": "event",
+          "triggerMode": "trigger"
+        },
+        {
+          "id": "bang",
+          "direction": "output",
+          "type": "event.bang",
+          "rate": "event"
+        }
+      ],
+      "execution": {
+        "model": "event"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "event.bang.v0.2"
+      ]
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.2.0",
+      "id": "core.live-help",
+      "version": "0.2.0",
+      "displayName": "Live Help",
+      "category": "Core",
+      "ports": [
+        {
+          "id": "open",
+          "direction": "input",
+          "type": "event.bang",
+          "rate": "event",
+          "triggerMode": "trigger"
+        },
+        {
+          "id": "help",
+          "direction": "output",
+          "type": "message.any",
+          "rate": "event"
+        }
+      ],
+      "execution": {
+        "model": "event"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "manual.live-help.v0.2"
+      ]
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.2.0",
+      "id": "core.message",
+      "version": "0.2.0",
+      "displayName": "Message",
+      "category": "Core",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "message.any",
+          "rate": "event",
+          "triggerMode": "trigger"
+        },
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "message.any",
+          "rate": "event"
+        }
+      ],
+      "execution": {
+        "model": "event"
+      },
+      "state": {
+        "persistent": true
+      },
+      "permissions": [],
+      "capabilities": [
+        "message.any.v0.2"
+      ]
+    }
+  ]
+}

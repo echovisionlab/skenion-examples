@@ -1,10 +1,14 @@
-# Realtime Collaboration Fixtures v0
+# Active Realtime Collaboration Fixtures
 
 These fixtures exercise the released `@skenion/contracts` collaboration wire
 schemas added for M06.82. They are compatibility samples rather than a runtime
 simulator: validation proves the examples stay on the shared wire contract, and
 the file names describe the convergence or conflict story that a runtime smoke
 test can replay later.
+
+Although the wire envelope schema is versioned as runtime collaboration v0,
+the graph operations, target paths, and fragments inside these fixtures use the
+graph v0.2 product model.
 
 - `concurrent-node-add-move-connect.batch.json` shows two participants
   submitting convergent node add, node move, and edge connect changes against
