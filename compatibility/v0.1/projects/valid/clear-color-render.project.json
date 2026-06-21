@@ -97,7 +97,10 @@
       "permissions": [],
       "capabilities": [
         "render.output.clear-color"
-      ]
+      ],
+      "surface": {
+        "palette": "direct"
+      }
     },
     {
       "schema": "skenion.node.definition",
@@ -131,7 +134,10 @@
       "permissions": [],
       "capabilities": [
         "render.output.surface"
-      ]
+      ],
+      "surface": {
+        "palette": "direct"
+      }
     }
   ]
 }

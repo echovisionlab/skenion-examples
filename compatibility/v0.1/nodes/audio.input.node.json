@@ -36,5 +36,8 @@
   "capabilities": [
     "audio.input.v0.1",
     "pd.audio.v0.1"
-  ]
+  ],
+  "surface": {
+    "palette": "direct"
+  }
 }

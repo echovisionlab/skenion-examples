@@ -935,7 +935,10 @@
         "persistent": false
       },
       "permissions": [],
-      "capabilities": []
+      "capabilities": [],
+      "surface": {
+        "palette": "direct"
+      }
     },
     {
       "schema": "skenion.node.definition",
@@ -1014,7 +1017,10 @@
         "persistent": false
       },
       "permissions": [],
-      "capabilities": []
+      "capabilities": [],
+      "surface": {
+        "palette": "direct"
+      }
     },
     {
       "schema": "skenion.node.definition",
@@ -1065,7 +1071,10 @@
         "persistent": false
       },
       "permissions": [],
-      "capabilities": []
+      "capabilities": [],
+      "surface": {
+        "palette": "direct"
+      }
     },
     {
       "schema": "skenion.node.definition",
@@ -1118,7 +1127,10 @@
         "persistent": false
       },
       "permissions": [],
-      "capabilities": []
+      "capabilities": [],
+      "surface": {
+        "palette": "direct"
+      }
     },
     {
       "schema": "skenion.node.definition",

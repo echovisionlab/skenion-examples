@@ -28,5 +28,8 @@
   "permissions": [],
   "capabilities": [
     "render.output.fullscreen-shader"
-  ]
+  ],
+  "surface": {
+    "palette": "direct"
+  }
 }

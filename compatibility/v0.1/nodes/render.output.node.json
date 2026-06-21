@@ -30,5 +30,8 @@
   "permissions": [],
   "capabilities": [
     "render.output.surface"
-  ]
+  ],
+  "surface": {
+    "palette": "direct"
+  }
 }
