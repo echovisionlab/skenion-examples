@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate:contracts": "node scripts/validate-with-contracts.mjs",
+    "validate:runtime-payloads": "node scripts/validate-runtime-project-payloads.mjs"
+  },
+  "devDependencies": {
+    "@skenion/contracts": "0.37.0"
+  }
+}

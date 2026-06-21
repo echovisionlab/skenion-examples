@@ -137,9 +137,10 @@ authoring and are validated against the same contracts package.
 Run local validation with:
 
 ```sh
-SKENION_CONTRACTS_PACKAGE=/Volumes/dev/Skenion/Skenion-contracts/packages/ts/dist node scripts/validate-with-contracts.mjs
+pnpm install --frozen-lockfile
+node scripts/validate-with-contracts.mjs
 SKENION_CONTRACTS_DIR=/Volumes/dev/Skenion/Skenion-contracts node scripts/audit-node-conventions.mjs
-SKENION_CONTRACTS_PACKAGE=/Volumes/dev/Skenion/Skenion-contracts/packages/ts/dist node scripts/validate-runtime-project-payloads.mjs
+node scripts/validate-runtime-project-payloads.mjs
 bash scripts/validate-with-runtime.sh /Volumes/dev/Skenion/Skenion-runtime
 ```
 

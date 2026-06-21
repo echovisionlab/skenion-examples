@@ -25,10 +25,14 @@ The valid graphs cover:
 - explicit GPU texture to render frame adapter usage
 - explicit subpatch boundary ports derived from `PatchDefinitionV02`
 - live-help fixture lookup for a Manual topic and patch-library help patch
+- zero-port, input-only, output-only, and N/M subpatch contracts
+- graph fragment copy/paste fixtures for root graphs, patch definitions, and
+  volatile help working copies
 
-The invalid graphs cover hard diagnostics such as ambiguous control/value
-algebraic loops, default render input fan-in, and subpatch boundary fan-in
-without an explicit merge policy.
+The invalid fixtures cover hard diagnostics such as ambiguous control/value
+algebraic loops, default render input fan-in, subpatch boundary fan-in without
+an explicit merge policy, duplicate boundary port ids, and rejected graph
+fragments with outside endpoints.
 
 Runtime v0.14 should validate and plan these graphs, but it must not execute
 feedback.

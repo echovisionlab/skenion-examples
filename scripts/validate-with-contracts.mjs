@@ -4,10 +4,10 @@ import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const contractsPackage = process.env.SKENION_CONTRACTS_PACKAGE
-  ?? path.join(root, ".deps/skenion-contracts/packages/ts/dist");
+  ?? "@skenion/contracts";
 
 async function importContracts() {
-  if (contractsPackage.startsWith(".") || contractsPackage.startsWith("/") || contractsPackage.includes(path.sep)) {
+  if (contractsPackage.startsWith(".") || path.isAbsolute(contractsPackage)) {
     const entry = contractsPackage.endsWith(".js")
       ? contractsPackage
       : path.join(contractsPackage, "index.js");
@@ -92,6 +92,9 @@ function validateDocument(file, document, contracts) {
       ? contracts.validateGraphDocumentV02(document)
       : contracts.validateGraphDocument(document);
   }
+  if (document.schema === "skenion.graph.fragment") {
+    return contracts.validateGraphFragmentV02(document);
+  }
   if (document.schema === "skenion.node.definition") {
     return document.schemaVersion === "0.2.0"
       ? contracts.validateNodeDefinitionV02(document)
@@ -102,6 +105,12 @@ function validateDocument(file, document, contracts) {
   }
   if (document.schema === "skenion.extension.manifest") {
     return contracts.validateExtensionManifestV01(document);
+  }
+  if (document.schema === "skenion.runtime.operation") {
+    return contracts.validateRuntimeOperationEnvelope(document);
+  }
+  if (document.schema === "skenion.runtime.paste-graph-fragment.response") {
+    return contracts.validatePasteGraphFragmentResponse(document);
   }
 
   return {
@@ -203,6 +212,8 @@ const compatibilityFiles = [
   ...await walk(path.join(root, "compatibility/v0.1")),
   ...await walk(path.join(root, "compatibility/v0.2"))
 ];
+const graphFragmentFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}graph-fragments${path.sep}`));
+const runtimeOperationFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-operations${path.sep}`));
 const clockMidiFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}clock-midi-fixtures${path.sep}`));
 const runtimeClockMidiFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-midi-clock-fixtures${path.sep}`));
 const supportsClockMidiFixtures =
@@ -300,6 +311,39 @@ for (const file of extensionManifestFiles) {
   }
 }
 
+const subpatchMatrixFile = path.join(root, "compatibility/v0.2/projects/valid/subpatch-contract-matrix.project.json");
+const subpatchMatrixProject = await readJson(subpatchMatrixFile);
+const derivedPatchContracts = contracts.derivePatchContractsV02(subpatchMatrixProject);
+const expectedPatchContracts = new Map([
+  ["zero_port", []],
+  ["input_only", [["value", "input"]]],
+  ["output_only", [["value", "output"]]],
+  ["two_in_three_out", [["left", "input"], ["right", "input"], ["sum", "output"], ["difference", "output"], ["thru", "output"]]]
+]);
+for (const [patchId, expectedPorts] of expectedPatchContracts) {
+  const patchContract = derivedPatchContracts.find((contract) => contract.id === patchId);
+  if (!patchContract) {
+    failures.push(`${subpatchMatrixFile}: missing derived patch contract ${patchId}`);
+    continue;
+  }
+  const actualPorts = patchContract.ports.map((port) => [port.id, port.direction]);
+  if (JSON.stringify(actualPorts) !== JSON.stringify(expectedPorts)) {
+    failures.push(`${subpatchMatrixFile}: ${patchId} expected derived ports ${JSON.stringify(expectedPorts)}, got ${JSON.stringify(actualPorts)}`);
+  }
+}
+
+const liveHelpProjectFile = path.join(root, "compatibility/v0.2/projects/valid/live-help-graph-fragment.project.json");
+const liveHelpProject = await readJson(liveHelpProjectFile);
+if (liveHelpProject.help?.workingCopy?.kind !== "help-working-copy") {
+  failures.push(`${liveHelpProjectFile}: expected help.workingCopy.kind to be help-working-copy`);
+}
+if (liveHelpProject.help?.copyableFragment !== "compatibility/v0.2/graph-fragments/valid/live-help-copyable-selection.fragment.json") {
+  failures.push(`${liveHelpProjectFile}: expected help.copyableFragment to point at the live-help graph fragment fixture`);
+}
+if (liveHelpProject.help?.promoteOperation !== "compatibility/v0.2/runtime-operations/valid/promote-help-selection-to-root.operation.json") {
+  failures.push(`${liveHelpProjectFile}: expected help.promoteOperation to point at the promote-to-project paste operation fixture`);
+}
+
 if (tutorialManifest.schema !== "skenion.examples.tutorials.manifest") {
   failures.push(`${tutorialManifestFile}: expected schema skenion.examples.tutorials.manifest`);
 }
@@ -388,5 +432,5 @@ const clockMidiSummary = supportsClockMidiFixtures
   : `0 MIDI Clock fixtures (${clockMidiFixtureFiles.length} skipped; @skenion/contracts does not expose clock.midi-clock parser yet)`;
 
 console.log(
-  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${clockMidiSummary}, ${runtimeClockMidiFixtureFiles.length} runtime MIDI Clock fixtures reserved for runtime smoke, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, ${extensionManifestFiles.length} extension manifests, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
+  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${graphFragmentFiles.length} graph fragments, ${runtimeOperationFiles.length} runtime operation fixtures, ${clockMidiSummary}, ${runtimeClockMidiFixtureFiles.length} runtime MIDI Clock fixtures reserved for runtime smoke, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, ${extensionManifestFiles.length} extension manifests, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
 );
