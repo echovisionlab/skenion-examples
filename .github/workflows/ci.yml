@@ -102,7 +102,7 @@ jobs:
           else
             echo "runtime does not support message-based live preview control snapshots yet"
           fi
-          if python3 -c 'import json, sys; caps=json.loads(sys.argv[1]).get("capabilities", []); sys.exit(0 if "runtime.io.devices" in caps else 1)' "${INFO}"; then
+          if python3 -c 'import json, sys; caps=json.loads(sys.argv[1]).get("capabilities", []); sys.exit(0 if "io.devices" in caps else 1)' "${INFO}"; then
             SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-io-device-api.sh
           else
             echo "runtime does not support Runtime IO device API yet"
