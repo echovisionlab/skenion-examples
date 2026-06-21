@@ -18,8 +18,8 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 PATCH_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data @"${BAD_SHADER_PATCH}" \
-  "${RUNTIME_URL}/v0/session/patch")"
+  --data "$(python3 scripts/runtime-mutation-json.py "${BAD_SHADER_PATCH}")" \
+  "${RUNTIME_URL}/v0/session/mutate")"
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True' "${PATCH_RESPONSE}"
 
 BAD_GENERATED="$(curl --fail --silent "${RUNTIME_URL}/v0/session/render/generated-shader")"

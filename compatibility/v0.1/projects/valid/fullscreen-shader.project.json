@@ -93,7 +93,10 @@
       "permissions": [],
       "capabilities": [
         "render.output.fullscreen-shader"
-      ]
+      ],
+      "surface": {
+        "palette": "direct"
+      }
     },
     {
       "schema": "skenion.node.definition",
@@ -127,7 +130,10 @@
       "permissions": [],
       "capabilities": [
         "render.output.surface"
-      ]
+      ],
+      "surface": {
+        "palette": "direct"
+      }
     }
   ]
 }

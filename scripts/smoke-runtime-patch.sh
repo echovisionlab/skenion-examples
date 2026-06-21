@@ -15,14 +15,14 @@ curl --fail --silent \
 
 PATCH_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data @"${PATCH}" \
-  "${RUNTIME_URL}/v0/session/patch")"
+  --data "$(python3 scripts/runtime-mutation-json.py "${PATCH}")" \
+  "${RUNTIME_URL}/v0/session/mutate")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True; assert r["conflict"] is False; assert r["graph"]["revision"] == "2"; assert r["session"]["graphRevision"] == "2"' "${PATCH_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True; assert r["conflict"] is False; assert r["snapshot"]["project"]["graph"]["revision"] == "2"; assert r["snapshot"]["project"]["graph"]["revision"] == "2"' "${PATCH_RESPONSE}"
 
 BAD_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data @"${BAD_PATCH}" \
-  "${RUNTIME_URL}/v0/session/patch")"
+  --data "$(python3 scripts/runtime-mutation-json.py "${BAD_PATCH}")" \
+  "${RUNTIME_URL}/v0/session/mutate")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["applied"] is False; assert r["conflict"] is True; assert r["graph"]["revision"] == "2"; assert r["session"]["graphRevision"] == "2"' "${BAD_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["applied"] is False; assert r["conflict"] is True; assert r["snapshot"]["project"]["graph"]["revision"] == "2"; assert r["snapshot"]["project"]["graph"]["revision"] == "2"' "${BAD_RESPONSE}"

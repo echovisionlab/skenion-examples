@@ -37,5 +37,8 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": []
+  "capabilities": [],
+  "surface": {
+    "palette": "direct"
+  }
 }

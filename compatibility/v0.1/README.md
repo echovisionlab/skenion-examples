@@ -136,17 +136,17 @@ diagnostics.
 Runtime MIDI Clock fixtures under `runtime-midi-clock-fixtures` validate the
 M05.2 adapter path with timestamped raw MIDI bytes. The smoke script runs
 `skenion-runtime clock-midi --simulate ... --format json` and checks that the
-Runtime stores a `ClockState` snapshot without requiring a physical MIDI device.
+fixture parser produces a `ClockState` snapshot without requiring a physical
+MIDI device.
 It also verifies song-position provenance: SPP is authoritative, tick
 accumulation is derived, continue without SPP leaves song position unavailable,
 and meterless bar/beat fields stay unavailable.
 
-The same runtime MIDI smoke script covers the M05.3 physical MIDI input adapter
-boundary without depending on hardware. It verifies `clock-midi --list-inputs`
-in no-device environments and confirms that an invalid `--input-port` returns a
-structured diagnostic instead of failing CI or starting audio.
-`--input-port` is the current runtime enumeration index, not a stable device
-identity across reconnects or device order changes.
+Physical MIDI input is intentionally not modeled as a runtime-global clock
+source in v0. Runtime IO device discovery exposes raw device descriptors for
+node and object parameter editors; each node or object is responsible for
+binding and interpreting the selected input as MIDI clock, MIDI notes, slider
+controls, serial bytes, HID reports, or another domain-specific protocol.
 
 These fixtures do not imply automatic conversion. CPU video frames, GPU texture
 resources, boolean values, and bang events must be connected through explicit
