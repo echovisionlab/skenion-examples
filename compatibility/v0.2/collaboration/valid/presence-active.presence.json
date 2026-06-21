@@ -1,0 +1,25 @@
+{
+  "schema": "skenion.runtime.collaboration.presence",
+  "schemaVersion": "0.1.0",
+  "sessionId": "session-collab-demo",
+  "participantId": "participant-alice",
+  "presence": {
+    "state": "active",
+    "displayName": "Alice",
+    "color": "#4F7DFF",
+    "statusText": "Editing root graph",
+    "capabilities": [
+      "graph.edit",
+      "graph.paste",
+      "presence.selection"
+    ],
+    "connectionId": "conn-alice-main",
+    "clientWindowId": "window-alice-root"
+  },
+  "authSubject": {
+    "kind": "deferred",
+    "displayName": "Alice"
+  },
+  "updatedAt": "2026-06-21T22:00:15Z",
+  "expiresAt": "2026-06-21T22:00:45Z"
+}

@@ -112,6 +112,27 @@ function validateDocument(file, document, contracts) {
   if (document.schema === "skenion.runtime.paste-graph-fragment.response") {
     return contracts.validatePasteGraphFragmentResponse(document);
   }
+  if (document.schema === "skenion.runtime.collaboration.operation") {
+    return contracts.validateRuntimeCollaborationOperationEnvelope(document);
+  }
+  if (document.schema === "skenion.runtime.collaboration.operation-batch") {
+    return contracts.validateRuntimeCollaborationOperationBatch(document);
+  }
+  if (document.schema === "skenion.runtime.collaboration.operation-result") {
+    return contracts.validateRuntimeCollaborationOperationResult(document);
+  }
+  if (document.schema === "skenion.runtime.collaboration.operation-batch-result") {
+    return contracts.validateRuntimeCollaborationOperationBatchResult(document);
+  }
+  if (document.schema === "skenion.runtime.collaboration.presence") {
+    return contracts.validateRuntimeCollaborationPresenceEnvelope(document);
+  }
+  if (document.schema === "skenion.runtime.collaboration.selection") {
+    return contracts.validateRuntimeCollaborationSelectionEnvelope(document);
+  }
+  if (document.schema === "skenion.runtime.collaboration.event") {
+    return contracts.validateRuntimeCollaborationEventEnvelope(document);
+  }
 
   return {
     ok: false,
@@ -214,6 +235,7 @@ const compatibilityFiles = [
 ];
 const graphFragmentFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}graph-fragments${path.sep}`));
 const runtimeOperationFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-operations${path.sep}`));
+const collaborationFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}collaboration${path.sep}`));
 const runtimeSessionFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-session-fixtures${path.sep}`));
 const clockMidiFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}clock-midi-fixtures${path.sep}`));
 const runtimeClockMidiFixtureFiles = compatibilityFiles.filter((file) => file.includes(`${path.sep}runtime-midi-clock-fixtures${path.sep}`));
@@ -433,5 +455,5 @@ const clockMidiSummary = supportsClockMidiFixtures
   : `0 MIDI Clock fixtures (${clockMidiFixtureFiles.length} skipped; @skenion/contracts does not expose clock.midi-clock parser yet)`;
 
 console.log(
-  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${graphFragmentFiles.length} graph fragments, ${runtimeOperationFiles.length} runtime operation fixtures, ${clockMidiSummary}, ${runtimeClockMidiFixtureFiles.length} runtime MIDI Clock fixtures reserved for runtime smoke, ${runtimeSessionFixtureFiles.length} runtime session smoke fixtures reserved for runtime smoke, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, ${extensionManifestFiles.length} extension manifests, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
+  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${graphFragmentFiles.length} graph fragments, ${runtimeOperationFiles.length} runtime operation fixtures, ${collaborationFixtureFiles.length} collaboration fixtures, ${clockMidiSummary}, ${runtimeClockMidiFixtureFiles.length} runtime MIDI Clock fixtures reserved for runtime smoke, ${runtimeSessionFixtureFiles.length} runtime session smoke fixtures reserved for runtime smoke, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, ${extensionManifestFiles.length} extension manifests, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
 );

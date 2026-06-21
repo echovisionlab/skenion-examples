@@ -1,0 +1,99 @@
+{
+  "schema": "skenion.runtime.collaboration.operation-batch",
+  "schemaVersion": "0.1.0",
+  "sessionId": "session-collab-demo",
+  "submittedAt": "2026-06-21T22:00:08Z",
+  "operations": [
+    {
+      "schema": "skenion.runtime.collaboration.operation",
+      "schemaVersion": "0.1.0",
+      "operationId": "op-alice-delete-filter",
+      "sessionId": "session-collab-demo",
+      "participantId": "participant-alice",
+      "idempotencyKey": "idem-alice-delete-filter-001",
+      "causal": {
+        "baseRevision": "graph-rev-12",
+        "baseSequence": 12,
+        "vector": {
+          "participant-alice": 4,
+          "participant-bob": 3
+        },
+        "observedOperationIds": [
+          "op-bob-connect-lfo-meter"
+        ]
+      },
+      "payload": {
+        "kind": "changeSet",
+        "target": {
+          "path": {
+            "kind": "root"
+          },
+          "baseRevision": "graph-rev-12"
+        },
+        "changes": [
+          {
+            "op": "node.delete",
+            "changeId": "change-delete-filter-a",
+            "nodeId": "filter_a",
+            "tombstoneId": "tombstone-filter-a"
+          }
+        ],
+        "undoGroupId": "undo-alice-delete-filter",
+        "description": "Delete a filter node that no longer belongs in the patch."
+      },
+      "correlationId": "corr-alice-002",
+      "submittedAt": "2026-06-21T22:00:08Z"
+    },
+    {
+      "schema": "skenion.runtime.collaboration.operation",
+      "schemaVersion": "0.1.0",
+      "operationId": "op-bob-connect-deleted-filter",
+      "sessionId": "session-collab-demo",
+      "participantId": "participant-bob",
+      "idempotencyKey": "idem-bob-connect-filter-001",
+      "causal": {
+        "baseRevision": "graph-rev-12",
+        "baseSequence": 12,
+        "vector": {
+          "participant-alice": 4,
+          "participant-bob": 3
+        },
+        "observedOperationIds": [
+          "op-bob-connect-lfo-meter"
+        ]
+      },
+      "payload": {
+        "kind": "changeSet",
+        "target": {
+          "path": {
+            "kind": "root"
+          },
+          "baseRevision": "graph-rev-12"
+        },
+        "changes": [
+          {
+            "op": "edge.connect",
+            "changeId": "change-connect-filter-meter",
+            "edge": {
+              "id": "edge_filter_meter",
+              "source": {
+                "nodeId": "filter_a",
+                "portId": "out"
+              },
+              "target": {
+                "nodeId": "meter_main",
+                "portId": "in"
+              },
+              "resolvedType": "value.number",
+              "description": "Conflicts when Alice's delete wins the server order."
+            }
+          }
+        ],
+        "undoGroupId": "undo-bob-connect-filter",
+        "description": "Attempt to connect through a node deleted by a concurrent operation."
+      },
+      "correlationId": "corr-bob-002",
+      "submittedAt": "2026-06-21T22:00:09Z"
+    }
+  ]
+}

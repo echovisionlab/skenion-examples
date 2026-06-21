@@ -28,6 +28,8 @@ The valid graphs cover:
 - zero-port, input-only, output-only, and N/M subpatch contracts
 - graph fragment copy/paste fixtures for root graphs, patch definitions, and
   volatile help working copies
+- realtime collaboration operation batches, batch results, presence,
+  selection, and broadcast event envelopes for convergence/conflict examples
 
 The invalid fixtures cover hard diagnostics such as ambiguous control/value
 algebraic loops, default render input fan-in, subpatch boundary fan-in without
@@ -36,3 +38,10 @@ fragments with outside endpoints.
 
 Runtime v0.14 should validate and plan these graphs, but it must not execute
 feedback.
+
+M06.82 collaboration fixtures live under `collaboration/valid`. They use the
+released `@skenion/contracts` v0 collaboration validators to pin examples for
+node add/move/delete/connect, paste-fragment rebase, accepted/duplicate/
+rejected/rebased operation results, participant presence, selections, and
+operation-result/presence/selection event broadcasts, plus actor-scoped
+undo/redo metadata.

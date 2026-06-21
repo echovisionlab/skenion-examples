@@ -1,0 +1,76 @@
+{
+  "schema": "skenion.runtime.collaboration.operation-batch",
+  "schemaVersion": "0.1.0",
+  "sessionId": "session-collab-demo",
+  "submittedAt": "2026-06-21T22:00:18Z",
+  "operations": [
+    {
+      "schema": "skenion.runtime.collaboration.operation",
+      "schemaVersion": "0.1.0",
+      "operationId": "op-alice-undo-own-add-lfo",
+      "sessionId": "session-collab-demo",
+      "participantId": "participant-alice",
+      "idempotencyKey": "idem-alice-undo-add-lfo-001",
+      "causal": {
+        "baseRevision": "graph-rev-14",
+        "baseSequence": 14,
+        "vector": {
+          "participant-alice": 5,
+          "participant-bob": 5,
+          "runtime": 14
+        },
+        "observedOperationIds": [
+          "op-alice-add-lfo",
+          "op-bob-connect-lfo-meter",
+          "op-bob-paste-help-fragment"
+        ]
+      },
+      "payload": {
+        "kind": "undoRedo",
+        "action": "undo",
+        "scope": {
+          "kind": "participant",
+          "participantId": "participant-alice"
+        },
+        "subjectOperationId": "op-alice-add-lfo",
+        "undoGroupId": "undo-alice-add-lfo",
+        "maxOperations": 1
+      },
+      "correlationId": "corr-alice-undo-001",
+      "submittedAt": "2026-06-21T22:00:18Z"
+    },
+    {
+      "schema": "skenion.runtime.collaboration.operation",
+      "schemaVersion": "0.1.0",
+      "operationId": "op-alice-redo-own-add-lfo",
+      "sessionId": "session-collab-demo",
+      "participantId": "participant-alice",
+      "idempotencyKey": "idem-alice-redo-add-lfo-001",
+      "causal": {
+        "baseRevision": "graph-rev-15",
+        "baseSequence": 15,
+        "vector": {
+          "participant-alice": 6,
+          "participant-bob": 5,
+          "runtime": 15
+        },
+        "observedOperationIds": [
+          "op-alice-undo-own-add-lfo"
+        ]
+      },
+      "payload": {
+        "kind": "undoRedo",
+        "action": "redo",
+        "scope": {
+          "kind": "participant",
+          "participantId": "participant-alice"
+        },
+        "subjectOperationId": "op-alice-add-lfo",
+        "undoGroupId": "undo-alice-add-lfo",
+        "maxOperations": 1
+      },
+      "correlationId": "corr-alice-redo-001",
+      "submittedAt": "2026-06-21T22:00:19Z"
+    }
+  ]
+}
