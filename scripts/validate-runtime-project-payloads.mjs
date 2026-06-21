@@ -47,6 +47,17 @@ function validateProjectPayload(file, payload, contracts) {
     fail(file, "expected { graph, nodes } project payload");
   }
 
+  if (payload.schema === "skenion.project") {
+    if (payload.schemaVersion !== "0.2.0") {
+      fail(file, `unsupported project schemaVersion ${payload.schemaVersion ?? "<missing>"}`);
+    }
+    const { nodes: _nodes, frames: _frames, ...projectDocument } = payload;
+    const projectResult = contracts.validateProjectDocumentV02(projectDocument);
+    if (!projectResult.ok) {
+      fail(file, `invalid project document: ${projectResult.errors.join("; ")}`);
+    }
+  }
+
   const graphResult = payload.graph?.schemaVersion === "0.2.0"
     ? contracts.validateGraphDocumentV02(payload.graph)
     : contracts.validateGraphDocument(payload.graph);

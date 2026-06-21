@@ -38,6 +38,31 @@ async function readJson(file) {
 }
 
 function validateDocument(file, document, contracts) {
+  if (document.schema === "skenion.project") {
+    if (document.schemaVersion === "0.2.0") {
+      const { nodes = [], frames: _frames, ...projectDocument } = document;
+      const projectResult = contracts.validateProjectDocumentV02(projectDocument);
+      if (!projectResult.ok) {
+        return projectResult;
+      }
+
+      const errors = [];
+      for (const [index, definition] of nodes.entries()) {
+        const result = contracts.validateNodeDefinitionV02(definition);
+        if (!result.ok) {
+          errors.push(...result.errors.map((error) => `nodes[${index}]: ${error}`));
+        }
+      }
+
+      return {
+        ok: errors.length === 0,
+        errors
+      };
+    }
+
+    return contracts.validateProjectDocument(document);
+  }
+
   if (document && typeof document === "object" && "graph" in document && Array.isArray(document.nodes)) {
     const graphResult = document.graph?.schemaVersion === "0.2.0"
       ? contracts.validateGraphDocumentV02(document.graph)
@@ -74,9 +99,6 @@ function validateDocument(file, document, contracts) {
   }
   if (document.schema === "skenion.graph.patch") {
     return contracts.validateGraphPatch(document);
-  }
-  if (document.schema === "skenion.project") {
-    return contracts.validateProjectDocument(document);
   }
   if (document.schema === "skenion.extension.manifest") {
     return contracts.validateExtensionManifestV01(document);
