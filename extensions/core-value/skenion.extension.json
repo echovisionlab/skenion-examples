@@ -1,0 +1,58 @@
+{
+  "schema": "skenion.extension.manifest",
+  "schemaVersion": "0.1.0",
+  "id": "skenion/examples-core-value",
+  "version": "0.1.0",
+  "runtimeAbiVersion": "0.1.0",
+  "kind": "core-package",
+  "provides": {
+    "nodes": [
+      {
+        "schema": "skenion.node.definition",
+        "schemaVersion": "0.1.0",
+        "id": "examples.core.value",
+        "version": "0.1.0",
+        "displayName": "Example Value",
+        "category": "Examples",
+        "ports": [
+          {
+            "id": "out",
+            "direction": "output",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float"
+            }
+          }
+        ],
+        "execution": {
+          "model": "value"
+        },
+        "state": {
+          "persistent": false
+        },
+        "permissions": [],
+        "capabilities": [
+          "value.number.v0.1"
+        ]
+      }
+    ],
+    "help": [
+      {
+        "nodeId": "examples.core.value",
+        "nodeVersion": "0.1.0",
+        "title": "Example Value",
+        "markdownPath": "help/value.md"
+      }
+    ]
+  },
+  "permissions": [],
+  "tests": [
+    {
+      "id": "value-baseline",
+      "kind": "node",
+      "target": "examples.core.value",
+      "fixturePath": "tests/value.input.json",
+      "expectedPath": "tests/value.expected.json"
+    }
+  ]
+}
