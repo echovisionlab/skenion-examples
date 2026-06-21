@@ -21,3 +21,6 @@ test can replay later.
   cover participant presence and graph selection updates.
 - `event-*.event.json` files cover broadcast envelopes for operation-result,
   presence, and selection events.
+- `event-presence-replayed-retention-gap.event.json` covers reconnect/resume
+  replay when the client's last cursor is outside the retained event window and
+  Runtime must report a replay gap.

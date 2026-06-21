@@ -1,0 +1,62 @@
+{
+  "schema": "skenion.runtime.collaboration.event",
+  "schemaVersion": "0.1.0",
+  "eventId": "event-collab-presence-replay-gap-0024",
+  "sessionId": "session-collab-demo",
+  "sequence": 24,
+  "causal": {
+    "baseRevision": "graph-rev-24",
+    "baseSequence": 24,
+    "vector": {
+      "participant-alice": 8,
+      "participant-bob": 7,
+      "runtime": 24
+    },
+    "observedOperationIds": [
+      "op-alice-delete-filter",
+      "op-alice-move-meter",
+      "op-bob-paste-help-fragment"
+    ]
+  },
+  "kind": "presence",
+  "payload": {
+    "kind": "presence",
+    "presence": {
+      "schema": "skenion.runtime.collaboration.presence",
+      "schemaVersion": "0.1.0",
+      "sessionId": "session-collab-demo",
+      "participantId": "participant-bob",
+      "presence": {
+        "state": "active",
+        "displayName": "Bob",
+        "color": "#29A383",
+        "statusText": "Reconnected to root graph",
+        "capabilities": [
+          "graph.edit",
+          "graph.paste",
+          "presence.selection"
+        ],
+        "connectionId": "conn-bob-reconnect",
+        "clientWindowId": "window-bob-root"
+      },
+      "authSubject": {
+        "kind": "deferred",
+        "displayName": "Bob"
+      },
+      "updatedAt": "2026-06-21T22:00:24Z",
+      "expiresAt": "2026-06-21T22:00:54Z"
+    }
+  },
+  "replay": {
+    "cursor": "event-collab-presence-replay-gap-0024",
+    "previousCursor": "event-collab-selection-0001",
+    "replayed": true,
+    "gap": {
+      "expectedSequence": 16,
+      "actualSequence": 24,
+      "reason": "retention-overflow"
+    },
+    "overflow": true
+  },
+  "createdAt": "2026-06-21T22:00:24Z"
+}
