@@ -25,10 +25,10 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["render"]["act
 
 PATCH_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data @"${PATCH}" \
-  "${RUNTIME_URL}/v0/session/patch")"
+  --data "$(python3 scripts/runtime-mutation-json.py "${PATCH}")" \
+  "${RUNTIME_URL}/v0/session/mutate")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True; assert next(n for n in r["graph"]["nodes"] if n["id"] == "value_1")["params"]["value"] == 0.8' "${PATCH_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True; assert next(n for n in r["snapshot"]["project"]["graph"]["nodes"] if n["id"] == "value_1")["params"]["value"] == 0.8' "${PATCH_RESPONSE}"
 
 STATUS="$(curl --fail --silent "${RUNTIME_URL}/v0/session/preview")"
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["state"] == "running"; assert r["stale"] is True' "${STATUS}"

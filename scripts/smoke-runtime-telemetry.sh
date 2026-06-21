@@ -29,8 +29,8 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 curl --fail --silent \
   -H "content-type: application/json" \
-  --data @"${PATCH}" \
-  "${RUNTIME_URL}/v0/session/patch" >/dev/null
+  --data "$(python3 scripts/runtime-mutation-json.py "${PATCH}")" \
+  "${RUNTIME_URL}/v0/session/mutate" >/dev/null
 
 STALE="$(curl --fail --silent "${RUNTIME_URL}/v0/session/telemetry")"
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["preview"]["state"] == "running"; assert r["preview"]["stale"] is True; assert r["preview"]["previewSessionRevision"] < r["session"]["sessionRevision"]' "${STALE}"

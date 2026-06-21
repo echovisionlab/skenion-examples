@@ -13,7 +13,7 @@ LOAD_RESPONSE="$(curl --fail --silent \
   --data @"${PROJECT}" \
   "${RUNTIME_URL}/v0/session/load")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["loaded"] is True' "${LOAD_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["snapshot"]["project"] is not None' "${LOAD_RESPONSE}"
 
 RUN_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
@@ -27,7 +27,7 @@ INVALID_RESPONSE="$(curl --fail --silent \
   --data @"${INVALID}" \
   "${RUNTIME_URL}/v0/session/load")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["loaded"] is True' "${INVALID_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["snapshot"]["project"] is not None' "${INVALID_RESPONSE}"
 
 CLEAR_RESPONSE="$(curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session")"
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["loaded"] is False' "${CLEAR_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["snapshot"]["project"] is None' "${CLEAR_RESPONSE}"

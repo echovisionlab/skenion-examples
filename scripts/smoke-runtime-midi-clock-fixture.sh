@@ -34,50 +34,10 @@ if ! runtime_supports "clock-midi"; then
   exit 1
 fi
 
-if ! run_runtime clock-midi --help | grep -q -- "--list-inputs"; then
-  echo "runtime does not support MIDI input listing yet" >&2
-  exit 1
-fi
-
 clock_midi_json() {
   local fixture="$1"
   run_runtime clock-midi --simulate "${fixture}" --format json
 }
-
-MIDI_INPUTS="$(run_runtime clock-midi --list-inputs --format json)"
-python3 - "${MIDI_INPUTS}" <<'PY'
-import json
-import sys
-report = json.loads(sys.argv[1])
-assert report["schema"] == "skenion.runtime.midi-input"
-assert report["schemaVersion"] == "0.1.0"
-assert isinstance(report["ports"], list)
-assert isinstance(report["diagnostics"], list)
-for port in report["ports"]:
-    assert isinstance(port["index"], int)
-    assert isinstance(port["name"], str)
-PY
-
-INVALID_PORT="$(run_runtime clock-midi --input-port 65535 --duration-ms 0 --format json)"
-python3 - "${INVALID_PORT}" <<'PY'
-import json
-import sys
-report = json.loads(sys.argv[1])
-state = report["latestSnapshot"]["clockState"]
-codes = [diagnostic["code"] for diagnostic in report["diagnostics"]]
-assert report["schema"] == "skenion.runtime.clock-midi.input"
-assert report["schemaVersion"] == "0.1.0"
-assert report["requestedPortIndex"] == 65535
-assert report["opened"] is False
-assert "invalid-midi-input-port" in codes
-assert report["latestSnapshot"]["songPositionSource"] == "unknown"
-assert state["songPositionSixteenth"]["value"] is None
-assert state["songPositionSixteenth"]["authority"] == "unavailable"
-assert state["tempoBpm"]["value"] is None
-assert state["tempoBpm"]["authority"] == "unavailable"
-assert state["timecode"]["value"] is None
-assert state["timecode"]["authority"] == "unavailable"
-PY
 
 START_STOP="$(clock_midi_json "${fixture_dir}/valid/runtime-midi-start-stop.midiclock.json")"
 python3 - "${START_STOP}" <<'PY'
@@ -147,4 +107,4 @@ assert "invalid-midi-song-position-pointer" in codes
 assert report["latestSnapshot"]["songPositionSource"] == "unknown"
 PY
 
-echo "validated runtime MIDI Clock fixture and input smoke"
+echo "validated runtime MIDI Clock fixture smoke"

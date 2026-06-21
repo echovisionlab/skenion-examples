@@ -26,10 +26,10 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["render"]["act
 
 VALUE2_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data @"${VALUE2_PATCH}" \
-  "${RUNTIME_URL}/v0/session/patch")"
+  --data "$(python3 scripts/runtime-mutation-json.py "${VALUE2_PATCH}")" \
+  "${RUNTIME_URL}/v0/session/mutate")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True; assert r["graph"]["revision"] == "2"; assert next(n for n in r["graph"]["nodes"] if n["id"] == "value_2")["params"]["value"] == 0.9' "${VALUE2_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True; assert r["snapshot"]["project"]["graph"]["revision"] == "2"; assert next(n for n in r["snapshot"]["project"]["graph"]["nodes"] if n["id"] == "value_2")["params"]["value"] == 0.9' "${VALUE2_RESPONSE}"
 
 STATUS="$(curl --fail --silent "${RUNTIME_URL}/v0/session/preview")"
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["state"] == "running"; assert r["stale"] is True' "${STATUS}"
@@ -39,10 +39,10 @@ python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True;
 
 COLOR_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
-  --data @"${COLOR_PATCH}" \
-  "${RUNTIME_URL}/v0/session/patch")"
+  --data "$(python3 scripts/runtime-mutation-json.py "${COLOR_PATCH}")" \
+  "${RUNTIME_URL}/v0/session/mutate")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True; assert r["graph"]["revision"] == "3"; assert next(n for n in r["graph"]["nodes"] if n["id"] == "color_1")["params"]["value"] == [0.2, 0.75, 1.0, 1.0]' "${COLOR_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True; assert r["snapshot"]["project"]["graph"]["revision"] == "3"; assert next(n for n in r["snapshot"]["project"]["graph"]["nodes"] if n["id"] == "color_1")["params"]["value"] == [0.2, 0.75, 1.0, 1.0]' "${COLOR_RESPONSE}"
 
 STATUS="$(curl --fail --silent "${RUNTIME_URL}/v0/session/preview")"
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["state"] == "running"; assert r["stale"] is True' "${STATUS}"

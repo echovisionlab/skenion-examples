@@ -33,14 +33,15 @@ session through `/v0/session/run`, verifies that an invalid load returns
 
 Runtime graph patch smoke checks live in `scripts/smoke-runtime-patch.sh`. The
 script loads the valid minimal project, applies a `GraphPatch v0.1` document
-through `/v0/session/patch`, verifies the runtime-assigned graph revision, and
-then verifies that a stale `baseRevision` returns a conflict without mutating
-the session.
+through the `/v0/session/mutate` graph-patch envelope, verifies the
+runtime-assigned graph revision, and then verifies that a stale `baseRevision`
+returns a conflict without mutating the session.
 
-Runtime patch history smoke checks live in `scripts/smoke-runtime-history.sh`.
-The script loads the valid minimal project, applies a patch, verifies the
-accepted apply event, then calls `/v0/session/undo`, `/v0/session/redo`, and
-`/v0/session/history` to confirm append-only patch history behavior.
+Runtime mutation history smoke checks live in
+`scripts/smoke-runtime-history.sh`. The script loads the valid minimal project,
+applies a graph patch through `/v0/session/mutate`, verifies the accepted
+Runtime history entry, then calls `/v0/session/undo`, `/v0/session/redo`, and
+`/v0/session/history` to confirm global mutation history behavior.
 
 Runtime preview lifecycle smoke checks live in
 `scripts/smoke-runtime-preview.sh`. The script loads the valid minimal project,
@@ -101,12 +102,10 @@ control events, and verifies that session control revision, named object routing
 preview control revision, and telemetry stay live without creating a graph patch
 or restarting preview.
 
-Runtime clock source API smoke checks live in
-`scripts/smoke-runtime-clock-source-api.sh`. The script verifies clock source
-list/read, MIDI input listing, invalid MIDI Clock start diagnostics, unknown
-stop diagnostics, and that project load does not auto-start external clock
-sources. MIDI `inputPortIndex` values are current Runtime enumeration indices,
-not stable device identities.
+Runtime IO device discovery smoke checks live in
+`scripts/smoke-runtime-io-device-api.sh`. The script verifies the raw device
+discovery response shape used by node/object parameter editors. It does not
+start, stop, or semantically decode MIDI, HID, or Serial input.
 
 ## Tutorials
 
