@@ -6,8 +6,13 @@ Code is Apache-2.0 by default; asset-specific licenses must be declared beside a
 
 ## Compatibility Fixtures
 
-The `fixtures/contract/v0.1` directory contains graph documents and node
-definition manifests used to verify compatibility between:
+Active product examples use graph v0.2. The `compatibility/v0.2`,
+`projects/v0.2`, and `tutorials/v0.2` directories are the active fixture sets
+for ProjectDocumentV02, GraphDocumentV02, PatchDefinitionV02, graph fragments,
+live help, runtime operations, and collaboration wire examples.
+
+The `fixtures/contract/v0.1` directory contains legacy graph documents and node
+definition manifests used to verify import/migration compatibility between:
 
 - `skenion-contracts`
 - `skenion-sdk`
@@ -17,14 +22,18 @@ definition manifests used to verify compatibility between:
 Valid fixtures must pass both JSON schema validation and runtime contract
 loading. Invalid fixtures must fail for the expected reason.
 
-The `compatibility/v0.1` directory contains registry-oriented node definitions
-and graph documents. Its invalid graph fixtures are intentionally valid graph
-documents, but they must fail project validation or execution planning when a
-runtime resolves them against the node registry.
+The `compatibility/v0.1` directory is retained as legacy import and migration
+coverage. It contains registry-oriented node definitions and graph documents.
+Its invalid graph fixtures are intentionally valid graph documents, but they
+must fail project validation or execution planning when a runtime resolves them
+against the node registry.
 
-Runtime project payload fixtures live under
-`compatibility/v0.1/projects`. They match the local Runtime HTTP API request
-shape for `/v0/validate`, `/v0/plan`, and `/v0/run`.
+Active runtime project payload fixtures live under `compatibility/v0.2/projects`
+and use graph v0.2 contracts. Legacy runtime project payload fixtures remain
+under `compatibility/v0.1/projects` for older Runtime HTTP API request shapes
+for `/v0/validate`, `/v0/plan`, and `/v0/run`. The runtime JSON validation
+scripts intentionally import the released `@skenion/contracts` package instead
+of a sibling contracts checkout.
 
 Runtime session smoke checks live in `scripts/smoke-runtime-session.sh`. The
 script loads the valid minimal project into `/v0/session/load`, runs the loaded
@@ -43,19 +52,29 @@ applies a graph patch through `/v0/session/mutate`, verifies the accepted
 Runtime history entry, then calls `/v0/session/undo`, `/v0/session/redo`, and
 `/v0/session/history` to confirm global mutation history behavior.
 
-Runtime multi-session and multi-view smoke fixtures live under
-`compatibility/v0.1/runtime-session-fixtures`. Validate them with
-`scripts/validate-runtime-session-smoke-fixtures.mjs`; when
+Runtime multi-session and multi-view smoke fixtures currently live under
+`compatibility/v0.1/runtime-session-fixtures` as legacy session API coverage.
+Validate them with `scripts/validate-runtime-session-smoke-fixtures.mjs`; when
 `SKENION_RUNTIME_URL` is set, the script also checks the default-session alias,
 explicit `/v0/sessions/{sessionId}` addressing, same-session event replay,
 separate-session isolation, sidecar startup/health payloads, and
-remote/local-neutral URL composition against a running Runtime.
+remote/local-neutral URL composition against a running Runtime. Active v0.2
+session smoke fixtures are reserved under
+`compatibility/v0.2/runtime-session-fixtures` for the released v0.2 Runtime
+session mutation model.
 
 Runtime preview lifecycle smoke checks live in
 `scripts/smoke-runtime-preview.sh`. The script loads the valid minimal project,
 starts dry-run local preview through `/v0/session/preview/start`, applies a
 patch to verify stale preview status, restarts preview to refresh it, and then
 stops preview.
+
+Active v0.2 Runtime project smoke checks live in
+`scripts/smoke-runtime-v02-projects.sh`. The script validates active v0.2
+runtime project payloads against `/v0/validate`, loads a ProjectDocumentV02 into
+the active Runtime session, then checks session validate, plan, and run. The
+older v0.1 HTTP smoke scripts are legacy compatibility scripts and skip
+themselves when the connected Runtime advertises active `session.load.v0.2`.
 
 Runtime clear-color render smoke checks live in
 `scripts/smoke-runtime-render-clear-color.sh`. The script loads the
@@ -117,8 +136,9 @@ start, stop, or semantically decode MIDI, HID, or Serial input.
 
 The `compatibility/v0.2` directory also includes M06.75 subpatch and live-help
 fixtures. These reserve explicit subpatch boundary ports, Manual version lookup
-metadata, and invalid boundary fan-in diagnostics while keeping runtime IO and
-clock behavior owned by node/object instances.
+metadata, graph fragment copy/paste fixtures, v0.2 target paths, and invalid
+boundary fan-in diagnostics while keeping runtime IO and clock behavior owned
+by node/object instances.
 
 M06.82 realtime collaboration wire fixtures live under
 `compatibility/v0.2/collaboration`. They cover operation batches, convergence
@@ -140,22 +160,28 @@ packages and third-party packages use the same manifest shape.
 
 ## Tutorials
 
-Learning-oriented tutorial graphs live under `tutorials/v0.1`. They are
-readable `skenion.graph` documents rather than runtime payload fixtures, so
-Studio can open them directly as example patches. `tutorials.manifest.json`
-indexes tutorial title, summary, help node ids, tags, and expected diagnostics.
+Active learning-oriented tutorial projects live under `tutorials/v0.2`. They
+are `ProjectDocumentV02` fixtures with graph v0.2 patch libraries where needed,
+so Studio can open them directly as example projects and help patches.
+`tutorials.manifest.json` indexes tutorial title, summary, tags, and active
+project paths.
 
-Compatibility fixtures prove cross-repo contracts. Tutorial graphs teach patch
-authoring and are validated against the same contracts package.
+Legacy tutorial graphs live under `tutorials/v0.1` as import and migration
+coverage for older examples. They are not the active authoring model.
+
+Compatibility fixtures prove cross-repo contracts. Tutorial projects teach
+patch authoring and are validated against the same contracts package.
 
 Run local validation with:
 
 ```sh
 pnpm install --frozen-lockfile
 node scripts/validate-with-contracts.mjs
-SKENION_CONTRACTS_DIR=/Volumes/dev/Skenion/Skenion-contracts node scripts/audit-node-conventions.mjs
 node scripts/validate-runtime-project-payloads.mjs
+node scripts/validate-runtime-session-smoke-fixtures.mjs
+SKENION_CONTRACTS_DIR=/Volumes/dev/Skenion/Skenion-contracts node scripts/audit-node-conventions.mjs
 bash scripts/validate-with-runtime.sh /Volumes/dev/Skenion/Skenion-runtime
+SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-v02-projects.sh
 ```
 
 ## Status

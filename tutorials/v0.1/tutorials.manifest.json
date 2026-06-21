@@ -1,6 +1,8 @@
 {
   "schema": "skenion.examples.tutorials.manifest",
   "schemaVersion": "0.1.0",
+  "active": false,
+  "coverage": "legacy-import-migration",
   "tutorials": [
     {
       "id": "value-bang-set",

@@ -1,6 +1,8 @@
-# Skenion Compatibility Fixtures v0.2
+# Skenion Active Compatibility Fixtures v0.2
 
-This directory contains fixtures for Port/Edge/Feedback Semantics v0.2.
+This directory contains the active product fixtures for Port/Edge/Feedback
+Semantics v0.2, subpatches, live help, graph fragments, runtime operations,
+and realtime collaboration wire examples.
 
 v0.2 keeps the v0.1 graph/node contract as a frozen baseline and adds a
 parallel contract with explicit port cardinality, merge policy, fan-out policy,

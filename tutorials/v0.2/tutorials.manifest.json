@@ -1,0 +1,52 @@
+{
+  "schema": "skenion.examples.tutorials.manifest",
+  "schemaVersion": "0.2.0",
+  "active": true,
+  "productModel": "graph-v0.2",
+  "tutorials": [
+    {
+      "id": "subpatch-boundary",
+      "title": "Subpatch Boundary",
+      "summary": "Open a v0.2 project whose patch library materializes a p scale_twice node.",
+      "description": "Shows core.inlet and core.outlet defining the external contract for a project-owned patch definition.",
+      "path": "tutorials/v0.2/01-subpatch-boundary.project.json",
+      "projectPath": "projects/v0.2/subpatch-boundary.skenion.json",
+      "tags": [
+        "v0.2",
+        "subpatch",
+        "patch-library"
+      ],
+      "requiresV02ProjectDocument": true
+    },
+    {
+      "id": "live-help-subpatch",
+      "title": "Live Help Subpatch",
+      "summary": "Use a live-help node that opens a real v0.2 help patch.",
+      "description": "Documents the help patch lookup surface for a Manual topic backed by a patch-library definition.",
+      "path": "tutorials/v0.2/02-live-help-subpatch.project.json",
+      "projectPath": "projects/v0.2/live-help-subpatch.skenion.json",
+      "tags": [
+        "v0.2",
+        "help",
+        "live-help",
+        "subpatch"
+      ],
+      "requiresV02ProjectDocument": true
+    },
+    {
+      "id": "live-help-graph-fragment",
+      "title": "Live Help Graph Fragment",
+      "summary": "Copy a selected v0.2 graph fragment from a volatile help working copy.",
+      "description": "Shows help source, help working copy, copyable fragment, and promote-to-project paste operation metadata.",
+      "path": "tutorials/v0.2/03-live-help-graph-fragment.project.json",
+      "projectPath": "projects/v0.2/live-help-graph-fragment.skenion.json",
+      "tags": [
+        "v0.2",
+        "help",
+        "graph-fragment",
+        "copy-paste"
+      ],
+      "requiresV02ProjectDocument": true
+    }
+  ]
+}

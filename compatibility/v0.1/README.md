@@ -1,6 +1,11 @@
 # Skenion Compatibility Fixtures v0.1
 
-This directory contains shared fixtures for runtime-level graph resolution.
+This directory is quarantined legacy import and migration coverage for
+runtime-level graph v0.1 resolution. It is not the active product model for new
+examples, tutorials, help, live-help, collaboration, or authoring fixtures.
+
+Active product fixtures live under `compatibility/v0.2`, `projects/v0.2`, and
+`tutorials/v0.2`.
 
 The files under `nodes/` are `NodeDefinitionManifest` documents. Runtime
 implementations should load them into a `NodeRegistry` and resolve graph nodes
