@@ -107,6 +107,11 @@ Runtime IO device discovery smoke checks live in
 discovery response shape used by node/object parameter editors. It does not
 start, stop, or semantically decode MIDI, HID, or Serial input.
 
+The `compatibility/v0.2` directory also includes M06.75 subpatch and live-help
+fixtures. These reserve explicit subpatch boundary ports, Manual version lookup
+metadata, and invalid boundary fan-in diagnostics while keeping runtime IO and
+clock behavior owned by node/object instances.
+
 ## Extension Packages
 
 Extension package examples live under `extensions/`. Each package owns a
