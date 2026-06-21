@@ -43,6 +43,14 @@ applies a graph patch through `/v0/session/mutate`, verifies the accepted
 Runtime history entry, then calls `/v0/session/undo`, `/v0/session/redo`, and
 `/v0/session/history` to confirm global mutation history behavior.
 
+Runtime multi-session and multi-view smoke fixtures live under
+`compatibility/v0.1/runtime-session-fixtures`. Validate them with
+`scripts/validate-runtime-session-smoke-fixtures.mjs`; when
+`SKENION_RUNTIME_URL` is set, the script also checks the default-session alias,
+explicit `/v0/sessions/{sessionId}` addressing, same-session event replay,
+separate-session isolation, sidecar startup/health payloads, and
+remote/local-neutral URL composition against a running Runtime.
+
 Runtime preview lifecycle smoke checks live in
 `scripts/smoke-runtime-preview.sh`. The script loads the valid minimal project,
 starts dry-run local preview through `/v0/session/preview/start`, applies a

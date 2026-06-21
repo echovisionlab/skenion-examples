@@ -57,6 +57,7 @@ jobs:
       - run: node scripts/validate-with-contracts.mjs
       - run: node scripts/audit-node-conventions.mjs
       - run: node scripts/validate-runtime-project-payloads.mjs
+      - run: node scripts/validate-runtime-session-smoke-fixtures.mjs
       - run: |
           mkdir -p .deps/skenion-runtime/.deps
           ln -sfn "${GITHUB_WORKSPACE}" .deps/skenion-runtime/.deps/skenion-examples
@@ -95,6 +96,7 @@ jobs:
           else
             echo "runtime does not support shader diagnostics endpoint yet"
           fi
+          SKENION_RUNTIME_URL=http://127.0.0.1:3761 node scripts/validate-runtime-session-smoke-fixtures.mjs
           if python3 -c 'import json, sys; r=json.loads(sys.argv[1]); sys.exit(0 if "session.control.messages" in r.get("capabilities", []) else 1)' "${INFO}"; then
             SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-object-routing-panel.sh
           else
