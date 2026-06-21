@@ -1,2 +1,2 @@
 minimumReleaseAgeExclude:
-  - '@skenion/contracts@0.37.0'
+  - '@skenion/contracts'

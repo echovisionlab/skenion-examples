@@ -120,6 +120,12 @@ fixtures. These reserve explicit subpatch boundary ports, Manual version lookup
 metadata, and invalid boundary fan-in diagnostics while keeping runtime IO and
 clock behavior owned by node/object instances.
 
+M06.82 realtime collaboration wire fixtures live under
+`compatibility/v0.2/collaboration`. They cover operation batches, convergence
+and conflict stories, accepted/duplicate/rejected/rebased results, presence,
+selection, collaboration event envelopes, and actor-scoped undo metadata using
+the released `@skenion/contracts` validators.
+
 ## Extension Packages
 
 Extension package examples live under `extensions/`. Each package owns a

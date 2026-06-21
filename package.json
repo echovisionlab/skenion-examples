@@ -7,6 +7,6 @@
     "validate:runtime-session-fixtures": "node scripts/validate-runtime-session-smoke-fixtures.mjs"
   },
   "devDependencies": {
-    "@skenion/contracts": "0.37.0"
+    "@skenion/contracts": "0.38.0"
   }
 }
