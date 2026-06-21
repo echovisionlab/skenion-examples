@@ -38,6 +38,20 @@ jobs:
               fi
             )
           done
+      - name: Align contracts checkout to runtime crate dependency
+        run: |
+          runtime_contracts_version="$(awk -F'"' '/skenion-contracts[[:space:]]*=/{ print $2; exit }' .deps/skenion-runtime/Cargo.toml)"
+          contracts_ref="skenion-contracts-v${runtime_contracts_version}"
+          contracts_version="$(awk -F'"' '/^version[[:space:]]*=/{ print $2; exit }' .deps/skenion-contracts/packages/rust/Cargo.toml)"
+          if [[ "${contracts_version}" != "${runtime_contracts_version}" ]]; then
+            git -C .deps/skenion-contracts fetch --depth=1 origin "refs/tags/${contracts_ref}:refs/tags/${contracts_ref}"
+            git -C .deps/skenion-contracts checkout "${contracts_ref}"
+            contracts_version="$(awk -F'"' '/^version[[:space:]]*=/{ print $2; exit }' .deps/skenion-contracts/packages/rust/Cargo.toml)"
+          fi
+          if [[ "${contracts_version}" != "${runtime_contracts_version}" ]]; then
+            echo "contracts checkout version ${contracts_version} does not match runtime dependency ${runtime_contracts_version}" >&2
+            exit 1
+          fi
       - run: ln -sfn skenion-contracts .deps/Skenion-contracts
       - uses: pnpm/action-setup@v6
         with:
