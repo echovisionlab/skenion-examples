@@ -107,6 +107,18 @@ Runtime IO device discovery smoke checks live in
 discovery response shape used by node/object parameter editors. It does not
 start, stop, or semantically decode MIDI, HID, or Serial input.
 
+## Extension Packages
+
+Extension package examples live under `extensions/`. Each package owns a
+directory with `skenion.extension.json` at the root. First-party core-style
+packages and third-party packages use the same manifest shape.
+
+- `extensions/core-value` is a loadable `core-package` example with help and
+  node test fixtures.
+- `extensions/native-sensor` is a Rust `cdylib` skeleton. Build it from that
+  directory, then point `SKENION_EXTENSION_PATH` at the package directory so
+  Runtime can validate the manifest and artifact path.
+
 ## Tutorials
 
 Learning-oriented tutorial graphs live under `tutorials/v0.1`. They are

@@ -78,6 +78,9 @@ function validateDocument(file, document, contracts) {
   if (document.schema === "skenion.project") {
     return contracts.validateProjectDocument(document);
   }
+  if (document.schema === "skenion.extension.manifest") {
+    return contracts.validateExtensionManifestV01(document);
+  }
 
   return {
     ok: false,
@@ -194,6 +197,7 @@ const documentValidCompatibilityFiles = compatibilityDocumentFiles.filter((file)
 const tutorialManifestFile = path.join(root, "tutorials/v0.1/tutorials.manifest.json");
 const tutorialManifest = await readJson(tutorialManifestFile);
 const projectDocumentFiles = (await walk(path.join(root, "projects"))).filter((file) => file.endsWith(".skenion.json"));
+const extensionManifestFiles = (await walk(path.join(root, "extensions"))).filter((file) => path.basename(file) === "skenion.extension.json");
 const failures = [];
 
 for (const file of validFiles) {
@@ -264,6 +268,13 @@ for (const file of projectDocumentFiles) {
     if (!viewNodeIds.has(node.id)) {
       failures.push(`${file}: viewState missing node ${node.id}`);
     }
+  }
+}
+
+for (const file of extensionManifestFiles) {
+  const result = validateDocument(file, await readJson(file), contracts);
+  if (!result.ok) {
+    failures.push(`${file}: expected valid extension manifest, got ${result.errors.join("; ")}`);
   }
 }
 
@@ -355,5 +366,5 @@ const clockMidiSummary = supportsClockMidiFixtures
   : `0 MIDI Clock fixtures (${clockMidiFixtureFiles.length} skipped; @skenion/contracts does not expose clock.midi-clock parser yet)`;
 
 console.log(
-  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${clockMidiSummary}, ${runtimeClockMidiFixtureFiles.length} runtime MIDI Clock fixtures reserved for runtime smoke, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
+  `validated ${validFiles.length} contract-valid fixtures, ${invalidFiles.length} contract-invalid fixtures, ${validCompatibilityDocumentFiles.length + documentValidCompatibilityFiles.length} document-valid compatibility fixtures, ${invalidCompatibilityDocumentFiles.length} contract-invalid compatibility fixtures, ${clockMidiSummary}, ${runtimeClockMidiFixtureFiles.length} runtime MIDI Clock fixtures reserved for runtime smoke, ${validPatchFiles.length} valid patches, ${invalidPatchFiles.length} invalid patches, ${projectDocumentFiles.length} project documents, ${extensionManifestFiles.length} extension manifests, and ${tutorialManifest.tutorials.length} tutorials with @skenion/contracts`
 );

@@ -1,0 +1,83 @@
+{
+  "schema": "skenion.extension.manifest",
+  "schemaVersion": "0.1.0",
+  "id": "example/native-sensor",
+  "version": "0.1.0",
+  "runtimeAbiVersion": "0.1.0",
+  "kind": "native-runtime",
+  "native": {
+    "entrypoint": "skenion_extension_init",
+    "artifacts": [
+      {
+        "os": "macos",
+        "arch": "aarch64",
+        "abi": "c",
+        "path": "target/release/libskenion_example_native_sensor.dylib"
+      },
+      {
+        "os": "linux",
+        "arch": "x86_64",
+        "abi": "c",
+        "path": "target/release/libskenion_example_native_sensor.so"
+      },
+      {
+        "os": "windows",
+        "arch": "x86_64",
+        "abi": "c",
+        "path": "target/release/skenion_example_native_sensor.dll"
+      }
+    ]
+  },
+  "provides": {
+    "nodes": [
+      {
+        "schema": "skenion.node.definition",
+        "schemaVersion": "0.1.0",
+        "id": "example.native.sensor",
+        "version": "0.1.0",
+        "displayName": "Native Sensor",
+        "category": "Examples",
+        "ports": [
+          {
+            "id": "out",
+            "direction": "output",
+            "type": {
+              "flow": "value",
+              "dataKind": "number.float"
+            }
+          }
+        ],
+        "execution": {
+          "model": "native_plugin"
+        },
+        "state": {
+          "persistent": false
+        },
+        "permissions": [],
+        "capabilities": [
+          "io.sensor.reading.v0.1"
+        ]
+      }
+    ],
+    "help": [
+      {
+        "nodeId": "example.native.sensor",
+        "nodeVersion": "0.1.0",
+        "title": "Native Sensor",
+        "markdownPath": "help/native-sensor.md"
+      }
+    ]
+  },
+  "permissions": [
+    "io.serial"
+  ],
+  "tests": [
+    {
+      "id": "native-sensor-baseline",
+      "kind": "node",
+      "target": "example.native.sensor",
+      "fixturePath": "tests/native-sensor.input.json",
+      "expectedPath": "tests/native-sensor.expected.json"
+    }
+  ]
+}
