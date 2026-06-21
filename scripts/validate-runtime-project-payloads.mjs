@@ -4,11 +4,11 @@ import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const contractsPackage = process.env.SKENION_CONTRACTS_PACKAGE
-  ?? path.join(root, ".deps/skenion-contracts/packages/ts/dist");
+  ?? "@skenion/contracts";
 const runtimeUrl = process.env.SKENION_RUNTIME_URL?.replace(/\/+$/, "");
 
 async function importContracts() {
-  if (contractsPackage.startsWith(".") || contractsPackage.startsWith("/") || contractsPackage.includes(path.sep)) {
+  if (contractsPackage.startsWith(".") || path.isAbsolute(contractsPackage)) {
     const entry = contractsPackage.endsWith(".js")
       ? contractsPackage
       : path.join(contractsPackage, "index.js");

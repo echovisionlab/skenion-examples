@@ -46,7 +46,10 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: .deps/skenion-contracts/pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            .deps/skenion-contracts/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
       - run: pnpm install --frozen-lockfile
         working-directory: .deps/skenion-contracts
       - run: pnpm run build

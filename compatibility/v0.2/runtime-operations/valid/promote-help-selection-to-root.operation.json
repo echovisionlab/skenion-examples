@@ -1,0 +1,97 @@
+{
+  "schema": "skenion.runtime.operation",
+  "schemaVersion": "0.1.0",
+  "id": "op-promote-help-selection-to-root",
+  "kind": "pasteGraphFragment",
+  "request": {
+    "target": {
+      "path": {
+        "kind": "root"
+      },
+      "baseRevision": "root-rev-1"
+    },
+    "fragment": {
+      "schema": "skenion.graph.fragment",
+      "schemaVersion": "0.2.0",
+      "id": "fragment-live-help-promote",
+      "metadata": {
+        "source": "help-working-copy",
+        "sourcePatchId": "help.graph-fragment-copy",
+        "promotion": "project-root"
+      },
+      "nodes": [
+        {
+          "id": "help_value",
+          "kind": "core.value-number",
+          "kindVersion": "0.2.0",
+          "params": {
+            "value": 0.5
+          },
+          "ports": [
+            {
+              "id": "out",
+              "direction": "output",
+              "type": "value.number",
+              "rate": "control"
+            }
+          ]
+        },
+        {
+          "id": "help_meter",
+          "kind": "core.meter",
+          "kindVersion": "0.2.0",
+          "params": {},
+          "ports": [
+            {
+              "id": "in",
+              "direction": "input",
+              "type": "value.number",
+              "rate": "control"
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "id": "edge_help_value_meter",
+          "source": {
+            "nodeId": "help_value",
+            "portId": "out"
+          },
+          "target": {
+            "nodeId": "help_meter",
+            "portId": "in"
+          },
+          "resolvedType": "value.number"
+        }
+      ],
+      "view": {
+        "nodes": {
+          "help_value": {
+            "x": 96,
+            "y": 160
+          },
+          "help_meter": {
+            "x": 360,
+            "y": 160
+          }
+        }
+      }
+    },
+    "placement": {
+      "kind": "position",
+      "x": 720,
+      "y": 180
+    },
+    "options": {
+      "idConflictPolicy": "remap",
+      "outsideEndpointPolicy": "reject",
+      "preserveRelativePositions": true
+    }
+  },
+  "attribution": {
+    "clientId": "studio-window-help",
+    "label": "Promote help selection to project"
+  },
+  "correlationId": "promote-help-selection-1"
+}
