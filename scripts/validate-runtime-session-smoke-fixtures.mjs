@@ -5,8 +5,16 @@ import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const linkedContractsPackage = path.join(root, ".deps/skenion-contracts/packages/ts/dist/index.js");
+const releaseMode = process.env.SKENION_RELEASE_MODE === "1";
+const contractsPackageOverride = process.env.SKENION_CONTRACTS_PACKAGE;
+if (releaseMode && contractsPackageOverride && (contractsPackageOverride.startsWith(".") || path.isAbsolute(contractsPackageOverride))) {
+  throw new Error("release mode must use the released @skenion/contracts package, not a local Contracts path");
+}
+if (releaseMode && existsSync(linkedContractsPackage)) {
+  throw new Error("release mode must not consume .deps/skenion-contracts; remove the sibling checkout from the release job");
+}
 const contractsPackage = process.env.SKENION_CONTRACTS_PACKAGE
-  ?? (existsSync(linkedContractsPackage) ? linkedContractsPackage : "@skenion/contracts");
+  ?? (releaseMode ? "@skenion/contracts" : (existsSync(linkedContractsPackage) ? linkedContractsPackage : "@skenion/contracts"));
 const runtimeUrl = process.env.SKENION_RUNTIME_URL?.replace(/\/+$/, "");
 const currentFixtureRoot = path.join(root, "compatibility/v0.1/runtime-session-fixtures");
 const unsupportedFixtureRoot = path.join(root, "compatibility/unsupported/pre-consolidation-v0.1/runtime-session-fixtures");
