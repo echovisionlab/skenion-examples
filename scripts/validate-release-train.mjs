@@ -10,10 +10,12 @@ const mode = normalizeMode(args.mode ?? "prepare");
 const outDir = args["out-dir"] ?? ".skenion-train";
 const runtimeTarget = args["runtime-target"] ?? "x86_64-unknown-linux-gnu";
 const targetRef = args["target-ref"] ?? "";
+const manifestRef = args["manifest-ref"] ?? "";
 const currentRepository = normalizeRepository(process.env.GITHUB_REPOSITORY ?? "echovisionlab/Skenion-examples");
 const errors = [];
 
 assertSemver(trainVersion, "train version", errors);
+requireManifestRef(manifestRef, mode, errors);
 const manifest = await readManifest(manifestInput);
 const trainId = trainVersion.replace(/\.[0-9]+$/, "");
 
@@ -198,6 +200,15 @@ function assertSemver(value, label, targetErrors) {
   }
 }
 
+function requireManifestRef(value, currentMode, targetErrors) {
+  if (currentMode === "prepare") {
+    return;
+  }
+  if (!isGitSha(value)) {
+    targetErrors.push("manifest ref must be an explicit 40-character git SHA in publish/verify mode");
+  }
+}
+
 function requireEqual(actual, expected, label, targetErrors) {
   if (actual !== expected) {
     targetErrors.push(`${label} must be ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
@@ -309,6 +320,7 @@ function requireManual(manual, gate, expectedVersion, expectedTrainId, targetErr
   requireEqual(gate.manualVersion, manual.version, "releaseGates.docsPagesDeployment.manualVersion", targetErrors);
   requireEqual(gate.manualPath, manual.path, "releaseGates.docsPagesDeployment.manualPath", targetErrors);
   requireEqual(gate.pagesUrl, manual.pagesUrl, "releaseGates.docsPagesDeployment.pagesUrl", targetErrors);
+  requirePassedGate(gate, "releaseGates.docsPagesDeployment", targetErrors);
 }
 
 function requireRuntimeTier(binaries, gates, expectedVersion, targetErrors) {

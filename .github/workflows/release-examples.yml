@@ -27,7 +27,7 @@ on:
         default: echovisionlab/skenion
         type: string
       manifest_ref:
-        description: Exact manifest repository ref, preferably a commit SHA or release tag.
+        description: Manifest repository ref. Publish/verify require a 40-character commit SHA; prepare may use a branch/ref.
         required: true
         type: string
       manifest_path:
@@ -63,6 +63,20 @@ jobs:
           ref: ${{ inputs.target_ref || github.sha }}
           fetch-depth: 0
 
+      - name: Validate manifest ref immutability
+        run: |
+          set -euo pipefail
+          if [[ "${MODE}" == "prepare" ]]; then
+            exit 0
+          fi
+          if [[ ! "${MANIFEST_REF}" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "publish/verify mode requires manifest_ref to be a 40-character commit SHA, got ${MANIFEST_REF}" >&2
+            exit 1
+          fi
+        env:
+          MODE: ${{ inputs.mode }}
+          MANIFEST_REF: ${{ inputs.manifest_ref }}
+
       - name: Check out train manifest
         uses: actions/checkout@v6
         with:
@@ -80,9 +94,11 @@ jobs:
           --mode "${MODE}"
           --runtime-target "${RUNTIME_TARGET}"
           --target-ref "${TARGET_REF}"
+          --manifest-ref "${MANIFEST_REF}"
           --out-dir .skenion-train
         env:
           MANIFEST_PATH: ${{ inputs.manifest_path }}
+          MANIFEST_REF: ${{ inputs.manifest_ref }}
           TRAIN_VERSION: ${{ inputs.train_version }}
           MODE: ${{ inputs.mode }}
           RUNTIME_TARGET: ${{ inputs.runtime_target }}
