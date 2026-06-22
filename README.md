@@ -113,18 +113,23 @@ repository/ref/path, and examples target ref. In `publish` mode it can create
 the `components.examples.tag` recorded in the train manifest; in `verify` mode
 it verifies that tag against the recorded manifest commit.
 
-Release mode installs `@skenion/contracts@<train_version>` from npm and
-downloads the Runtime binary named by the manifest from the Runtime GitHub
-release. Publish/verify mode requires the selected Runtime artifact to have a
-manifest-pinned SHA-256 checksum, materializes an asset `.sha256` file, and
-verifies it before extracting the archive. Publish/verify mode also requires
-`components.examples.commit` and `target_ref` to be the same 40-character git
-SHA, and requires the examples release tag to be exactly
-`skenion-examples-v<train_version>` with SemVer components that have no leading
-zeros. It rejects `.deps`, sibling worktrees, local Runtime builds, branch refs
-such as `main`, `refs/*` names, slashes, arbitrary tag names, and path-based
-Contracts overrides so release conformance cannot pass by using local or sibling
-artifacts. Broader released-artifact coverage remains tracked by #49.
+Release mode installs `@skenion/contracts@<train_version>` and
+`@skenion/sdk@<train_version>` from npm, validates Studio-compatible project and
+help fixtures through the released SDK helpers, and checks Manual metadata in
+the train manifest. It validates Runtime and Studio artifact metadata for exact
+release tags and the release-blocking support tier; publish/verify mode also
+requires required gates to be passed and release-blocking artifact checksums to
+be pinned. The selected Runtime binary is downloaded from the Runtime GitHub
+release, checked against the manifest SHA-256, extracted, and used for CLI and
+server smoke coverage.
+
+Publish/verify mode also requires `components.examples.commit` and `target_ref`
+to be the same 40-character git SHA, and requires the examples release tag to be
+exactly `skenion-examples-v<train_version>` with SemVer components that have no
+leading zeros. It rejects `.deps`, sibling worktrees, local Runtime or SDK
+builds, branch refs such as `main`, `refs/*` names, slashes, arbitrary tag
+names, and path-based package overrides so release conformance cannot pass by
+using local or sibling artifacts.
 
 ## Status
 
