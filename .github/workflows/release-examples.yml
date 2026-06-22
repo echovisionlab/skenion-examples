@@ -100,6 +100,18 @@ jobs:
         env:
           TRAIN_VERSION: ${{ inputs.train_version }}
 
+      - name: Install released SDK package
+        run: npm install --ignore-scripts --no-audit --no-fund --no-save "@skenion/sdk@${SDK_VERSION}"
+        env:
+          SDK_VERSION: ${{ steps.train.outputs.sdk_npm_version }}
+
+      - name: Assert released SDK package version
+        run: |
+          set -euo pipefail
+          node -e 'const fs = require("fs"); const version = JSON.parse(fs.readFileSync("node_modules/@skenion/sdk/package.json", "utf8")).version; if (version !== process.env.TRAIN_VERSION) { throw new Error(`@skenion/sdk version ${version} does not match ${process.env.TRAIN_VERSION}`); }'
+        env:
+          TRAIN_VERSION: ${{ inputs.train_version }}
+
       - name: Validate fixtures with released Contracts
         run: |
           set -euo pipefail
@@ -109,6 +121,16 @@ jobs:
           node scripts/validate-runtime-project-payloads.mjs
           node scripts/validate-runtime-session-smoke-fixtures.mjs
         env:
+          SKENION_RELEASE_MODE: "1"
+
+      - name: Validate fixtures with released SDK helpers
+        run: >-
+          node scripts/validate-sdk-compatibility.mjs
+          --manifest ".release/manifest/${MANIFEST_PATH}"
+          --train-version "${TRAIN_VERSION}"
+        env:
+          MANIFEST_PATH: ${{ inputs.manifest_path }}
+          TRAIN_VERSION: ${{ inputs.train_version }}
           SKENION_RELEASE_MODE: "1"
 
       - name: Download released Runtime binary
@@ -219,8 +241,11 @@ jobs:
             echo "- Mode: ${MODE}"
             echo "- Examples tag: ${EXAMPLES_TAG}"
             echo "- Contracts: @skenion/contracts@${CONTRACTS_VERSION}"
+            echo "- SDK: @skenion/sdk@${SDK_VERSION}"
+            echo "- Studio packages: @skenion/studio-web@${STUDIO_WEB_VERSION}, @skenion/studio-desktop@${STUDIO_DESKTOP_VERSION}"
             echo "- Runtime artifact: ${RUNTIME_REPOSITORY}@${RUNTIME_TAG}/${RUNTIME_ASSET}"
             echo "- Runtime SHA-256: ${RUNTIME_SHA256}"
+            echo "- Manual: ${MANUAL_VERSION} at ${MANUAL_PATH}"
             echo "- Manifest: ${MANIFEST_REPOSITORY}@${MANIFEST_REF}:${MANIFEST_PATH}"
           } >> "${GITHUB_STEP_SUMMARY}"
         env:
@@ -228,10 +253,15 @@ jobs:
           MODE: ${{ inputs.mode }}
           EXAMPLES_TAG: ${{ steps.train.outputs.examples_tag }}
           CONTRACTS_VERSION: ${{ steps.train.outputs.contracts_npm_version }}
+          SDK_VERSION: ${{ steps.train.outputs.sdk_npm_version }}
+          STUDIO_WEB_VERSION: ${{ steps.train.outputs.studio_web_version }}
+          STUDIO_DESKTOP_VERSION: ${{ steps.train.outputs.studio_desktop_version }}
           RUNTIME_REPOSITORY: ${{ steps.train.outputs.runtime_repository }}
           RUNTIME_TAG: ${{ steps.train.outputs.runtime_tag }}
           RUNTIME_ASSET: ${{ steps.train.outputs.runtime_asset }}
           RUNTIME_SHA256: ${{ steps.train.outputs.runtime_sha256 }}
+          MANUAL_VERSION: ${{ steps.train.outputs.manual_version }}
+          MANUAL_PATH: ${{ steps.train.outputs.manual_path }}
           MANIFEST_REPOSITORY: ${{ inputs.manifest_repository }}
           MANIFEST_REF: ${{ inputs.manifest_ref }}
           MANIFEST_PATH: ${{ inputs.manifest_path }}
