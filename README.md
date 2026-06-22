@@ -28,48 +28,30 @@ the generated Contracts package from `.deps/skenion-contracts` when that
 checkout is present, falling back to the installed `@skenion/contracts`
 dependency for standalone local runs.
 
-Runtime session smoke checks live in `scripts/smoke-runtime-session.sh`. The
-script loads the valid minimal project into `/v0/session/load`, runs the loaded
-session through `/v0/session/run`, verifies that an invalid load returns
-`ok:false` without clearing the existing session, and then clears the session.
-
-Runtime graph patch smoke checks live in `scripts/smoke-runtime-patch.sh`. The
-script loads the valid minimal project, applies a `GraphPatch v0.1` document
-through the `/v0/session/mutate` graph-patch envelope, verifies the
-runtime-assigned graph revision, and then verifies that a stale `baseRevision`
-returns a conflict without mutating the session.
-
-Runtime mutation history smoke checks live in
-`scripts/smoke-runtime-history.sh`. The script loads the valid minimal project,
-applies a graph patch through `/v0/session/mutate`, verifies the accepted
-Runtime history entry, then calls `/v0/session/undo`, `/v0/session/redo`, and
-`/v0/session/history` to confirm global mutation history behavior.
+Current 0.1 Runtime project smoke checks live in
+`scripts/smoke-runtime-v01-projects.sh`. The script validates current 0.1
+runtime project payloads against `/v0/validate`, loads a ProjectDocumentV01 into
+the explicit default Runtime session at `/v0/sessions/default/load`, then checks
+`/v0/sessions/default/validate`, `/v0/sessions/default/plan`, and
+`/v0/sessions/default/run`.
 
 Runtime multi-session and multi-view smoke fixtures live under
 `compatibility/v0.1/runtime-session-fixtures`.
 Validate them with `scripts/validate-runtime-session-smoke-fixtures.mjs`; when
-`SKENION_RUNTIME_URL` is set, the script also checks the default-session alias,
-explicit `/v0/sessions/{sessionId}` addressing, same-session event replay,
+`SKENION_RUNTIME_URL` is set, the script checks explicit
+`/v0/sessions/{sessionId}` addressing, same-session event replay,
 separate-session isolation, sidecar startup/health payloads, and
 remote/local-neutral URL composition against a running Runtime.
 
-Runtime preview lifecycle smoke checks live in
-`scripts/smoke-runtime-preview.sh`. The script loads the valid minimal project,
-starts dry-run local preview through `/v0/session/preview/start`, applies a
-patch to verify stale preview status, restarts preview to refresh it, and then
-stops preview.
-
-Current 0.1 Runtime project smoke checks live in
-`scripts/smoke-runtime-v01-projects.sh`. The script validates current 0.1
-runtime project payloads against `/v0/validate`, loads a ProjectDocumentV01 into
-the active Runtime session, then checks session validate, plan, and run.
 Unsupported pre-consolidation HTTP smoke scripts skip themselves when the
 connected Runtime advertises current `session.load.v0.1`.
 
 Unsupported pre-consolidation Runtime smoke scripts remain only as historical
 manual references and are excluded from active Examples CI. Current CI runs
 `scripts/smoke-runtime-v01-projects.sh` for the active graph 0.1 project
-surface.
+surface. Those quarantined scripts may still mention the removed `/v0/session`
+default-session alias because they document unsupported pre-consolidation
+behavior, not current Runtime behavior.
 
 Runtime IO device discovery smoke checks live in
 `scripts/smoke-runtime-io-device-api.sh`. The script verifies the raw device

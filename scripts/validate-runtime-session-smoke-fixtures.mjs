@@ -13,7 +13,6 @@ const unsupportedFixtureRoot = path.join(root, "compatibility/unsupported/pre-co
 const schema = "skenion.runtime.session-smoke.fixture";
 const schemaVersion = "0.1.0";
 const scenarios = new Set([
-  "default-alias-explicit-addressing",
   "same-session-multi-view-event-replay",
   "separate-session-isolation",
   "sidecar-handshake-health",
@@ -389,39 +388,6 @@ function parseFirstSseEvent(text) {
   return null;
 }
 
-async function validateDefaultAliasFixture(fixture, contracts, errors) {
-  const session = fixture.defaultSession;
-  if (!isRecord(session)) {
-    errors.push("defaultSession must be an object");
-    return;
-  }
-  if (session.id !== "default") {
-    errors.push("defaultSession.id must be default");
-  }
-  if (session.aliasPath !== "/v0/session") {
-    errors.push("defaultSession.aliasPath must be /v0/session");
-  }
-  if (session.explicitPathTemplate !== "/v0/sessions/{sessionId}") {
-    errors.push("defaultSession.explicitPathTemplate must be /v0/sessions/{sessionId}");
-  }
-  if (session.infoPathTemplate !== "/v0/sessions/{sessionId}/info") {
-    errors.push("defaultSession.infoPathTemplate must be /v0/sessions/{sessionId}/info");
-  }
-
-  const payload = await validateProjectPayload(session.project, contracts, errors, "defaultSession.project");
-  if (payload && fixture.expect?.graphId !== payload.graph.id) {
-    errors.push(`expect.graphId must match defaultSession.project graph id ${payload.graph.id}`);
-  }
-  if (fixture.expect?.sessionId !== "default") {
-    errors.push("expect.sessionId must be default");
-  }
-  for (const [key, expected] of Object.entries(fixture.expect?.capabilities ?? {})) {
-    if (expected !== true) {
-      errors.push(`expect.capabilities.${key} must be true`);
-    }
-  }
-}
-
 async function validateSameSessionFixture(fixture, contracts, errors) {
   const session = fixture.session;
   if (!isRecord(session)) {
@@ -549,8 +515,10 @@ async function validateRemoteLocalNeutralFixture(fixture, contracts, errors) {
     errors.push("paths must be an object");
     return;
   }
+  if ("defaultAlias" in paths) {
+    errors.push("paths.defaultAlias is unsupported; use explicitSessionTemplate");
+  }
   const expectedPaths = {
-    defaultAlias: "/v0/session",
     explicitSessionTemplate: "/v0/sessions/{sessionId}",
     sessionInfoTemplate: "/v0/sessions/{sessionId}/info",
     eventsStreamTemplate: "/v0/sessions/{sessionId}/events/stream"
@@ -622,9 +590,7 @@ async function validateFixture(file, fixture, contracts) {
   }
   validateRequiresCapabilities(fixture, errors);
 
-  if (fixture.scenario === "default-alias-explicit-addressing") {
-    await validateDefaultAliasFixture(fixture, contracts, errors);
-  } else if (fixture.scenario === "same-session-multi-view-event-replay") {
+  if (fixture.scenario === "same-session-multi-view-event-replay") {
     await validateSameSessionFixture(fixture, contracts, errors);
   } else if (fixture.scenario === "separate-session-isolation") {
     await validateSeparateSessionFixture(fixture, contracts, errors);
@@ -635,32 +601,6 @@ async function validateFixture(file, fixture, contracts) {
   }
 
   return errors;
-}
-
-async function runDefaultAliasFixture(fixture, contracts, runtimeInfo) {
-  validateExpectedCapabilities(fixture.runtime.requiresCapabilities, runtimeInfo, fixture.title);
-  const project = await readJson(path.join(root, fixture.defaultSession.project));
-  const load = await requestJson(`${fixture.defaultSession.aliasPath}/load`, { body: project });
-  assertRuntimeSessionResponse(contracts, load, `${fixture.title} load`);
-  assertTrue(load.ok, `${fixture.title} load ok`);
-
-  const explicit = await requestJson(routeFromTemplate(
-    fixture.defaultSession.explicitPathTemplate,
-    fixture.defaultSession.id
-  ));
-  assertRuntimeSessionResponse(contracts, explicit, `${fixture.title} explicit snapshot`);
-  assertDeepEqual(load.snapshot, explicit.snapshot, `${fixture.title} alias and explicit snapshots`);
-
-  const info = await requestJson(routeFromTemplate(
-    fixture.defaultSession.infoPathTemplate,
-    fixture.defaultSession.id
-  ));
-  validateSessionInfo(contracts, info, `${fixture.title} session info`);
-  assertEqual(info.sessionId, fixture.expect.sessionId, `${fixture.title} session id`);
-  assertEqual(info.snapshot.project.graph.id, fixture.expect.graphId, `${fixture.title} graph id`);
-  for (const [key, expected] of Object.entries(fixture.expect.capabilities)) {
-    assertEqual(info.capabilities[key], expected, `${fixture.title} capability ${key}`);
-  }
 }
 
 async function runSameSessionFixture(fixture, contracts, runtimeInfo, runId) {
@@ -851,9 +791,7 @@ async function runRemoteLocalNeutralFixture(fixture, contracts, runtimeInfo, run
 }
 
 async function runFixture(fixture, contracts, runtimeInfo, runId) {
-  if (fixture.scenario === "default-alias-explicit-addressing") {
-    await runDefaultAliasFixture(fixture, contracts, runtimeInfo);
-  } else if (fixture.scenario === "same-session-multi-view-event-replay") {
+  if (fixture.scenario === "same-session-multi-view-event-replay") {
     await runSameSessionFixture(fixture, contracts, runtimeInfo, runId);
   } else if (fixture.scenario === "separate-session-isolation") {
     await runSeparateSessionFixture(fixture, contracts, runtimeInfo, runId);
