@@ -4,6 +4,17 @@ set -euo pipefail
 runtime_dir="${1:-.deps/skenion-runtime}"
 manifest_path="${runtime_dir}/Cargo.toml"
 runtime_bin="${SKENION_RUNTIME_BIN:-}"
+release_mode="${SKENION_RELEASE_MODE:-0}"
+
+if [[ "${release_mode}" == "1" && -z "${runtime_bin}" ]]; then
+  echo "release mode requires SKENION_RUNTIME_BIN from a released Runtime artifact" >&2
+  exit 1
+fi
+
+if [[ "${release_mode}" == "1" && ( "${runtime_bin}" == .deps/* || "${runtime_bin}" == *"/Skenion-runtime/"* || "${runtime_bin}" == *"/target/debug/"* || "${runtime_bin}" == *"/target/release/"* ) ]]; then
+  echo "release mode must not use a sibling/local Runtime build: ${runtime_bin}" >&2
+  exit 1
+fi
 
 if [[ -n "${runtime_bin}" && ! -x "${runtime_bin}" ]]; then
   echo "runtime binary is not executable at ${runtime_bin}" >&2

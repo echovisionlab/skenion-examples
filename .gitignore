@@ -1,5 +1,7 @@
 .DS_Store
 .deps/
+.release/
+.skenion-train/
 node_modules/
 .env
 .env.*

@@ -105,6 +105,27 @@ bash scripts/validate-with-runtime.sh /Volumes/dev/Skenion/Skenion-runtime
 SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-v01-projects.sh
 ```
 
+## Release Train Conformance
+
+The `Release Examples Conformance` workflow is the conductor-controlled release
+path for this repository. It accepts an exact `train_version`, manifest
+repository/ref/path, and examples target ref. In `publish` mode it can create
+the `components.examples.tag` recorded in the train manifest; in `verify` mode
+it verifies that tag against the recorded manifest commit.
+
+Release mode installs `@skenion/contracts@<train_version>` from npm and
+downloads the Runtime binary named by the manifest from the Runtime GitHub
+release. Publish/verify mode requires the selected Runtime artifact to have a
+manifest-pinned SHA-256 checksum, materializes an asset `.sha256` file, and
+verifies it before extracting the archive. Publish/verify mode also requires
+`components.examples.commit` and `target_ref` to be the same 40-character git
+SHA, and requires the examples release tag to be exactly
+`skenion-examples-v<train_version>` with SemVer components that have no leading
+zeros. It rejects `.deps`, sibling worktrees, local Runtime builds, branch refs
+such as `main`, `refs/*` names, slashes, arbitrary tag names, and path-based
+Contracts overrides so release conformance cannot pass by using local or sibling
+artifacts. Broader released-artifact coverage remains tracked by #49.
+
 ## Status
 
 Bootstrap repository for the Skenion project. Implementation follows the public architecture and release rules defined in [EchoVisionLab/skenion](https://github.com/echovisionlab/skenion).

@@ -2,6 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = process.cwd();
+const releaseMode = process.env.SKENION_RELEASE_MODE === "1";
 const contractsDir = process.env.SKENION_CONTRACTS_DIR
   ?? path.join(root, ".deps/skenion-contracts");
 const builtinsManifestFile = path.join(contractsDir, "builtins/v0.1/builtins.manifest.json");
@@ -49,16 +50,18 @@ function collectDataKinds(value, out = []) {
   return out;
 }
 
-const builtinsManifest = await readJson(builtinsManifestFile);
+const builtinsManifest = releaseMode
+  ? (await import("@skenion/contracts")).builtinManifestV01
+  : await readJson(builtinsManifestFile);
 const canonicalDataKinds = new Set(builtinsManifest.canonicalDataKinds ?? []);
 if (builtinsManifest.schema !== "skenion.builtins.manifest") {
-  fail(`${builtinsManifestFile}: expected schema skenion.builtins.manifest`);
+  fail(`${releaseMode ? "@skenion/contracts.builtinManifestV01" : builtinsManifestFile}: expected schema skenion.builtins.manifest`);
 }
 if (builtinsManifest.schemaVersion !== "0.1.0") {
-  fail(`${builtinsManifestFile}: expected schemaVersion 0.1.0`);
+  fail(`${releaseMode ? "@skenion/contracts.builtinManifestV01" : builtinsManifestFile}: expected schemaVersion 0.1.0`);
 }
 if (canonicalDataKinds.size === 0) {
-  fail(`${builtinsManifestFile}: canonicalDataKinds must not be empty`);
+  fail(`${releaseMode ? "@skenion/contracts.builtinManifestV01" : builtinsManifestFile}: canonicalDataKinds must not be empty`);
 }
 
 const currentCompatibilityFiles = await walk(currentCompatibilityRoot);
@@ -78,5 +81,5 @@ for (const file of currentCompatibilityFiles) {
 }
 
 console.log(
-  `audited current 0.1 fixtures: ${currentCompatibilityFiles.length} JSON files for canonical type spelling against ${canonicalDataKinds.size} Contracts data kinds`
+  `audited current 0.1 fixtures: ${currentCompatibilityFiles.length} JSON files for canonical type spelling against ${canonicalDataKinds.size} ${releaseMode ? "released Contracts" : "Contracts"} data kinds`
 );

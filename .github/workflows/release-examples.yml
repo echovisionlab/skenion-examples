@@ -1,0 +1,237 @@
+name: Release Examples Conformance
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Prepare, publish, or verify the examples release tag.
+        required: true
+        default: prepare
+        type: choice
+        options:
+          - prepare
+          - publish
+          - verify
+      dry_run:
+        description: Keep publish mode non-mutating unless explicitly false.
+        required: true
+        default: true
+        type: boolean
+      train_version:
+        description: Lockstep product version, such as 0.43.0.
+        required: true
+        type: string
+      manifest_repository:
+        description: Repository that owns the train manifest.
+        required: true
+        default: echovisionlab/skenion
+        type: string
+      manifest_ref:
+        description: Exact manifest repository ref, preferably a commit SHA or release tag.
+        required: true
+        type: string
+      manifest_path:
+        description: Repository-relative train manifest path.
+        required: true
+        default: releases/trains/0.43.0.json
+        type: string
+      target_ref:
+        description: Examples commit/ref to validate or tag. Publish/verify require the manifest commit SHA.
+        required: false
+        type: string
+      runtime_target:
+        description: Runtime binary target to smoke test for examples conformance.
+        required: true
+        default: x86_64-unknown-linux-gnu
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: examples-release-${{ inputs.train_version }}
+  cancel-in-progress: false
+
+jobs:
+  release-examples:
+    name: Released-artifact examples conformance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out examples candidate
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.target_ref || github.sha }}
+          fetch-depth: 0
+
+      - name: Check out train manifest
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.manifest_repository }}
+          ref: ${{ inputs.manifest_ref }}
+          path: .release/manifest
+          persist-credentials: false
+
+      - name: Validate conductor manifest for examples release
+        id: train
+        run: >-
+          node scripts/validate-release-train.mjs
+          --manifest ".release/manifest/${MANIFEST_PATH}"
+          --train-version "${TRAIN_VERSION}"
+          --mode "${MODE}"
+          --runtime-target "${RUNTIME_TARGET}"
+          --target-ref "${TARGET_REF}"
+          --out-dir .skenion-train
+        env:
+          MANIFEST_PATH: ${{ inputs.manifest_path }}
+          TRAIN_VERSION: ${{ inputs.train_version }}
+          MODE: ${{ inputs.mode }}
+          RUNTIME_TARGET: ${{ inputs.runtime_target }}
+          TARGET_REF: ${{ inputs.target_ref }}
+
+      - name: Install released Contracts package
+        run: npm install --ignore-scripts --no-audit --no-fund --no-save "@skenion/contracts@${CONTRACTS_VERSION}"
+        env:
+          CONTRACTS_VERSION: ${{ steps.train.outputs.contracts_npm_version }}
+
+      - name: Assert released Contracts package version
+        run: |
+          set -euo pipefail
+          node -e 'const fs = require("fs"); const version = JSON.parse(fs.readFileSync("node_modules/@skenion/contracts/package.json", "utf8")).version; if (version !== process.env.TRAIN_VERSION) { throw new Error(`@skenion/contracts version ${version} does not match ${process.env.TRAIN_VERSION}`); }'
+        env:
+          TRAIN_VERSION: ${{ inputs.train_version }}
+
+      - name: Validate fixtures with released Contracts
+        run: |
+          set -euo pipefail
+          node scripts/validate-with-contracts.mjs
+          node scripts/validate-repo-path-references.mjs
+          node scripts/audit-node-conventions.mjs
+          node scripts/validate-runtime-project-payloads.mjs
+          node scripts/validate-runtime-session-smoke-fixtures.mjs
+        env:
+          SKENION_RELEASE_MODE: "1"
+
+      - name: Download released Runtime binary
+        if: ${{ inputs.mode != 'prepare' }}
+        id: runtime
+        run: |
+          set -euo pipefail
+          mkdir -p .release/runtime-archive .release/runtime-bin
+          gh release download "${RUNTIME_TAG}" \
+            --repo "${RUNTIME_REPOSITORY}" \
+            --pattern "${RUNTIME_ASSET}" \
+            --dir .release/runtime-archive \
+            --clobber
+
+          archive=".release/runtime-archive/${RUNTIME_ASSET}"
+          if [[ -z "${RUNTIME_SHA256}" ]]; then
+            echo "manifest checksum is required before extracting ${RUNTIME_ASSET}" >&2
+            exit 1
+          fi
+          printf '%s  %s\n' "${RUNTIME_SHA256}" "${RUNTIME_ASSET}" > ".release/runtime-archive/${RUNTIME_ASSET}.sha256"
+          (
+            cd .release/runtime-archive
+            sha256sum -c "${RUNTIME_ASSET}.sha256"
+          )
+
+          case "${archive}" in
+            *.tar.gz|*.tgz)
+              tar -xzf "${archive}" -C .release/runtime-bin
+              ;;
+            *.zip)
+              unzip -q "${archive}" -d .release/runtime-bin
+              ;;
+            *)
+              echo "unsupported Runtime asset archive: ${archive}" >&2
+              exit 1
+              ;;
+          esac
+
+          runtime_bin="$(find .release/runtime-bin -type f -name 'skenion-runtime' -perm -111 | head -n 1)"
+          if [[ -z "${runtime_bin}" ]]; then
+            runtime_bin="$(find .release/runtime-bin -type f -name 'skenion-runtime' | head -n 1)"
+          fi
+          if [[ -z "${runtime_bin}" ]]; then
+            echo "skenion-runtime executable not found in ${RUNTIME_ASSET}" >&2
+            exit 1
+          fi
+          chmod +x "${runtime_bin}"
+          echo "runtime_bin=${runtime_bin}" >> "${GITHUB_OUTPUT}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUNTIME_REPOSITORY: ${{ steps.train.outputs.runtime_repository }}
+          RUNTIME_TAG: ${{ steps.train.outputs.runtime_tag }}
+          RUNTIME_ASSET: ${{ steps.train.outputs.runtime_asset }}
+          RUNTIME_SHA256: ${{ steps.train.outputs.runtime_sha256 }}
+
+      - name: Validate fixtures with released Runtime CLI
+        if: ${{ inputs.mode != 'prepare' }}
+        run: bash scripts/validate-with-runtime.sh .release/no-local-runtime
+        env:
+          SKENION_RELEASE_MODE: "1"
+          SKENION_RUNTIME_BIN: ${{ steps.runtime.outputs.runtime_bin }}
+
+      - name: Validate fixtures with released Runtime server
+        if: ${{ inputs.mode != 'prepare' }}
+        run: |
+          set -euo pipefail
+          SKENION_PREVIEW_DRY_RUN=1 "${SKENION_RUNTIME_BIN}" serve --host 127.0.0.1 --port 3761 &
+          SERVER_PID=$!
+          trap "kill ${SERVER_PID}" EXIT
+
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3761/health >/dev/null; then
+              SKENION_RUNTIME_URL=http://127.0.0.1:3761 node scripts/validate-runtime-project-payloads.mjs
+              SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-v01-projects.sh
+              SKENION_RUNTIME_URL=http://127.0.0.1:3761 node scripts/validate-runtime-session-smoke-fixtures.mjs
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "released Runtime health endpoint did not become ready" >&2
+          exit 1
+        env:
+          SKENION_RELEASE_MODE: "1"
+          SKENION_RUNTIME_BIN: ${{ steps.runtime.outputs.runtime_bin }}
+
+      - name: Produce or verify examples release tag
+        run: >-
+          node scripts/manage-release-tag.mjs
+          --mode "${MODE}"
+          --dry-run "${DRY_RUN}"
+          --tag "${EXAMPLES_TAG}"
+          --train-version "${TRAIN_VERSION}"
+          --commit "${EXAMPLES_COMMIT:-$(git rev-parse HEAD)}"
+        env:
+          MODE: ${{ inputs.mode }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          TRAIN_VERSION: ${{ inputs.train_version }}
+          EXAMPLES_TAG: ${{ steps.train.outputs.examples_tag }}
+          EXAMPLES_COMMIT: ${{ steps.train.outputs.examples_commit }}
+
+      - name: Summarize release conformance
+        run: |
+          {
+            echo "## Examples Release Conformance"
+            echo
+            echo "- Train: ${TRAIN_VERSION}"
+            echo "- Mode: ${MODE}"
+            echo "- Examples tag: ${EXAMPLES_TAG}"
+            echo "- Contracts: @skenion/contracts@${CONTRACTS_VERSION}"
+            echo "- Runtime artifact: ${RUNTIME_REPOSITORY}@${RUNTIME_TAG}/${RUNTIME_ASSET}"
+            echo "- Runtime SHA-256: ${RUNTIME_SHA256}"
+            echo "- Manifest: ${MANIFEST_REPOSITORY}@${MANIFEST_REF}:${MANIFEST_PATH}"
+          } >> "${GITHUB_STEP_SUMMARY}"
+        env:
+          TRAIN_VERSION: ${{ inputs.train_version }}
+          MODE: ${{ inputs.mode }}
+          EXAMPLES_TAG: ${{ steps.train.outputs.examples_tag }}
+          CONTRACTS_VERSION: ${{ steps.train.outputs.contracts_npm_version }}
+          RUNTIME_REPOSITORY: ${{ steps.train.outputs.runtime_repository }}
+          RUNTIME_TAG: ${{ steps.train.outputs.runtime_tag }}
+          RUNTIME_ASSET: ${{ steps.train.outputs.runtime_asset }}
+          RUNTIME_SHA256: ${{ steps.train.outputs.runtime_sha256 }}
+          MANIFEST_REPOSITORY: ${{ inputs.manifest_repository }}
+          MANIFEST_REF: ${{ inputs.manifest_ref }}
+          MANIFEST_PATH: ${{ inputs.manifest_path }}
