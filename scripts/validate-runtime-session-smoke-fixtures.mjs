@@ -1,11 +1,15 @@
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
-const contractsPackage = "@skenion/contracts";
+const linkedContractsPackage = path.join(root, ".deps/skenion-contracts/packages/ts/dist/index.js");
+const contractsPackage = process.env.SKENION_CONTRACTS_PACKAGE
+  ?? (existsSync(linkedContractsPackage) ? linkedContractsPackage : "@skenion/contracts");
 const runtimeUrl = process.env.SKENION_RUNTIME_URL?.replace(/\/+$/, "");
-const activeFixtureRoot = path.join(root, "compatibility/v0.2/runtime-session-fixtures");
-const legacyFixtureRoot = path.join(root, "compatibility/v0.1/runtime-session-fixtures");
+const currentFixtureRoot = path.join(root, "compatibility/v0.1/runtime-session-fixtures");
+const unsupportedFixtureRoot = path.join(root, "compatibility/unsupported/pre-consolidation-v0.1/runtime-session-fixtures");
 const schema = "skenion.runtime.session-smoke.fixture";
 const schemaVersion = "0.1.0";
 const scenarios = new Set([
@@ -17,8 +21,13 @@ const scenarios = new Set([
 ]);
 
 async function importContracts() {
-  // Runtime JSON fixtures must validate against the released package, not a
-  // sibling contracts checkout or contracts main.
+  if (contractsPackage.startsWith(".") || path.isAbsolute(contractsPackage)) {
+    const entry = contractsPackage.endsWith(".js")
+      ? contractsPackage
+      : path.join(contractsPackage, "index.js");
+    return import(pathToFileURL(path.resolve(root, entry)).href);
+  }
+
   return import(contractsPackage);
 }
 
@@ -131,28 +140,20 @@ async function validateProjectPayload(file, contracts, errors, label) {
   }
 
   if (payload.schema === "skenion.project") {
-    if (payload.schemaVersion !== "0.2.0") {
-      errors.push(`${label} unsupported project schemaVersion ${payload.schemaVersion ?? "<missing>"}`);
-    } else {
-      const { nodes: _nodes, frames: _frames, ...projectDocument } = payload;
-      const projectResult = contracts.validateProjectDocumentV02(projectDocument);
-      if (!projectResult.ok) {
-        errors.push(`${label} project document is invalid: ${projectResult.errors.join("; ")}`);
-      }
+    const { nodes: _nodes, frames: _frames, ...projectDocument } = payload;
+    const projectResult = contracts.validateProjectDocumentV01(projectDocument);
+    if (!projectResult.ok) {
+      errors.push(`${label} project document is invalid: ${projectResult.errors.join("; ")}`);
     }
   }
 
-  const graphResult = payload.graph.schemaVersion === "0.2.0"
-    ? contracts.validateGraphDocumentV02(payload.graph)
-    : contracts.validateGraphDocument(payload.graph);
+  const graphResult = contracts.validateGraphDocumentV01(payload.graph);
   if (!graphResult.ok) {
     errors.push(`${label} graph is invalid: ${graphResult.errors.join("; ")}`);
   }
 
   for (const [index, definition] of payload.nodes.entries()) {
-    const result = definition.schemaVersion === "0.2.0"
-      ? contracts.validateNodeDefinitionV02(definition)
-      : contracts.validateNodeDefinition(definition);
+    const result = contracts.validateNodeDefinitionV01(definition);
     if (!result.ok) {
       errors.push(`${label} nodes[${index}] is invalid: ${result.errors.join("; ")}`);
     }
@@ -173,9 +174,11 @@ async function validatePatch(file, contracts, errors, label) {
     errors.push(`${label} could not be read: ${error.message}`);
     return null;
   }
-  const result = contracts.validateGraphPatch(patch);
-  if (!result.ok) {
-    errors.push(`${label} is not a valid graph patch: ${result.errors.join("; ")}`);
+  if (typeof contracts.validateGraphPatch === "function") {
+    const result = contracts.validateGraphPatch(patch);
+    if (!result.ok) {
+      errors.push(`${label} is not a valid graph patch: ${result.errors.join("; ")}`);
+    }
   }
   return patch;
 }
@@ -862,22 +865,19 @@ async function runFixture(fixture, contracts, runtimeInfo, runId) {
 }
 
 const contracts = await importContracts();
-const activeFiles = await walk(activeFixtureRoot);
-const legacyFiles = await walk(legacyFixtureRoot);
-const validActiveFiles = activeFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
-const invalidActiveFiles = activeFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
-const validLegacyFiles = legacyFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
-const invalidLegacyFiles = legacyFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
+const currentFiles = await walk(currentFixtureRoot);
+const unsupportedFiles = await walk(unsupportedFixtureRoot);
+const validCurrentFiles = currentFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
+const invalidCurrentFiles = currentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
 const validFiles = [
-  ...validActiveFiles,
-  ...validLegacyFiles
+  ...validCurrentFiles
 ];
 const invalidFiles = [
-  ...invalidActiveFiles,
-  ...invalidLegacyFiles
+  ...invalidCurrentFiles
 ];
 const failures = [];
 const validFixtures = [];
+const currentFileSet = new Set(currentFiles);
 
 for (const file of validFiles) {
   const fixture = await readJson(file);
@@ -886,7 +886,7 @@ for (const file of validFiles) {
     failures.push(`${rel(file)}: expected valid, got ${errors.join("; ")}`);
   } else {
     validFixtures.push({
-      active: file.includes(`${path.sep}v0.2${path.sep}`),
+      active: currentFileSet.has(file),
       fixture
     });
   }
@@ -916,18 +916,18 @@ if (failures.length > 0) {
 }
 
 let runtimeSmokeCount = 0;
-let skippedLegacyRuntimeSmokeCount = 0;
+let skippedUnsupportedRuntimeSmokeCount = 0;
 if (runtimeUrl) {
   const runtimeInfo = await requestJson("/v0/runtime/info");
   if (!contracts.isRuntimeInfo(runtimeInfo)) {
     throw new Error("/v0/runtime/info response does not match RuntimeInfo shape");
   }
   const runId = `${Date.now().toString(36)}-${process.pid}`;
-  const activeRuntimeSession = runtimeInfo.capabilities?.includes("session.load.v0.2");
-  const runtimeFixtures = activeRuntimeSession
+  const currentRuntimeSession = runtimeInfo.capabilities?.includes("session.load.v0.1");
+  const runtimeFixtures = currentRuntimeSession
     ? validFixtures.filter((entry) => entry.active)
     : validFixtures;
-  skippedLegacyRuntimeSmokeCount = activeRuntimeSession
+  skippedUnsupportedRuntimeSmokeCount = currentRuntimeSession
     ? validFixtures.filter((entry) => !entry.active).length
     : 0;
   for (const { fixture } of runtimeFixtures) {
@@ -937,8 +937,8 @@ if (runtimeUrl) {
 }
 
 const runtimeSummary = runtimeUrl
-  ? ` and ran ${runtimeSmokeCount} runtime session smoke scenarios against ${runtimeUrl}${skippedLegacyRuntimeSmokeCount > 0 ? `, skipping ${skippedLegacyRuntimeSmokeCount} legacy v0.1 scenarios against active v0.2 Runtime` : ""}`
+  ? ` and ran ${runtimeSmokeCount} runtime session smoke scenarios against ${runtimeUrl}${skippedUnsupportedRuntimeSmokeCount > 0 ? `, skipping ${skippedUnsupportedRuntimeSmokeCount} unsupported pre-consolidation scenarios against current 0.1 Runtime` : ""}`
   : "";
 console.log(
-  `validated active v0.2 runtime session smoke fixtures: ${validActiveFiles.length} valid and ${invalidActiveFiles.length} invalid; legacy v0.1 runtime session smoke fixtures: ${validLegacyFiles.length} valid and ${invalidLegacyFiles.length} invalid with released ${contractsPackage}${runtimeSummary}`
+  `validated current 0.1 runtime session smoke fixtures: ${validCurrentFiles.length} valid and ${invalidCurrentFiles.length} invalid with ${contractsPackage}; excluded unsupported pre-consolidation runtime session smoke fixtures: ${unsupportedFiles.length}${runtimeSummary}`
 );

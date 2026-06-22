@@ -1,0 +1,131 @@
+{
+  "schema": "skenion.project",
+  "schemaVersion": "0.1.0",
+  "id": "project-subpatch-boundary-fan-in-without-merge",
+  "revision": "1",
+  "metadata": {
+    "title": "Invalid Boundary Fan-In",
+    "description": "PatchDefinitionV01 fixture that must fail because a core.outlet boundary input receives fan-in without an explicit merge policy."
+  },
+  "graph": {
+    "schema": "skenion.graph",
+    "schemaVersion": "0.1.0",
+    "id": "subpatch-invalid-root-v01",
+    "revision": "1",
+    "nodes": [],
+    "edges": []
+  },
+  "viewState": {
+    "schema": "skenion.view-state",
+    "schemaVersion": "0.1.0",
+    "canvas": {
+      "nodes": {},
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  },
+  "patchLibrary": [
+    {
+      "id": "bad_fan_in",
+      "revision": "1",
+      "metadata": {
+        "title": "Bad Fan-In"
+      },
+      "graph": {
+        "schema": "skenion.graph",
+        "schemaVersion": "0.1.0",
+        "id": "patch-bad-fan-in-v01",
+        "revision": "1",
+        "nodes": [
+          {
+            "id": "left",
+            "kind": "core.inlet",
+            "kindVersion": "0.1.0",
+            "params": {
+              "portId": "left",
+              "label": "Left"
+            },
+            "ports": [
+              {
+                "id": "out",
+                "direction": "output",
+                "type": "value.number",
+                "rate": "control",
+                "description": "First value entering the patch."
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "kind": "core.inlet",
+            "kindVersion": "0.1.0",
+            "params": {
+              "portId": "right",
+              "label": "Right"
+            },
+            "ports": [
+              {
+                "id": "out",
+                "direction": "output",
+                "type": "value.number",
+                "rate": "control",
+                "description": "Second value entering the patch."
+              }
+            ]
+          },
+          {
+            "id": "out",
+            "kind": "core.outlet",
+            "kindVersion": "0.1.0",
+            "params": {
+              "portId": "out",
+              "label": "Out"
+            },
+            "ports": [
+              {
+                "id": "in",
+                "direction": "input",
+                "type": "value.number",
+                "rate": "control",
+                "required": true,
+                "description": "Invalid because this boundary outlet receives two values without mergePolicy."
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": "edge_left_out",
+            "source": {
+              "nodeId": "left",
+              "portId": "out"
+            },
+            "target": {
+              "nodeId": "out",
+              "portId": "in"
+            },
+            "resolvedType": "value.number",
+            "order": 0
+          },
+          {
+            "id": "edge_right_out",
+            "source": {
+              "nodeId": "right",
+              "portId": "out"
+            },
+            "target": {
+              "nodeId": "out",
+              "portId": "in"
+            },
+            "resolvedType": "value.number",
+            "order": 1
+          }
+        ]
+      }
+    }
+  ],
+  "nodes": []
+}

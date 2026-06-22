@@ -2,11 +2,11 @@
 set -euo pipefail
 
 RUNTIME_URL="${SKENION_RUNTIME_URL:-http://127.0.0.1:3761}"
-source scripts/runtime-smoke-legacy-v01.sh
-skip_legacy_v01_smoke_if_active_v02 "$0"
-PROJECT="compatibility/v0.1/projects/valid/fullscreen-shader-multi-uniform.project.json"
-VALUE2_PATCH="compatibility/v0.1/patches/valid/set-shader-u-value2.patch.json"
-COLOR_PATCH="compatibility/v0.1/patches/valid/set-shader-u-color.patch.json"
+source scripts/runtime-smoke-unsupported-v01.sh
+skip_unsupported_v01_smoke_if_current_v01 "$0"
+PROJECT="compatibility/unsupported/pre-consolidation-v0.1/projects/valid/fullscreen-shader-multi-uniform.project.json"
+VALUE2_PATCH="compatibility/unsupported/pre-consolidation-v0.1/patches/valid/set-shader-u-value2.patch.json"
+COLOR_PATCH="compatibility/unsupported/pre-consolidation-v0.1/patches/valid/set-shader-u-color.patch.json"
 
 curl --fail --silent "${RUNTIME_URL}/health" >/dev/null
 curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null

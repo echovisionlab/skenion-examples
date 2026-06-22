@@ -1,0 +1,78 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.1.0",
+  "id": "source-fan-out-v01",
+  "revision": "1",
+  "nodes": [
+    {
+      "id": "value",
+      "kind": "core.value-number",
+      "kindVersion": "0.1.0",
+      "params": {
+        "value": 0.5
+      },
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "value.number",
+          "rate": "control"
+        }
+      ]
+    },
+    {
+      "id": "meter_a",
+      "kind": "core.meter",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "value.number",
+          "rate": "control"
+        }
+      ]
+    },
+    {
+      "id": "meter_b",
+      "kind": "core.meter",
+      "kindVersion": "0.1.0",
+      "params": {},
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "value.number",
+          "rate": "control"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_value_meter_a",
+      "source": {
+        "nodeId": "value",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "meter_a",
+        "portId": "in"
+      },
+      "resolvedType": "value.number"
+    },
+    {
+      "id": "edge_value_meter_b",
+      "source": {
+        "nodeId": "value",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "meter_b",
+        "portId": "in"
+      },
+      "resolvedType": "value.number"
+    }
+  ]
+}

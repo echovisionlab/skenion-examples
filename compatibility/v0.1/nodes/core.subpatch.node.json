@@ -1,0 +1,36 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.subpatch",
+  "version": "0.1.0",
+  "displayName": "Subpatch",
+  "category": "Core",
+  "ports": [
+    {
+      "id": "in",
+      "direction": "input",
+      "type": "value.number",
+      "rate": "control",
+      "required": true,
+      "description": "External input materialized from a PatchDefinitionV01 core.inlet boundary."
+    },
+    {
+      "id": "out",
+      "direction": "output",
+      "type": "value.number",
+      "rate": "control",
+      "description": "External output materialized from a PatchDefinitionV01 core.outlet boundary."
+    }
+  ],
+  "execution": {
+    "model": "value"
+  },
+  "state": {
+    "persistent": true
+  },
+  "permissions": [],
+  "capabilities": [
+    "subpatch.boundary.v0.1",
+    "patch-library.reference.v0.1"
+  ]
+}

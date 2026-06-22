@@ -3,6 +3,7 @@
   "type": "module",
   "scripts": {
     "validate:contracts": "node scripts/validate-with-contracts.mjs",
+    "validate:paths": "node scripts/validate-repo-path-references.mjs",
     "validate:runtime-payloads": "node scripts/validate-runtime-project-payloads.mjs",
     "validate:runtime-session-fixtures": "node scripts/validate-runtime-session-smoke-fixtures.mjs"
   },

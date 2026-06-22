@@ -1,0 +1,35 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "render.fullscreen-shader",
+  "version": "0.1.0",
+  "displayName": "Fullscreen Shader",
+  "category": "Render",
+  "ports": [
+    {
+      "id": "out",
+      "direction": "output",
+      "label": "Out",
+      "type": {
+        "flow": "resource",
+        "dataKind": "gpu.texture2d",
+        "format": "rgba8unorm",
+        "colorSpace": "srgb"
+      }
+    }
+  ],
+  "execution": {
+    "model": "gpu_pass",
+    "clock": "frame"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": [
+    "render.output.fullscreen-shader"
+  ],
+  "surface": {
+    "palette": "direct"
+  }
+}

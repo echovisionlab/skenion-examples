@@ -1,6 +1,5 @@
-# Legacy Tutorial Fixtures v0.1
+# Active Tutorial Fixtures
 
-These tutorials are retained as legacy import and migration coverage for older
-graph v0.1 examples. They are not the active authoring model.
-
-Active product tutorials live in `tutorials/v0.2`.
+These tutorials are the active product examples for graph authoring. Each entry
+uses `ProjectDocumentV01`/`GraphDocumentV01`, patch libraries, and current 0.1 target
+paths as the source of truth.

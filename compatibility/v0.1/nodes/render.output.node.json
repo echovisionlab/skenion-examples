@@ -9,19 +9,13 @@
     {
       "id": "in",
       "direction": "input",
-      "label": "In",
-      "type": {
-        "flow": "resource",
-        "dataKind": "gpu.texture2d",
-        "format": "rgba8unorm",
-        "colorSpace": "srgb"
-      },
-      "required": true,
-      "activation": "latched"
+      "type": "render.frame",
+      "rate": "render",
+      "required": true
     }
   ],
   "execution": {
-    "model": "frame",
+    "model": "gpu_pass",
     "clock": "frame"
   },
   "state": {
@@ -29,9 +23,6 @@
   },
   "permissions": [],
   "capabilities": [
-    "render.output.surface"
-  ],
-  "surface": {
-    "palette": "direct"
-  }
+    "render.output.v0.1"
+  ]
 }

@@ -1,0 +1,31 @@
+{
+  "schema": "skenion.project",
+  "schemaVersion": "0.2.0",
+  "id": "unsupported-project-version",
+  "revision": "1",
+  "metadata": {
+    "title": "Unsupported Project Version",
+    "description": "Negative fixture proving that project schemaVersion 0.2.0 is rejected under the current 0.1 contract."
+  },
+  "graph": {
+    "schema": "skenion.graph",
+    "schemaVersion": "0.1.0",
+    "id": "unsupported-project-version-graph",
+    "revision": "1",
+    "nodes": [],
+    "edges": []
+  },
+  "viewState": {
+    "schema": "skenion.view-state",
+    "schemaVersion": "0.1.0",
+    "canvas": {
+      "nodes": {},
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  },
+  "nodes": []
+}

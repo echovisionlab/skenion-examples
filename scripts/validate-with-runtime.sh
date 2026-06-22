@@ -28,70 +28,51 @@ runtime_supports() {
   run_runtime --help | grep -q "${command}"
 }
 
-legacy_valid_graphs=0
-legacy_invalid_graphs=0
-legacy_valid_nodes=0
-legacy_invalid_nodes=0
-legacy_valid_projects=0
-legacy_invalid_projects=0
-active_v02_project_payloads="$(find compatibility/v0.2/projects -name '*.json' | wc -l | tr -d ' ')"
+current_valid_project_payloads=0
+current_invalid_project_payloads=0
+current_valid_project_documents=0
+current_planned_projects=0
+unsupported_project_payloads="$(find compatibility/unsupported/pre-consolidation-v0.1/projects -name '*.json' | wc -l | tr -d ' ')"
 
-check_valid() {
-  local command="$1"
-  local file="$2"
-  run_runtime "${command}" "${file}" >/dev/null
+check_valid_project() {
+  local file="$1"
+  run_runtime validate-project --project "${file}" >/dev/null
 }
 
-check_invalid() {
-  local command="$1"
-  local file="$2"
-  if run_runtime "${command}" "${file}" >/dev/null 2>&1; then
+check_invalid_project() {
+  local file="$1"
+  if run_runtime validate-project --project "${file}" >/dev/null 2>&1; then
     echo "${file}: expected invalid, got valid" >&2
     return 1
   fi
 }
 
-while IFS= read -r file; do
-  check_valid validate-graph "${file}"
-  legacy_valid_graphs=$((legacy_valid_graphs + 1))
-done < <(find fixtures/contract/v0.1/graphs/valid -name '*.json' | sort)
-
-while IFS= read -r file; do
-  check_invalid validate-graph "${file}"
-  legacy_invalid_graphs=$((legacy_invalid_graphs + 1))
-done < <(find fixtures/contract/v0.1/graphs/invalid -name '*.json' | sort)
-
-while IFS= read -r file; do
-  check_valid validate-node "${file}"
-  legacy_valid_nodes=$((legacy_valid_nodes + 1))
-done < <(find fixtures/contract/v0.1/nodes/valid -name '*.json' | sort)
-
-while IFS= read -r file; do
-  check_invalid validate-node "${file}"
-  legacy_invalid_nodes=$((legacy_invalid_nodes + 1))
-done < <(find fixtures/contract/v0.1/nodes/invalid -name '*.json' | sort)
-
-if runtime_supports validate-project; then
-  while IFS= read -r file; do
-    run_runtime validate-project --graph "${file}" --nodes compatibility/v0.1/nodes >/dev/null
-    legacy_valid_projects=$((legacy_valid_projects + 1))
-  done < <(find compatibility/v0.1/graphs/valid -name '*.json' | sort)
-
-  while IFS= read -r file; do
-    if run_runtime validate-project --graph "${file}" --nodes compatibility/v0.1/nodes >/dev/null 2>&1; then
-      echo "${file}: expected invalid project, got valid" >&2
-      exit 1
-    fi
-    legacy_invalid_projects=$((legacy_invalid_projects + 1))
-  done < <(find compatibility/v0.1/graphs/invalid -name '*.json' | sort)
-
-  run_runtime plan \
-    --graph compatibility/v0.1/graphs/valid/minimal-value.graph.json \
-    --nodes compatibility/v0.1/nodes \
-    --format json >/dev/null
-else
-  echo "runtime does not support registry project validation yet; skipped legacy v0.1 compatibility fixtures"
+if ! runtime_supports validate-project; then
+  echo "runtime does not support current 0.1 project validation" >&2
+  exit 1
 fi
 
-echo "validated legacy v0.1 fixtures with skenion-runtime: ${legacy_valid_graphs} valid graphs, ${legacy_invalid_graphs} invalid graphs, ${legacy_valid_nodes} valid nodes, ${legacy_invalid_nodes} invalid nodes, ${legacy_valid_projects} valid registry projects, ${legacy_invalid_projects} invalid registry projects"
-echo "active v0.2 runtime project payload fixtures are validated by scripts/validate-runtime-project-payloads.mjs with released @skenion/contracts: ${active_v02_project_payloads} JSON fixtures"
+while IFS= read -r file; do
+  check_valid_project "${file}"
+  current_valid_project_payloads=$((current_valid_project_payloads + 1))
+done < <(find compatibility/v0.1/projects/valid -name '*.json' | sort)
+
+while IFS= read -r file; do
+  check_invalid_project "${file}"
+  current_invalid_project_payloads=$((current_invalid_project_payloads + 1))
+done < <(find compatibility/v0.1/projects/invalid -name '*.json' | sort)
+
+while IFS= read -r file; do
+  check_valid_project "${file}"
+  current_valid_project_documents=$((current_valid_project_documents + 1))
+done < <(find projects/v0.1 -name '*.skenion.json' | sort)
+
+if runtime_supports plan; then
+  while IFS= read -r file; do
+    run_runtime plan --project "${file}" --format json >/dev/null
+    current_planned_projects=$((current_planned_projects + 1))
+  done < <(find compatibility/v0.1/projects/valid -name '*.json' | sort)
+fi
+
+echo "validated current 0.1 fixtures with skenion-runtime: ${current_valid_project_payloads} valid project payloads, ${current_invalid_project_payloads} invalid project payloads, ${current_valid_project_documents} project documents, ${current_planned_projects} execution plan payloads"
+echo "excluded unsupported pre-consolidation project payload fixtures from positive runtime smoke coverage: ${unsupported_project_payloads} JSON fixtures"

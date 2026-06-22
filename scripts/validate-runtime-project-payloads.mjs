@@ -1,13 +1,22 @@
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
-const contractsPackage = "@skenion/contracts";
+const linkedContractsPackage = path.join(root, ".deps/skenion-contracts/packages/ts/dist/index.js");
+const contractsPackage = process.env.SKENION_CONTRACTS_PACKAGE
+  ?? (existsSync(linkedContractsPackage) ? linkedContractsPackage : "@skenion/contracts");
 const runtimeUrl = process.env.SKENION_RUNTIME_URL?.replace(/\/+$/, "");
 
 async function importContracts() {
-  // Runtime JSON fixtures must validate against the released package, not a
-  // sibling contracts checkout or contracts main.
+  if (contractsPackage.startsWith(".") || path.isAbsolute(contractsPackage)) {
+    const entry = contractsPackage.endsWith(".js")
+      ? contractsPackage
+      : path.join(contractsPackage, "index.js");
+    return import(pathToFileURL(path.resolve(root, entry)).href);
+  }
+
   return import(contractsPackage);
 }
 
@@ -41,27 +50,20 @@ function validateProjectPayload(file, payload, contracts) {
   }
 
   if (payload.schema === "skenion.project") {
-    if (payload.schemaVersion !== "0.2.0") {
-      fail(file, `unsupported project schemaVersion ${payload.schemaVersion ?? "<missing>"}`);
-    }
     const { nodes: _nodes, frames: _frames, ...projectDocument } = payload;
-    const projectResult = contracts.validateProjectDocumentV02(projectDocument);
+    const projectResult = contracts.validateProjectDocumentV01(projectDocument);
     if (!projectResult.ok) {
       fail(file, `invalid project document: ${projectResult.errors.join("; ")}`);
     }
   }
 
-  const graphResult = payload.graph?.schemaVersion === "0.2.0"
-    ? contracts.validateGraphDocumentV02(payload.graph)
-    : contracts.validateGraphDocument(payload.graph);
+  const graphResult = contracts.validateGraphDocumentV01(payload.graph);
   if (!graphResult.ok) {
     fail(file, `invalid graph document: ${graphResult.errors.join("; ")}`);
   }
 
   for (const [index, definition] of payload.nodes.entries()) {
-    const result = definition.schemaVersion === "0.2.0"
-      ? contracts.validateNodeDefinitionV02(definition)
-      : contracts.validateNodeDefinition(definition);
+    const result = contracts.validateNodeDefinitionV01(definition);
     if (!result.ok) {
       fail(file, `invalid node definition ${index}: ${result.errors.join("; ")}`);
     }
@@ -95,52 +97,35 @@ function expectedInvalidReason(file) {
   return [];
 }
 
-function hasDiagnosticCode(response, code) {
-  return (response.diagnostics ?? []).some((diagnostic) => diagnostic.code === code);
-}
-
 const contracts = await importContracts();
-const legacyFiles = await walk(path.join(root, "compatibility/v0.1/projects"));
-const activeFiles = await walk(path.join(root, "compatibility/v0.2/projects"));
-const validLegacyFiles = legacyFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
-const invalidLegacyFiles = legacyFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
-const validActiveFiles = activeFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
-const invalidActiveFiles = activeFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
-const validFiles = [
-  ...validActiveFiles,
-  ...validLegacyFiles
-];
-const invalidFiles = [
-  ...invalidActiveFiles,
-  ...invalidLegacyFiles
-];
+const currentFiles = await walk(path.join(root, "compatibility/v0.1/projects"));
+const unsupportedFiles = await walk(path.join(root, "compatibility/unsupported/pre-consolidation-v0.1/projects"));
+const validCurrentFiles = currentFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));
+const invalidCurrentFiles = currentFiles.filter((file) => file.includes(`${path.sep}invalid${path.sep}`));
+const unsupportedProjectFiles = unsupportedFiles.filter((file) => file.endsWith(".json"));
 
-for (const file of validFiles) {
+for (const file of validCurrentFiles) {
   validateProjectPayload(file, await readJson(file), contracts);
 }
 
-for (const file of invalidFiles) {
+for (const file of invalidCurrentFiles) {
   try {
     validateProjectPayload(file, await readJson(file), contracts);
   } catch (error) {
-    if (file.includes(`${path.sep}v0.2${path.sep}`)) {
-      continue;
-    }
-    throw error;
+    continue;
   }
+  fail(file, "expected contract-invalid project payload, got valid");
 }
 
 if (runtimeUrl) {
-  let legacyUnsupportedCount = 0;
-
-  for (const file of validActiveFiles) {
+  for (const file of validCurrentFiles) {
     const response = await postValidate(file, await readJson(file));
     if (response.ok !== true) {
       fail(file, `expected runtime ok:true, got ${JSON.stringify(response.diagnostics)}`);
     }
   }
 
-  for (const file of invalidActiveFiles) {
+  for (const file of invalidCurrentFiles) {
     const response = await postValidate(file, await readJson(file));
     if (response.ok !== false) {
       fail(file, "expected runtime ok:false, got ok:true");
@@ -151,33 +136,8 @@ if (runtimeUrl) {
       fail(file, `expected diagnostic containing one of ${JSON.stringify(reasons)}, got ${diagnostics}`);
     }
   }
-
-  for (const file of validLegacyFiles) {
-    const response = await postValidate(file, await readJson(file));
-    if (response.ok === true) {
-      continue;
-    }
-    if (hasDiagnosticCode(response, "project.active-v0.1-unsupported")) {
-      legacyUnsupportedCount += 1;
-      continue;
-    }
-    fail(file, `expected legacy runtime ok:true or active-v0.1 quarantine, got ${JSON.stringify(response.diagnostics)}`);
-  }
-
-  for (const file of invalidLegacyFiles) {
-    const response = await postValidate(file, await readJson(file));
-    if (response.ok !== false) {
-      fail(file, "expected legacy runtime ok:false, got ok:true");
-    }
-  }
-
-  if (legacyUnsupportedCount > 0) {
-    console.log(
-      `runtime quarantined ${legacyUnsupportedCount} legacy v0.1 project payload fixtures as project.active-v0.1-unsupported`
-    );
-  }
 }
 
 console.log(
-  `validated active v0.2 runtime project payload fixtures: ${validActiveFiles.length} valid and ${invalidActiveFiles.length} invalid; legacy v0.1 runtime project payload fixtures: ${validLegacyFiles.length} valid and ${invalidLegacyFiles.length} invalid with released ${contractsPackage}`
+  `validated current 0.1 runtime project payload fixtures: ${validCurrentFiles.length} valid and ${invalidCurrentFiles.length} invalid with ${contractsPackage}; excluded unsupported pre-consolidation project payload fixtures: ${unsupportedProjectFiles.length}`
 );

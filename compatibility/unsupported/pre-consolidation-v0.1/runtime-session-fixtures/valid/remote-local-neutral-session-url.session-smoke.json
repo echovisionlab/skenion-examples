@@ -1,0 +1,50 @@
+{
+  "schema": "skenion.runtime.session-smoke.fixture",
+  "schemaVersion": "0.1.0",
+  "scenario": "remote-local-neutral-url-session-semantics",
+  "title": "Runtime URL and session addressing are profile-neutral",
+  "description": "Documents that local-managed, local-shared, and remote clients compose the same relative Runtime session paths against their configured Runtime base URL.",
+  "runtime": {
+    "requiresCapabilities": [
+      "session.load",
+      "session.addressing",
+      "session.info",
+      "runtime.profile.localManaged",
+      "runtime.profile.localShared",
+      "runtime.profile.remote"
+    ]
+  },
+  "session": {
+    "id": "m06-8-neutral-{runId}",
+    "project": "compatibility/unsupported/pre-consolidation-v0.1/projects/valid/minimal-value.project.json"
+  },
+  "paths": {
+    "defaultAlias": "/v0/session",
+    "explicitSessionTemplate": "/v0/sessions/{sessionId}",
+    "sessionInfoTemplate": "/v0/sessions/{sessionId}/info",
+    "eventsStreamTemplate": "/v0/sessions/{sessionId}/events/stream"
+  },
+  "baseUrlSamples": [
+    {
+      "profile": "local-managed",
+      "baseUrl": "http://127.0.0.1:3761"
+    },
+    {
+      "profile": "local-shared",
+      "baseUrl": "http://localhost:3761"
+    },
+    {
+      "profile": "remote",
+      "baseUrl": "https://runtime.example.com"
+    }
+  ],
+  "expect": {
+    "graphId": "minimal-value-graph",
+    "profileModes": [
+      "local-managed",
+      "local-shared",
+      "remote"
+    ],
+    "pathOnlySessionAddressing": true
+  }
+}

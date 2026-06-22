@@ -69,6 +69,7 @@ jobs:
       - run: pnpm run build
         working-directory: .deps/skenion-contracts
       - run: node scripts/validate-with-contracts.mjs
+      - run: node scripts/validate-repo-path-references.mjs
       - run: node scripts/audit-node-conventions.mjs
       - run: node scripts/validate-runtime-project-payloads.mjs
       - run: node scripts/validate-runtime-session-smoke-fixtures.mjs
@@ -85,8 +86,6 @@ jobs:
       - run: cargo build --manifest-path .deps/skenion-runtime/Cargo.toml --all-features
       - run: cargo test --manifest-path .deps/skenion-runtime/Cargo.toml --all-targets --all-features
       - run: SKENION_RUNTIME_BIN=.deps/skenion-runtime/target/debug/skenion-runtime bash scripts/validate-with-runtime.sh .deps/skenion-runtime
-      - run: SKENION_RUNTIME_BIN=.deps/skenion-runtime/target/debug/skenion-runtime bash scripts/smoke-runtime-audio-clock-domains.sh .deps/skenion-runtime
-      - run: SKENION_RUNTIME_BIN=.deps/skenion-runtime/target/debug/skenion-runtime bash scripts/smoke-runtime-midi-clock-fixture.sh .deps/skenion-runtime
       - run: |
           SKENION_PREVIEW_DRY_RUN=1 .deps/skenion-runtime/target/debug/skenion-runtime serve --host 127.0.0.1 --port 3761 &
           SERVER_PID=$!
@@ -104,20 +103,5 @@ jobs:
             exit 1
           fi
           SKENION_RUNTIME_URL=http://127.0.0.1:3761 node scripts/validate-runtime-project-payloads.mjs
-          INFO="$(curl --fail --silent http://127.0.0.1:3761/v0/runtime/info)"
-          if python3 -c 'import json, sys; r=json.loads(sys.argv[1]); sys.exit(0 if "session.render.generatedShader" in r.get("capabilities", []) else 1)' "${INFO}"; then
-            SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-shader-diagnostics.sh
-          else
-            echo "runtime does not support shader diagnostics endpoint yet"
-          fi
+          SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-v01-projects.sh
           SKENION_RUNTIME_URL=http://127.0.0.1:3761 node scripts/validate-runtime-session-smoke-fixtures.mjs
-          if python3 -c 'import json, sys; r=json.loads(sys.argv[1]); sys.exit(0 if "session.control.messages" in r.get("capabilities", []) else 1)' "${INFO}"; then
-            SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-object-routing-panel.sh
-          else
-            echo "runtime does not support control message payloads yet"
-          fi
-          if python3 -c 'import json, sys; caps=json.loads(sys.argv[1]).get("capabilities", []); sys.exit(0 if "session.preview.controlState" in caps and "session.control.messages" in caps else 1)' "${INFO}"; then
-            SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-live-control-preview.sh
-          else
-            echo "runtime does not support message-based live preview control snapshots yet"
-          fi

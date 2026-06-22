@@ -1,6 +1,5 @@
-# Legacy Project Fixtures v0.1
+# Active Project Examples
 
-These project files are retained as legacy import and migration coverage for
-older graph v0.1 examples. They are not the active project model.
-
-Active product project examples live in `projects/v0.2`.
+These project examples are current graph 0.1 fixtures. They use
+`ProjectDocumentV01`, `GraphDocumentV01`, and `PatchDefinitionV01` where
+subpatch or live-help behavior needs reusable graph definitions.

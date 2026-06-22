@@ -4,38 +4,30 @@
   "id": "core.message",
   "version": "0.1.0",
   "displayName": "Message",
-  "category": "Control",
+  "category": "Core",
   "ports": [
     {
       "id": "in",
       "direction": "input",
-      "label": "In",
-      "type": {
-        "flow": "event",
-        "dataKind": "message.any"
-      },
-      "required": false,
-      "activation": "trigger"
+      "type": "message.any",
+      "rate": "event",
+      "triggerMode": "trigger"
     },
     {
       "id": "out",
       "direction": "output",
-      "label": "Message",
-      "type": {
-        "flow": "event",
-        "dataKind": "message.any"
-      }
+      "type": "message.any",
+      "rate": "event"
     }
   ],
   "execution": {
     "model": "event"
   },
   "state": {
-    "persistent": false
+    "persistent": true
   },
   "permissions": [],
-  "capabilities": [],
-  "surface": {
-    "palette": "direct"
-  }
+  "capabilities": [
+    "message.any.v0.1"
+  ]
 }
