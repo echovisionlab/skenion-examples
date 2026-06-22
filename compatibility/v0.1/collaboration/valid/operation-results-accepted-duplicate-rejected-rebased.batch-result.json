@@ -1,0 +1,303 @@
+{
+  "schema": "skenion.runtime.collaboration.operation-batch-result",
+  "schemaVersion": "0.1.0",
+  "sessionId": "session-collab-demo",
+  "createdAt": "2026-06-21T22:00:14Z",
+  "results": [
+    {
+      "schema": "skenion.runtime.collaboration.operation-result",
+      "schemaVersion": "0.1.0",
+      "sessionId": "session-collab-demo",
+      "operationId": "op-alice-add-lfo",
+      "participantId": "participant-alice",
+      "idempotencyKey": "idem-alice-add-lfo-001",
+      "status": "accepted",
+      "causal": {
+        "baseRevision": "graph-rev-10",
+        "baseSequence": 10,
+        "vector": {
+          "participant-alice": 3,
+          "participant-bob": 2
+        },
+        "observedOperationIds": [
+          "op-bob-previous-meter"
+        ]
+      },
+      "ack": {
+        "sequence": 11,
+        "revision": "graph-rev-11",
+        "serverClock": {
+          "revision": "graph-rev-11",
+          "sequence": 11,
+          "vector": {
+            "participant-alice": 4,
+            "participant-bob": 2,
+            "runtime": 11
+          }
+        },
+        "appliedAt": "2026-06-21T22:00:00Z"
+      },
+      "diagnostics": [],
+      "createdAt": "2026-06-21T22:00:00Z"
+    },
+    {
+      "schema": "skenion.runtime.collaboration.operation-result",
+      "schemaVersion": "0.1.0",
+      "sessionId": "session-collab-demo",
+      "operationId": "op-bob-connect-lfo-meter-replay",
+      "participantId": "participant-bob",
+      "idempotencyKey": "idem-bob-connect-lfo-001",
+      "status": "duplicate",
+      "causal": {
+        "baseRevision": "graph-rev-11",
+        "baseSequence": 11,
+        "vector": {
+          "participant-alice": 4,
+          "participant-bob": 2,
+          "runtime": 11
+        },
+        "observedOperationIds": [
+          "op-alice-add-lfo"
+        ]
+      },
+      "nack": {
+        "reason": "duplicate-idempotency-key",
+        "retryable": false,
+        "diagnostics": [
+          {
+            "severity": "info",
+            "code": "idempotent-replay",
+            "message": "The operation was already applied for this idempotency key.",
+            "operationId": "op-bob-connect-lfo-meter-replay",
+            "idempotencyKey": "idem-bob-connect-lfo-001",
+            "actualSequence": 12
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "severity": "info",
+          "code": "idempotent-replay",
+          "message": "The operation was already applied for this idempotency key.",
+          "operationId": "op-bob-connect-lfo-meter-replay",
+          "idempotencyKey": "idem-bob-connect-lfo-001",
+          "actualSequence": 12
+        }
+      ],
+      "createdAt": "2026-06-21T22:00:02Z"
+    },
+    {
+      "schema": "skenion.runtime.collaboration.operation-result",
+      "schemaVersion": "0.1.0",
+      "sessionId": "session-collab-demo",
+      "operationId": "op-bob-connect-deleted-filter",
+      "participantId": "participant-bob",
+      "idempotencyKey": "idem-bob-connect-filter-001",
+      "status": "rejected",
+      "causal": {
+        "baseRevision": "graph-rev-12",
+        "baseSequence": 12,
+        "vector": {
+          "participant-alice": 4,
+          "participant-bob": 3
+        },
+        "observedOperationIds": [
+          "op-bob-connect-lfo-meter"
+        ]
+      },
+      "nack": {
+        "reason": "invalid-operation",
+        "retryable": false,
+        "diagnostics": [
+          {
+            "severity": "error",
+            "code": "invalid-operation",
+            "message": "edge_filter_meter references deleted node filter_a.",
+            "operationId": "op-bob-connect-deleted-filter",
+            "participantId": "participant-bob",
+            "path": "payload.changes[0].edge.source.nodeId"
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "severity": "error",
+          "code": "invalid-operation",
+          "message": "edge_filter_meter references deleted node filter_a.",
+          "operationId": "op-bob-connect-deleted-filter",
+          "participantId": "participant-bob",
+          "path": "payload.changes[0].edge.source.nodeId"
+        }
+      ],
+      "createdAt": "2026-06-21T22:00:09Z"
+    },
+    {
+      "schema": "skenion.runtime.collaboration.operation-result",
+      "schemaVersion": "0.1.0",
+      "sessionId": "session-collab-demo",
+      "operationId": "op-bob-paste-help-fragment",
+      "participantId": "participant-bob",
+      "idempotencyKey": "idem-bob-paste-help-001",
+      "status": "rebased",
+      "causal": {
+        "baseRevision": "graph-rev-12",
+        "baseSequence": 12,
+        "vector": {
+          "participant-alice": 4,
+          "participant-bob": 4
+        },
+        "observedOperationIds": [
+          "op-alice-delete-filter"
+        ]
+      },
+      "ack": {
+        "sequence": 14,
+        "revision": "graph-rev-14",
+        "serverClock": {
+          "revision": "graph-rev-14",
+          "sequence": 14,
+          "vector": {
+            "participant-alice": 5,
+            "participant-bob": 5,
+            "runtime": 14
+          }
+        },
+        "appliedAt": "2026-06-21T22:00:13Z"
+      },
+      "rebase": {
+        "from": {
+          "baseRevision": "graph-rev-12",
+          "baseSequence": 12,
+          "vector": {
+            "participant-alice": 4,
+            "participant-bob": 4
+          },
+          "observedOperationIds": [
+            "op-alice-delete-filter"
+          ]
+        },
+        "to": {
+          "baseRevision": "graph-rev-13",
+          "baseSequence": 13,
+          "vector": {
+            "participant-alice": 5,
+            "participant-bob": 4,
+            "runtime": 13
+          },
+          "observedOperationIds": [
+            "op-alice-delete-filter",
+            "op-alice-move-meter"
+          ]
+        },
+        "strategy": "crdt-merge",
+        "transformedPayload": {
+          "kind": "pasteGraphFragment",
+          "request": {
+            "target": {
+              "path": {
+                "kind": "root"
+              },
+              "baseRevision": "graph-rev-13"
+            },
+            "fragment": {
+              "schema": "skenion.graph.fragment",
+              "schemaVersion": "0.1.0",
+              "id": "fragment-collab-help-meter",
+              "metadata": {
+                "source": "help-working-copy",
+                "sourcePatchId": "help.collaboration-meter",
+                "copyPurpose": "Rebased paste after the server moved the nearby meter."
+              },
+              "nodes": [
+                {
+                  "id": "help_value",
+                  "kind": "core.value-number",
+                  "kindVersion": "0.1.0",
+                  "params": {
+                    "value": 0.75
+                  },
+                  "ports": [
+                    {
+                      "id": "out",
+                      "direction": "output",
+                      "type": "value.number",
+                      "rate": "control"
+                    }
+                  ]
+                },
+                {
+                  "id": "help_meter",
+                  "kind": "core.meter",
+                  "kindVersion": "0.1.0",
+                  "params": {},
+                  "ports": [
+                    {
+                      "id": "in",
+                      "direction": "input",
+                      "type": "value.number",
+                      "rate": "control"
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "edge_help_value_meter",
+                  "source": {
+                    "nodeId": "help_value",
+                    "portId": "out"
+                  },
+                  "target": {
+                    "nodeId": "help_meter",
+                    "portId": "in"
+                  },
+                  "resolvedType": "value.number"
+                }
+              ],
+              "view": {
+                "nodes": {
+                  "help_value": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "help_meter": {
+                    "x": 260,
+                    "y": 0
+                  }
+                }
+              }
+            },
+            "placement": {
+              "kind": "position",
+              "x": 520,
+              "y": 360
+            },
+            "options": {
+              "idConflictPolicy": "remap",
+              "outsideEndpointPolicy": "reject",
+              "preserveRelativePositions": true
+            }
+          },
+          "undoGroupId": "undo-bob-paste-help",
+          "description": "Paste a help fragment after rebasing over Alice's meter move."
+        },
+        "conflicts": []
+      },
+      "diagnostics": [
+        {
+          "severity": "info",
+          "code": "operation-rebased",
+          "message": "Paste placement was transformed over one concurrent node move.",
+          "operationId": "op-bob-paste-help-fragment",
+          "participantId": "participant-bob",
+          "expectedRevision": "graph-rev-12",
+          "actualRevision": "graph-rev-13",
+          "expectedSequence": 12,
+          "actualSequence": 13
+        }
+      ],
+      "createdAt": "2026-06-21T22:00:13Z"
+    }
+  ],
+  "diagnostics": []
+}

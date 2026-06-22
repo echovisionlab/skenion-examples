@@ -1,0 +1,349 @@
+{
+  "schema": "skenion.project",
+  "schemaVersion": "0.1.0",
+  "id": "project-subpatch-boundary",
+  "revision": "1",
+  "metadata": {
+    "title": "Subpatch Boundary",
+    "description": "Runtime request fixture for a root graph that materializes p scale_twice from a current 0.1 patch library."
+  },
+  "graph": {
+    "schema": "skenion.graph",
+    "schemaVersion": "0.1.0",
+    "id": "subpatch-boundary-v01",
+    "revision": "1",
+    "nodes": [
+      {
+        "id": "source",
+        "kind": "core.value-number",
+        "kindVersion": "0.1.0",
+        "params": {
+          "value": 0.5
+        },
+        "ports": [
+          {
+            "id": "out",
+            "direction": "output",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Value sent into the subpatch."
+          }
+        ]
+      },
+      {
+        "id": "scale_patch",
+        "kind": "core.subpatch",
+        "kindVersion": "0.1.0",
+        "params": {
+          "patchId": "scale_twice",
+          "objectText": "p scale_twice",
+          "description": "Materialized from the patch library contract for scale_twice."
+        },
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "type": "value.number",
+            "rate": "control",
+            "required": true,
+            "description": "Value entering the Scale Twice patch."
+          },
+          {
+            "id": "out",
+            "direction": "output",
+            "type": "value.number",
+            "rate": "control",
+            "description": "Scaled value leaving the Scale Twice patch."
+          }
+        ]
+      },
+      {
+        "id": "meter",
+        "kind": "core.meter",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "type": "value.number",
+            "rate": "control",
+            "required": true,
+            "description": "Displays the subpatch output."
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge_source_subpatch",
+        "source": {
+          "nodeId": "source",
+          "portId": "out"
+        },
+        "target": {
+          "nodeId": "scale_patch",
+          "portId": "in"
+        },
+        "resolvedType": "value.number"
+      },
+      {
+        "id": "edge_subpatch_meter",
+        "source": {
+          "nodeId": "scale_patch",
+          "portId": "out"
+        },
+        "target": {
+          "nodeId": "meter",
+          "portId": "in"
+        },
+        "resolvedType": "value.number"
+      }
+    ]
+  },
+  "viewState": {
+    "schema": "skenion.view-state",
+    "schemaVersion": "0.1.0",
+    "canvas": {
+      "nodes": {
+        "source": {
+          "x": 96,
+          "y": 160
+        },
+        "scale_patch": {
+          "x": 360,
+          "y": 160
+        },
+        "meter": {
+          "x": 640,
+          "y": 160
+        }
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  },
+  "patchLibrary": [
+    {
+      "id": "scale_twice",
+      "revision": "1",
+      "metadata": {
+        "title": "Scale Twice",
+        "description": "Doubles one numeric value and exposes the external contract through core.inlet/core.outlet."
+      },
+      "graph": {
+        "schema": "skenion.graph",
+        "schemaVersion": "0.1.0",
+        "id": "patch-scale-twice-v01",
+        "revision": "1",
+        "nodes": [
+          {
+            "id": "patch_in",
+            "kind": "core.inlet",
+            "kindVersion": "0.1.0",
+            "params": {
+              "portId": "in",
+              "label": "In",
+              "order": 0
+            },
+            "ports": [
+              {
+                "id": "out",
+                "direction": "output",
+                "type": "value.number",
+                "rate": "control",
+                "description": "Value entering the patch."
+              }
+            ]
+          },
+          {
+            "id": "double",
+            "kind": "core.value-transform",
+            "kindVersion": "0.1.0",
+            "params": {
+              "operation": "multiply",
+              "operand": 2
+            },
+            "ports": [
+              {
+                "id": "in",
+                "direction": "input",
+                "type": "value.number",
+                "rate": "control",
+                "required": true
+              },
+              {
+                "id": "out",
+                "direction": "output",
+                "type": "value.number",
+                "rate": "control"
+              }
+            ]
+          },
+          {
+            "id": "patch_out",
+            "kind": "core.outlet",
+            "kindVersion": "0.1.0",
+            "params": {
+              "portId": "out",
+              "label": "Out",
+              "order": 0
+            },
+            "ports": [
+              {
+                "id": "in",
+                "direction": "input",
+                "type": "value.number",
+                "rate": "control",
+                "required": true,
+                "description": "Scaled value leaving the patch."
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": "edge_in_double",
+            "source": {
+              "nodeId": "patch_in",
+              "portId": "out"
+            },
+            "target": {
+              "nodeId": "double",
+              "portId": "in"
+            },
+            "resolvedType": "value.number"
+          },
+          {
+            "id": "edge_double_out",
+            "source": {
+              "nodeId": "double",
+              "portId": "out"
+            },
+            "target": {
+              "nodeId": "patch_out",
+              "portId": "in"
+            },
+            "resolvedType": "value.number"
+          }
+        ]
+      },
+      "viewState": {
+        "schema": "skenion.view-state",
+        "schemaVersion": "0.1.0",
+        "canvas": {
+          "nodes": {
+            "patch_in": {
+              "x": 96,
+              "y": 160
+            },
+            "double": {
+              "x": 360,
+              "y": 160
+            },
+            "patch_out": {
+              "x": 640,
+              "y": 160
+            }
+          },
+          "viewport": {
+            "x": 0,
+            "y": 0,
+            "zoom": 1
+          }
+        }
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "core.value-number",
+      "version": "0.1.0",
+      "displayName": "Number Value",
+      "category": "Core",
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "value.number",
+          "rate": "control"
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "value.number.v0.1"
+      ]
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "core.value-transform",
+      "version": "0.1.0",
+      "displayName": "Value Transform",
+      "category": "Core",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "value.number",
+          "rate": "control",
+          "required": true
+        },
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "value.number",
+          "rate": "control"
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "value.number.v0.1"
+      ]
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "core.meter",
+      "version": "0.1.0",
+      "displayName": "Meter",
+      "category": "Core",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "value.number",
+          "rate": "control",
+          "required": true
+        }
+      ],
+      "execution": {
+        "model": "value"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "value.number.v0.1"
+      ]
+    }
+  ]
+}

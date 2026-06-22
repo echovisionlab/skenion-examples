@@ -4,27 +4,20 @@
   "id": "core.bang",
   "version": "0.1.0",
   "displayName": "Bang",
-  "category": "Events",
+  "category": "Core",
   "ports": [
     {
       "id": "in",
       "direction": "input",
-      "label": "In",
-      "type": {
-        "flow": "event",
-        "dataKind": "message.any"
-      },
-      "required": false,
-      "activation": "trigger"
+      "type": "message.any",
+      "rate": "event",
+      "triggerMode": "trigger"
     },
     {
-      "id": "out",
+      "id": "bang",
       "direction": "output",
-      "label": "Bang",
-      "type": {
-        "flow": "event",
-        "dataKind": "event.bang"
-      }
+      "type": "event.bang",
+      "rate": "event"
     }
   ],
   "execution": {
@@ -34,8 +27,7 @@
     "persistent": false
   },
   "permissions": [],
-  "capabilities": [],
-  "surface": {
-    "palette": "direct"
-  }
+  "capabilities": [
+    "event.bang.v0.1"
+  ]
 }

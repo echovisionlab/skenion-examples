@@ -1,0 +1,8 @@
+{
+  "schema": "skenion.graph",
+  "schemaVersion": "0.2.0",
+  "id": "unsupported-graph-version",
+  "revision": "1",
+  "nodes": [],
+  "edges": []
+}

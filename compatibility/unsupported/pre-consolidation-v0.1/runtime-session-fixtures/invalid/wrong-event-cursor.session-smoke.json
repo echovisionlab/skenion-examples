@@ -1,0 +1,35 @@
+{
+  "schema": "skenion.runtime.session-smoke.fixture",
+  "schemaVersion": "0.1.0",
+  "scenario": "same-session-multi-view-event-replay",
+  "title": "Invalid same-session replay cursor expectation",
+  "description": "The replay expectation claims sequence 2 should be replayed after cursor 2, which would hide a stale or wrong event cursor in a client reconnect.",
+  "expectedInvalidReason": "expectedSequence must be greater than afterCursor",
+  "runtime": {
+    "requiresCapabilities": [
+      "session.load",
+      "session.addressing",
+      "session.mutate",
+      "session.events.stream",
+      "session.events.replay"
+    ]
+  },
+  "clients": [
+    "view-a",
+    "view-b"
+  ],
+  "session": {
+    "id": "m06-8-invalid-cursor-{runId}",
+    "project": "compatibility/unsupported/pre-consolidation-v0.1/projects/valid/minimal-value.project.json",
+    "patch": "compatibility/unsupported/pre-consolidation-v0.1/patches/valid/set-value-param.patch.json"
+  },
+  "expect": {
+    "event": {
+      "kind": "mutate",
+      "afterCursor": "2",
+      "expectedSequence": 2,
+      "replayed": true,
+      "sessionId": "m06-8-invalid-cursor-{runId}"
+    }
+  }
+}

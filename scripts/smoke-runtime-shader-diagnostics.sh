@@ -2,10 +2,10 @@
 set -euo pipefail
 
 RUNTIME_URL="${SKENION_RUNTIME_URL:-http://127.0.0.1:3761}"
-source scripts/runtime-smoke-legacy-v01.sh
-skip_legacy_v01_smoke_if_active_v02 "$0"
-PROJECT="compatibility/v0.1/projects/valid/dynamic-shader-interface.project.json"
-BAD_SHADER_PATCH="compatibility/v0.1/patches/valid/set-invalid-fullscreen-shader-source.patch.json"
+source scripts/runtime-smoke-unsupported-v01.sh
+skip_unsupported_v01_smoke_if_current_v01 "$0"
+PROJECT="compatibility/unsupported/pre-consolidation-v0.1/projects/valid/dynamic-shader-interface.project.json"
+BAD_SHADER_PATCH="compatibility/unsupported/pre-consolidation-v0.1/patches/valid/set-invalid-fullscreen-shader-source.patch.json"
 
 curl --fail --silent "${RUNTIME_URL}/health" >/dev/null
 curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null

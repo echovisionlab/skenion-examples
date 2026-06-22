@@ -1,0 +1,37 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "render.output",
+  "version": "0.1.0",
+  "displayName": "Render Output",
+  "category": "Render",
+  "ports": [
+    {
+      "id": "in",
+      "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "resource",
+        "dataKind": "gpu.texture2d",
+        "format": "rgba8unorm",
+        "colorSpace": "srgb"
+      },
+      "required": true,
+      "activation": "latched"
+    }
+  ],
+  "execution": {
+    "model": "frame",
+    "clock": "frame"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": [
+    "render.output.surface"
+  ],
+  "surface": {
+    "palette": "direct"
+  }
+}

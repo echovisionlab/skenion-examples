@@ -41,10 +41,8 @@
           {
             "id": "out",
             "direction": "output",
-            "type": {
-              "flow": "value",
-              "dataKind": "number.float"
-            }
+            "type": "value.number",
+            "rate": "control"
           }
         ],
         "execution": {

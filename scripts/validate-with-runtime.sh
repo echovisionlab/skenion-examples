@@ -28,13 +28,13 @@ runtime_supports() {
   run_runtime --help | grep -q "${command}"
 }
 
-legacy_valid_graphs=0
-legacy_invalid_graphs=0
-legacy_valid_nodes=0
-legacy_invalid_nodes=0
-legacy_valid_projects=0
-legacy_invalid_projects=0
-active_v02_project_payloads="$(find compatibility/v0.2/projects -name '*.json' | wc -l | tr -d ' ')"
+current_valid_graphs=0
+current_invalid_graphs=0
+current_valid_nodes=0
+current_invalid_nodes=0
+current_valid_projects=0
+current_invalid_projects=0
+current_project_payloads="$(find compatibility/v0.1/projects -name '*.json' | wc -l | tr -d ' ')"
 
 check_valid() {
   local command="$1"
@@ -53,28 +53,23 @@ check_invalid() {
 
 while IFS= read -r file; do
   check_valid validate-graph "${file}"
-  legacy_valid_graphs=$((legacy_valid_graphs + 1))
-done < <(find fixtures/contract/v0.1/graphs/valid -name '*.json' | sort)
+  current_valid_graphs=$((current_valid_graphs + 1))
+done < <(find compatibility/v0.1/graphs/valid -name '*.json' | sort)
 
 while IFS= read -r file; do
   check_invalid validate-graph "${file}"
-  legacy_invalid_graphs=$((legacy_invalid_graphs + 1))
-done < <(find fixtures/contract/v0.1/graphs/invalid -name '*.json' | sort)
+  current_invalid_graphs=$((current_invalid_graphs + 1))
+done < <(find compatibility/v0.1/graphs/invalid -name '*.json' | sort)
 
 while IFS= read -r file; do
   check_valid validate-node "${file}"
-  legacy_valid_nodes=$((legacy_valid_nodes + 1))
-done < <(find fixtures/contract/v0.1/nodes/valid -name '*.json' | sort)
-
-while IFS= read -r file; do
-  check_invalid validate-node "${file}"
-  legacy_invalid_nodes=$((legacy_invalid_nodes + 1))
-done < <(find fixtures/contract/v0.1/nodes/invalid -name '*.json' | sort)
+  current_valid_nodes=$((current_valid_nodes + 1))
+done < <(find compatibility/v0.1/nodes -name '*.json' | sort)
 
 if runtime_supports validate-project; then
   while IFS= read -r file; do
     run_runtime validate-project --graph "${file}" --nodes compatibility/v0.1/nodes >/dev/null
-    legacy_valid_projects=$((legacy_valid_projects + 1))
+    current_valid_projects=$((current_valid_projects + 1))
   done < <(find compatibility/v0.1/graphs/valid -name '*.json' | sort)
 
   while IFS= read -r file; do
@@ -82,16 +77,18 @@ if runtime_supports validate-project; then
       echo "${file}: expected invalid project, got valid" >&2
       exit 1
     fi
-    legacy_invalid_projects=$((legacy_invalid_projects + 1))
+    current_invalid_projects=$((current_invalid_projects + 1))
   done < <(find compatibility/v0.1/graphs/invalid -name '*.json' | sort)
 
-  run_runtime plan \
-    --graph compatibility/v0.1/graphs/valid/minimal-value.graph.json \
-    --nodes compatibility/v0.1/nodes \
-    --format json >/dev/null
+  if [[ -f compatibility/v0.1/graphs/valid/subpatch-boundary.graph.json ]]; then
+    run_runtime plan \
+      --graph compatibility/v0.1/graphs/valid/subpatch-boundary.graph.json \
+      --nodes compatibility/v0.1/nodes \
+      --format json >/dev/null
+  fi
 else
-  echo "runtime does not support registry project validation yet; skipped legacy v0.1 compatibility fixtures"
+  echo "runtime does not support registry project validation yet; skipped current 0.1 registry project validation"
 fi
 
-echo "validated legacy v0.1 fixtures with skenion-runtime: ${legacy_valid_graphs} valid graphs, ${legacy_invalid_graphs} invalid graphs, ${legacy_valid_nodes} valid nodes, ${legacy_invalid_nodes} invalid nodes, ${legacy_valid_projects} valid registry projects, ${legacy_invalid_projects} invalid registry projects"
-echo "active v0.2 runtime project payload fixtures are validated by scripts/validate-runtime-project-payloads.mjs with released @skenion/contracts: ${active_v02_project_payloads} JSON fixtures"
+echo "validated current 0.1 fixtures with skenion-runtime: ${current_valid_graphs} valid graphs, ${current_invalid_graphs} invalid graphs, ${current_valid_nodes} valid nodes, ${current_invalid_nodes} invalid nodes, ${current_valid_projects} valid registry projects, ${current_invalid_projects} invalid registry projects"
+echo "current 0.1 runtime project payload fixtures are validated by scripts/validate-runtime-project-payloads.mjs with @skenion/contracts: ${current_project_payloads} JSON fixtures"

@@ -1,0 +1,131 @@
+{
+  "schema": "skenion.runtime.collaboration.operation-batch",
+  "schemaVersion": "0.1.0",
+  "sessionId": "session-collab-demo",
+  "submittedAt": "2026-06-21T22:00:00Z",
+  "operations": [
+    {
+      "schema": "skenion.runtime.collaboration.operation",
+      "schemaVersion": "0.1.0",
+      "operationId": "op-alice-add-lfo",
+      "sessionId": "session-collab-demo",
+      "participantId": "participant-alice",
+      "idempotencyKey": "idem-alice-add-lfo-001",
+      "causal": {
+        "baseRevision": "graph-rev-10",
+        "baseSequence": 10,
+        "vector": {
+          "participant-alice": 3,
+          "participant-bob": 2
+        },
+        "observedOperationIds": [
+          "op-bob-previous-meter"
+        ]
+      },
+      "payload": {
+        "kind": "changeSet",
+        "target": {
+          "path": {
+            "kind": "root"
+          },
+          "baseRevision": "graph-rev-10"
+        },
+        "changes": [
+          {
+            "op": "node.add",
+            "changeId": "change-add-lfo-a",
+            "node": {
+              "id": "lfo_a",
+              "kind": "core.value-number",
+              "kindVersion": "0.1.0",
+              "params": {
+                "value": 0.25
+              },
+              "ports": [
+                {
+                  "id": "out",
+                  "direction": "output",
+                  "type": "value.number",
+                  "rate": "control",
+                  "description": "Alice's modulation value."
+                }
+              ]
+            },
+            "view": {
+              "x": 120,
+              "y": 180
+            }
+          },
+          {
+            "op": "node.move",
+            "changeId": "change-move-meter-a",
+            "nodeId": "meter_main",
+            "from": {
+              "x": 640,
+              "y": 160
+            },
+            "to": {
+              "x": 760,
+              "y": 180
+            }
+          }
+        ],
+        "undoGroupId": "undo-alice-add-lfo",
+        "description": "Add an LFO value and make room for a shared meter."
+      },
+      "correlationId": "corr-alice-001",
+      "submittedAt": "2026-06-21T22:00:00Z"
+    },
+    {
+      "schema": "skenion.runtime.collaboration.operation",
+      "schemaVersion": "0.1.0",
+      "operationId": "op-bob-connect-lfo-meter",
+      "sessionId": "session-collab-demo",
+      "participantId": "participant-bob",
+      "idempotencyKey": "idem-bob-connect-lfo-001",
+      "causal": {
+        "baseRevision": "graph-rev-10",
+        "baseSequence": 10,
+        "vector": {
+          "participant-alice": 3,
+          "participant-bob": 2
+        },
+        "observedOperationIds": [
+          "op-alice-previous-value"
+        ]
+      },
+      "payload": {
+        "kind": "changeSet",
+        "target": {
+          "path": {
+            "kind": "root"
+          },
+          "baseRevision": "graph-rev-10"
+        },
+        "changes": [
+          {
+            "op": "edge.connect",
+            "changeId": "change-connect-lfo-a-meter",
+            "edge": {
+              "id": "edge_lfo_a_meter",
+              "source": {
+                "nodeId": "lfo_a",
+                "portId": "out"
+              },
+              "target": {
+                "nodeId": "meter_main",
+                "portId": "in"
+              },
+              "resolvedType": "value.number",
+              "description": "Bob connects Alice's new value node after receiving the optimistic add."
+            }
+          }
+        ],
+        "undoGroupId": "undo-bob-connect-lfo",
+        "description": "Connect the concurrently added LFO to the shared meter."
+      },
+      "correlationId": "corr-bob-001",
+      "submittedAt": "2026-06-21T22:00:01Z"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.message",
+  "version": "0.1.0",
+  "displayName": "Message",
+  "category": "Control",
+  "ports": [
+    {
+      "id": "in",
+      "direction": "input",
+      "label": "In",
+      "type": {
+        "flow": "event",
+        "dataKind": "message.any"
+      },
+      "required": false,
+      "activation": "trigger"
+    },
+    {
+      "id": "out",
+      "direction": "output",
+      "label": "Message",
+      "type": {
+        "flow": "event",
+        "dataKind": "message.any"
+      }
+    }
+  ],
+  "execution": {
+    "model": "event"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": [],
+  "surface": {
+    "palette": "direct"
+  }
+}

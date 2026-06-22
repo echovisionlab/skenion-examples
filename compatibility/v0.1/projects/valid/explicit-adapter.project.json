@@ -1,0 +1,176 @@
+{
+  "graph": {
+    "schema": "skenion.graph",
+    "schemaVersion": "0.1.0",
+    "id": "explicit-adapter-v01",
+    "revision": "1",
+    "nodes": [
+      {
+        "id": "texture",
+        "kind": "gpu.texture-source",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "out",
+            "direction": "output",
+            "type": "gpu.texture2d",
+            "rate": "gpu"
+          }
+        ]
+      },
+      {
+        "id": "adapter",
+        "kind": "adapter.gpu-texture-to-render-frame",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "texture",
+            "direction": "input",
+            "type": "gpu.texture2d",
+            "rate": "gpu"
+          },
+          {
+            "id": "frame",
+            "direction": "output",
+            "type": "render.frame",
+            "rate": "render"
+          }
+        ]
+      },
+      {
+        "id": "output",
+        "kind": "render.output",
+        "kindVersion": "0.1.0",
+        "params": {},
+        "ports": [
+          {
+            "id": "in",
+            "direction": "input",
+            "type": "render.frame",
+            "rate": "render",
+            "required": true
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge_texture_adapter",
+        "source": {
+          "nodeId": "texture",
+          "portId": "out"
+        },
+        "target": {
+          "nodeId": "adapter",
+          "portId": "texture"
+        },
+        "resolvedType": "gpu.texture2d",
+        "adapter": "adapter.gpu-texture-to-render-frame"
+      },
+      {
+        "id": "edge_adapter_output",
+        "source": {
+          "nodeId": "adapter",
+          "portId": "frame"
+        },
+        "target": {
+          "nodeId": "output",
+          "portId": "in"
+        },
+        "resolvedType": "render.frame"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "gpu.texture-source",
+      "version": "0.1.0",
+      "displayName": "GPU Texture Source",
+      "category": "GPU",
+      "ports": [
+        {
+          "id": "out",
+          "direction": "output",
+          "type": "gpu.texture2d",
+          "rate": "gpu"
+        }
+      ],
+      "execution": {
+        "model": "gpu_pass",
+        "clock": "frame"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "gpu.texture2d.v0.1"
+      ]
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "adapter.gpu-texture-to-render-frame",
+      "version": "0.1.0",
+      "displayName": "GPU Texture to Render Frame",
+      "category": "Adapter",
+      "ports": [
+        {
+          "id": "texture",
+          "direction": "input",
+          "type": "gpu.texture2d",
+          "rate": "gpu"
+        },
+        {
+          "id": "frame",
+          "direction": "output",
+          "type": "render.frame",
+          "rate": "render"
+        }
+      ],
+      "execution": {
+        "model": "gpu_pass",
+        "clock": "frame"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "adapter.explicit.v0.1"
+      ]
+    },
+    {
+      "schema": "skenion.node.definition",
+      "schemaVersion": "0.1.0",
+      "id": "render.output",
+      "version": "0.1.0",
+      "displayName": "Render Output",
+      "category": "Render",
+      "ports": [
+        {
+          "id": "in",
+          "direction": "input",
+          "type": "render.frame",
+          "rate": "render",
+          "required": true
+        }
+      ],
+      "execution": {
+        "model": "frame",
+        "clock": "frame"
+      },
+      "state": {
+        "persistent": false
+      },
+      "permissions": [],
+      "capabilities": [
+        "render.output.surface"
+      ]
+    }
+  ]
+}

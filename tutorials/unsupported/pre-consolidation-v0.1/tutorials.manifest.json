@@ -1,0 +1,98 @@
+{
+  "schema": "skenion.examples.tutorials.manifest",
+  "schemaVersion": "0.1.0",
+  "active": false,
+  "coverage": "unsupported-pre-consolidation",
+  "tutorials": [
+    {
+      "id": "value-bang-set",
+      "title": "Value, Bang, and Set",
+      "summary": "Learn Max-style value node control semantics.",
+      "description": "Shows how in, set, and bang change a stored value and when the value output emits.",
+      "path": "tutorials/unsupported/pre-consolidation-v0.1/01-value-bang-set.project.json",
+      "projectPath": "projects/unsupported/pre-consolidation-v0.1/value-bang-set.skenion.json",
+      "helpNodeIds": [
+        "core.float",
+        "core.bang",
+        "core.float"
+      ],
+      "tags": [
+        "control",
+        "value"
+      ]
+    },
+    {
+      "id": "toggle-message-string",
+      "title": "Toggle, Message, and String",
+      "summary": "Compare stateful values with event-triggered messages.",
+      "description": "Demonstrates boolean toggles, saved string values, and message-style event output.",
+      "path": "tutorials/unsupported/pre-consolidation-v0.1/02-toggle-message-string.project.json",
+      "helpNodeIds": [
+        "core.bool",
+        "core.message",
+        "core.string"
+      ],
+      "tags": [
+        "control",
+        "event",
+        "text"
+      ]
+    },
+    {
+      "id": "dynamic-shader-inputs",
+      "title": "Dynamic Shader Inputs",
+      "summary": "Connect typed value nodes to annotation-generated shader inputs.",
+      "description": "Uses shader annotations to expose typed inputs, then drives those inputs from value nodes.",
+      "path": "tutorials/unsupported/pre-consolidation-v0.1/03-dynamic-shader-inputs.project.json",
+      "projectPath": "projects/unsupported/pre-consolidation-v0.1/dynamic-shader-interface.skenion.json",
+      "helpNodeIds": [
+        "render.fullscreen-shader",
+        "core.float",
+        "core.color",
+        "render.output"
+      ],
+      "tags": [
+        "shader",
+        "render"
+      ]
+    },
+    {
+      "id": "shader-diagnostics",
+      "title": "Shader Diagnostics",
+      "summary": "Inspect a shader with an intentional annotation error.",
+      "description": "Shows how invalid shader interface annotations surface as structured diagnostics.",
+      "path": "tutorials/unsupported/pre-consolidation-v0.1/04-shader-diagnostics.project.json",
+      "helpNodeIds": [
+        "render.fullscreen-shader",
+        "render.output"
+      ],
+      "tags": [
+        "shader",
+        "diagnostics"
+      ],
+      "expectedDiagnostics": [
+        "unsupported-uniform-type"
+      ]
+    },
+    {
+      "id": "object-routing-panel-controls",
+      "title": "Object Routing Panel Controls",
+      "summary": "Route typed panel controls through object-owned sendName channels.",
+      "description": "Shows core.float with widget=slider and core.bool with widget=toggle owning sendName routing directly while a fullscreen shader consumes explicit cable inputs.",
+      "path": "tutorials/unsupported/pre-consolidation-v0.1/05-object-routing-panel-controls.project.json",
+      "projectPath": "projects/unsupported/pre-consolidation-v0.1/object-routing-panel.skenion.json",
+      "helpNodeIds": [
+        "core.float",
+        "core.bool",
+        "render.fullscreen-shader",
+        "render.output"
+      ],
+      "tags": [
+        "control",
+        "routing",
+        "panel",
+        "shader"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "skenion.node.definition",
+  "schemaVersion": "0.1.0",
+  "id": "core.live-help",
+  "version": "0.1.0",
+  "displayName": "Live Help",
+  "category": "Core",
+  "ports": [
+    {
+      "id": "open",
+      "direction": "input",
+      "type": "event.bang",
+      "rate": "event",
+      "triggerMode": "trigger"
+    },
+    {
+      "id": "help",
+      "direction": "output",
+      "type": "message.any",
+      "rate": "event",
+      "description": "Emits live help patch metadata from the project or package patch library."
+    }
+  ],
+  "execution": {
+    "model": "event"
+  },
+  "state": {
+    "persistent": false
+  },
+  "permissions": [],
+  "capabilities": [
+    "manual.live-help.v0.1",
+    "patch-library.help.v0.1"
+  ]
+}
