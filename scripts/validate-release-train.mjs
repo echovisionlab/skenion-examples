@@ -22,9 +22,9 @@ const manifest = await readManifest(manifestInput);
 const trainId = trainVersion.replace(/\.[0-9]+$/, "");
 
 requireEqual(manifest.schema, "skenion.release-train", "manifest.schema", errors);
-requireEqual(manifest.schemaVersion, "0.1.0", "manifest.schemaVersion", errors);
-requireEqual(manifest.trainVersion, trainVersion, "manifest.trainVersion", errors);
-requireEqual(manifest.trainId, trainId, "manifest.trainId", errors);
+requireEqual(manifest["schema-version"], "0.1.0", "manifest.schema-version", errors);
+requireEqual(manifest["train-version"], trainVersion, "manifest.train-version", errors);
+requireEqual(manifest["train-id"], trainId, "manifest.train-id", errors);
 
 const contractsPackage = manifest.components?.contracts?.npm;
 const contractsCrate = manifest.components?.contracts?.crate;
@@ -32,7 +32,7 @@ const runtimeBinary = manifest.components?.runtime?.binaries?.[runtimeTarget];
 const sdkPackage = manifest.components?.sdk?.npm;
 const manual = manifest.components?.docs?.manual;
 const examples = manifest.components?.examples;
-const examplesGate = manifest.releaseGates?.examplesConformance;
+const examplesGate = manifest["release-gates"]?.["examples-conformance"];
 
 requirePackage(contractsPackage, "components.contracts.npm", {
   ecosystem: "npm",
@@ -51,23 +51,23 @@ requirePackage(sdkPackage, "components.sdk.npm", {
 }, errors);
 requireExamples(examples, examplesGate, trainVersion, currentRepository, errors);
 requireReleaseTargetRef(targetRef, examples, errors);
-requireManual(manual, manifest.releaseGates?.docsPagesDeployment, trainVersion, trainId, errors);
+requireManual(manual, manifest["release-gates"]?.["docs-pages-deployment"], trainVersion, trainId, errors);
 requireRuntimeBinary(runtimeBinary, runtimeTarget, trainVersion, errors);
 const runtimeChecksum = requireRuntimeChecksum(runtimeBinary, runtimeTarget, errors);
-requireRuntimeTier(manifest.components?.runtime?.binaries, manifest.releaseGates?.runtimeSmoke, trainVersion, errors);
-requireStudioCompatibility(manifest.components?.studio, manifest.releaseGates?.studioPackageSmoke, trainVersion, errors);
-requireRegistryPackageGates(manifest.releaseGates?.registryPackages, {
-  contractsNpm: contractsPackage,
-  contractsCrate,
-  sdkNpm: sdkPackage,
+requireRuntimeTier(manifest.components?.runtime?.binaries, manifest["release-gates"]?.["runtime-smoke"], trainVersion, errors);
+requireStudioCompatibility(manifest.components?.studio, manifest["release-gates"]?.["studio-package-smoke"], trainVersion, errors);
+requireRegistryPackageGates(manifest["release-gates"]?.["registry-packages"], {
+  "contracts-npm": contractsPackage,
+  "contracts-crate": contractsCrate,
+  "sdk-npm": sdkPackage,
 }, errors);
-requireArtifactCollectionGate(manifest.releaseGates?.githubReleaseAssets?.runtime, "runtime", manifest.components?.runtime?.binaries, `skenion-runtime-v${trainVersion}`, errors);
-requireArtifactCollectionGate(manifest.releaseGates?.githubReleaseAssets?.studio, "studio", [
-  ...Object.values(manifest.components?.studio?.desktopPackages ?? {}),
+requireArtifactCollectionGate(manifest["release-gates"]?.["github-release-assets"]?.runtime, "runtime", manifest.components?.runtime?.binaries, `skenion-runtime-v${trainVersion}`, errors);
+requireArtifactCollectionGate(manifest["release-gates"]?.["github-release-assets"]?.studio, "studio", [
+  ...Object.values(manifest.components?.studio?.["desktop-packages"] ?? {}),
   manifest.components?.studio?.["web-bundle"],
-  ...Object.values(manifest.components?.studio?.runtimeSidecars ?? {}),
+  ...Object.values(manifest.components?.studio?.["runtime-sidecars"] ?? {}),
 ], `skenion-studio-v${trainVersion}`, errors);
-requireChecksumGate(manifest.releaseGates?.checksumVerification, manifest, errors);
+requireChecksumGate(manifest["release-gates"]?.["checksum-verification"], manifest, errors);
 rejectLocalReleaseSources(manifest, errors);
 
 if (errors.length > 0) {
@@ -80,19 +80,19 @@ if (errors.length > 0) {
 await mkdir(outDir, { recursive: true });
 const summary = {
   schema: "skenion.examples.release-train.validation",
-  schemaVersion: "1.0.0",
+  "schema-version": "1.0.0",
   mode,
-  trainId,
-  trainVersion,
-  manifestRepository,
-  contractsPackage: `${contractsPackage.name}@${contractsPackage.version}`,
-  contractsCrate: `${contractsCrate.name}@${contractsCrate.version}`,
-  sdkPackage: `${sdkPackage.name}@${sdkPackage.version}`,
-  runtimeTarget,
-  runtimeAsset: {
+  "train-id": trainId,
+  "train-version": trainVersion,
+  "manifest-repository": manifestRepository,
+  "contracts-package": `${contractsPackage.name}@${contractsPackage.version}`,
+  "contracts-crate": `${contractsCrate.name}@${contractsCrate.version}`,
+  "sdk-package": `${sdkPackage.name}@${sdkPackage.version}`,
+  "runtime-target": runtimeTarget,
+  "runtime-asset": {
     repository: runtimeBinary.source.repository,
     tag: runtimeBinary.source.tag,
-    assetName: runtimeBinary.source.assetName,
+    "asset-name": runtimeBinary.source["asset-name"],
     sha256: runtimeChecksum,
   },
   examples: {
@@ -104,7 +104,7 @@ const summary = {
   manual: {
     version: manual.version,
     path: manual.path,
-    pagesUrl: manual.pagesUrl,
+    "pages-url": manual["pages-url"],
   },
 };
 await writeFile(path.join(outDir, "examples-release-train.json"), `${JSON.stringify(summary, null, 2)}\n`);
@@ -116,7 +116,7 @@ writeOutputs({
   sdk_npm_version: sdkPackage.version,
   runtime_repository: runtimeBinary.source.repository,
   runtime_tag: runtimeBinary.source.tag,
-  runtime_asset: runtimeBinary.source.assetName,
+  runtime_asset: runtimeBinary.source["asset-name"],
   runtime_sha256: runtimeChecksum,
   runtime_target: runtimeTarget,
   examples_repository: examples.repository,
@@ -124,7 +124,7 @@ writeOutputs({
   examples_commit: examples.commit ?? "",
   manual_version: manual.version,
   manual_path: manual.path,
-  manual_pages_url: manual.pagesUrl,
+  manual_pages_url: manual["pages-url"],
   summary: `Examples ${examples.tag} validated against released Contracts/Runtime ${trainVersion}`,
 });
 
@@ -230,18 +230,18 @@ function requireExamples(examples, gate, expectedVersion, currentRepo, targetErr
   }
 
   if (!isObject(gate)) {
-    targetErrors.push("releaseGates.examplesConformance must be an object");
+    targetErrors.push("release-gates.examples-conformance must be an object");
     return;
   }
-  requireEqual(gate.repository, examples.repository, "releaseGates.examplesConformance.repository", targetErrors);
-  requireEqual(gate.ref, examples.tag, "releaseGates.examplesConformance.ref", targetErrors);
+  requireEqual(gate.repository, examples.repository, "release-gates.examples-conformance.repository", targetErrors);
+  requireEqual(gate.ref, examples.tag, "release-gates.examples-conformance.ref", targetErrors);
   if (!isStrictExamplesReleaseTag(gate.ref, expectedVersion)) {
-    targetErrors.push(`releaseGates.examplesConformance.ref must be exactly skenion-examples-v${expectedVersion}`);
+    targetErrors.push(`release-gates.examples-conformance.ref must be exactly skenion-examples-v${expectedVersion}`);
   }
   if (gate.tag !== undefined && !isStrictExamplesReleaseTag(gate.tag, expectedVersion)) {
-    targetErrors.push(`releaseGates.examplesConformance.tag must be exactly skenion-examples-v${expectedVersion}`);
+    targetErrors.push(`release-gates.examples-conformance.tag must be exactly skenion-examples-v${expectedVersion}`);
   }
-  requireEqual(gate.version, expectedVersion, "releaseGates.examplesConformance.version", targetErrors);
+  requireEqual(gate.version, expectedVersion, "release-gates.examples-conformance.version", targetErrors);
 }
 
 function requireReleaseTargetRef(value, examples, targetErrors) {
@@ -278,8 +278,8 @@ function requireRuntimeBinary(artifact, target, expectedVersion, targetErrors) {
     targetErrors.push(`components.runtime.binaries.${target}.source.repository must be skenion/skenion-runtime`);
   }
   requireEqual(artifact.source.tag, `skenion-runtime-v${expectedVersion}`, `components.runtime.binaries.${target}.source.tag`, targetErrors);
-  if (!artifact.source.assetName || artifact.source.assetName.includes("/") || artifact.source.assetName.includes("\\")) {
-    targetErrors.push(`components.runtime.binaries.${target}.source.assetName must be a release asset name`);
+  if (!artifact.source["asset-name"] || artifact.source["asset-name"].includes("/") || artifact.source["asset-name"].includes("\\")) {
+    targetErrors.push(`components.runtime.binaries.${target}.source["asset-name"] must be a release asset name`);
   }
 }
 
@@ -290,22 +290,22 @@ function requireManual(manual, gate, expectedVersion, expectedTrainId, targetErr
   }
   requireEqual(manual.version, expectedVersion, "components.docs.manual.version", targetErrors);
   requireEqual(manual.path, `/manual/${expectedTrainId}/`, "components.docs.manual.path", targetErrors);
-  if (!isHttpsUrl(manual.pagesUrl)) {
-    targetErrors.push("components.docs.manual.pagesUrl must be an https URL");
-  } else if (!manual.pagesUrl.includes(manual.path)) {
-    targetErrors.push("components.docs.manual.pagesUrl must include components.docs.manual.path");
+  if (!isHttpsUrl(manual["pages-url"])) {
+    targetErrors.push("components.docs.manual.pages-url must be an https URL");
+  } else if (!manual["pages-url"].includes(manual.path)) {
+    targetErrors.push("components.docs.manual.pages-url must include components.docs.manual.path");
   }
 
   if (!isObject(gate)) {
-    targetErrors.push("releaseGates.docsPagesDeployment must be an object");
+    targetErrors.push("release-gates.docs-pages-deployment must be an object");
     return;
   }
-  requireGateStatus(gate, "releaseGates.docsPagesDeployment", targetErrors);
-  requireEqual(gate.required, true, "releaseGates.docsPagesDeployment.required", targetErrors);
-  requireEqual(gate.manualVersion, manual.version, "releaseGates.docsPagesDeployment.manualVersion", targetErrors);
-  requireEqual(gate.manualPath, manual.path, "releaseGates.docsPagesDeployment.manualPath", targetErrors);
-  requireEqual(gate.pagesUrl, manual.pagesUrl, "releaseGates.docsPagesDeployment.pagesUrl", targetErrors);
-  requirePassedGate(gate, "releaseGates.docsPagesDeployment", targetErrors);
+  requireGateStatus(gate, "release-gates.docs-pages-deployment", targetErrors);
+  requireEqual(gate.required, true, "release-gates.docs-pages-deployment.required", targetErrors);
+  requireEqual(gate["manual-version"], manual.version, "release-gates.docs-pages-deployment.manual-version", targetErrors);
+  requireEqual(gate["manual-path"], manual.path, "release-gates.docs-pages-deployment.manual-path", targetErrors);
+  requireEqual(gate["pages-url"], manual["pages-url"], "release-gates.docs-pages-deployment.pages-url", targetErrors);
+  requirePassedGate(gate, "release-gates.docs-pages-deployment", targetErrors);
 }
 
 function requireRuntimeTier(binaries, gates, expectedVersion, targetErrors) {
@@ -315,7 +315,7 @@ function requireRuntimeTier(binaries, gates, expectedVersion, targetErrors) {
   }
   for (const [target, artifact] of Object.entries(binaries)) {
     requireRuntimeBinary(artifact, target, expectedVersion, targetErrors);
-    requireArtifactChecksum(artifact, `components.runtime.binaries.${target}`, artifact?.supportTier === "release-blocking", targetErrors);
+    requireArtifactChecksum(artifact, `components.runtime.binaries.${target}`, artifact?.["support-tier"] === "release-blocking", targetErrors);
     const gate = gates?.[target];
     requireRuntimeSmokeGate(gate, artifact, target, targetErrors);
   }
@@ -326,15 +326,15 @@ function requireStudioCompatibility(studio, gates, expectedVersion, targetErrors
     targetErrors.push("components.studio must be an object");
     return;
   }
-  const desktopPackages = studio.desktopPackages;
-  const runtimeSidecars = studio.runtimeSidecars;
+  const desktopPackages = studio["desktop-packages"];
+  const runtimeSidecars = studio["runtime-sidecars"];
   const webBundle = studio["web-bundle"];
   if (!isObject(desktopPackages)) {
-    targetErrors.push("components.studio.desktopPackages must be an object");
+    targetErrors.push("components.studio.desktop-packages must be an object");
     return;
   }
   if (!isObject(runtimeSidecars)) {
-    targetErrors.push("components.studio.runtimeSidecars must be an object");
+    targetErrors.push("components.studio.runtime-sidecars must be an object");
     return;
   }
   requireStudioWebBundleArtifact(webBundle, expectedVersion, targetErrors);
@@ -342,9 +342,9 @@ function requireStudioCompatibility(studio, gates, expectedVersion, targetErrors
     requireStudioArtifact(desktopPackage, target, "studio-desktop-package", expectedVersion, targetErrors);
     const sidecar = runtimeSidecars[target];
     requireStudioArtifact(sidecar, target, "studio-runtime-sidecar", expectedVersion, targetErrors);
-    const releaseBlocking = desktopPackage?.supportTier === "release-blocking" || sidecar?.supportTier === "release-blocking";
-    requireArtifactChecksum(desktopPackage, `components.studio.desktopPackages.${target}`, releaseBlocking, targetErrors);
-    requireArtifactChecksum(sidecar, `components.studio.runtimeSidecars.${target}`, releaseBlocking, targetErrors);
+    const releaseBlocking = desktopPackage?.["support-tier"] === "release-blocking" || sidecar?.["support-tier"] === "release-blocking";
+    requireArtifactChecksum(desktopPackage, `components.studio.desktop-packages.${target}`, releaseBlocking, targetErrors);
+    requireArtifactChecksum(sidecar, `components.studio.runtime-sidecars.${target}`, releaseBlocking, targetErrors);
     requireStudioSmokeGate(gates?.[target], desktopPackage, sidecar, target, releaseBlocking, targetErrors);
   }
 }
@@ -371,21 +371,21 @@ function requireStudioWebBundleArtifact(artifact, expectedVersion, targetErrors)
   }
   requireEqual(artifact.source.tag, `skenion-studio-v${expectedVersion}`, `${label}.source.tag`, targetErrors);
   requireEqual(
-    artifact.source.assetName,
+    artifact.source["asset-name"],
     `skenion-studio-web-bundle-v${expectedVersion}.tar.gz`,
-    `${label}.source.assetName`,
+    `${label}.source["asset-name"]`,
     targetErrors
   );
-  if (!artifact.source.assetName || artifact.source.assetName.includes("/") || artifact.source.assetName.includes("\\")) {
-    targetErrors.push(`${label}.source.assetName must be a release asset name`);
+  if (!artifact.source["asset-name"] || artifact.source["asset-name"].includes("/") || artifact.source["asset-name"].includes("\\")) {
+    targetErrors.push(`${label}.source["asset-name"] must be a release asset name`);
   }
   requireArtifactChecksum(artifact, label, true, targetErrors);
 }
 
 function requireStudioArtifact(artifact, target, kind, expectedVersion, targetErrors) {
   const label = kind === "studio-desktop-package"
-    ? `components.studio.desktopPackages.${target}`
-    : `components.studio.runtimeSidecars.${target}`;
+    ? `components.studio.desktop-packages.${target}`
+    : `components.studio.runtime-sidecars.${target}`;
   if (!isObject(artifact)) {
     targetErrors.push(`${label} must be present`);
     return;
@@ -402,36 +402,36 @@ function requireStudioArtifact(artifact, target, kind, expectedVersion, targetEr
     targetErrors.push(`${label}.source.repository must be skenion/skenion-studio`);
   }
   requireEqual(artifact.source.tag, `skenion-studio-v${expectedVersion}`, `${label}.source.tag`, targetErrors);
-  if (!artifact.source.assetName || artifact.source.assetName.includes("/") || artifact.source.assetName.includes("\\")) {
-    targetErrors.push(`${label}.source.assetName must be a release asset name`);
+  if (!artifact.source["asset-name"] || artifact.source["asset-name"].includes("/") || artifact.source["asset-name"].includes("\\")) {
+    targetErrors.push(`${label}.source["asset-name"] must be a release asset name`);
   }
 }
 
 function requireRuntimeSmokeGate(gate, artifact, target, targetErrors) {
-  const label = `releaseGates.runtimeSmoke.${target}`;
+  const label = `release-gates.runtime-smoke.${target}`;
   if (!isObject(gate)) {
     targetErrors.push(`${label} must be an object`);
     return;
   }
   requireGateStatus(gate, label, targetErrors);
   requireEqual(gate.target, target, `${label}.target`, targetErrors);
-  requireEqual(gate.artifactId, artifact?.id, `${label}.artifactId`, targetErrors);
-  if (artifact?.supportTier === "release-blocking") {
+  requireEqual(gate["artifact-id"], artifact?.id, `${label}.artifact-id`, targetErrors);
+  if (artifact?.["support-tier"] === "release-blocking") {
     requireEqual(gate.required, true, `${label}.required`, targetErrors);
     requirePassedGate(gate, label, targetErrors);
   }
 }
 
 function requireStudioSmokeGate(gate, desktopPackage, sidecar, target, releaseBlocking, targetErrors) {
-  const label = `releaseGates.studioPackageSmoke.${target}`;
+  const label = `release-gates.studio-package-smoke.${target}`;
   if (!isObject(gate)) {
     targetErrors.push(`${label} must be an object`);
     return;
   }
   requireGateStatus(gate, label, targetErrors);
   requireEqual(gate.target, target, `${label}.target`, targetErrors);
-  requireEqual(gate.desktopPackageArtifactId, desktopPackage?.id, `${label}.desktopPackageArtifactId`, targetErrors);
-  requireEqual(gate.runtimeSidecarArtifactId, sidecar?.id, `${label}.runtimeSidecarArtifactId`, targetErrors);
+  requireEqual(gate["desktop-package-artifact-id"], desktopPackage?.id, `${label}.desktop-package-artifact-id`, targetErrors);
+  requireEqual(gate["runtime-sidecar-artifact-id"], sidecar?.id, `${label}.runtime-sidecar-artifact-id`, targetErrors);
   if (releaseBlocking) {
     requireEqual(gate.required, true, `${label}.required`, targetErrors);
     requirePassedGate(gate, label, targetErrors);
@@ -440,18 +440,18 @@ function requireStudioSmokeGate(gate, desktopPackage, sidecar, target, releaseBl
 
 function requireRegistryPackageGates(gates, packages, targetErrors) {
   if (!isObject(gates)) {
-    targetErrors.push("releaseGates.registryPackages must be an object");
+    targetErrors.push("release-gates.registry-packages must be an object");
     return;
   }
   const expectedGateNames = new Set(Object.keys(packages));
   for (const name of Object.keys(gates)) {
     if (!expectedGateNames.has(name)) {
-      targetErrors.push(`releaseGates.registryPackages.${name} is not a release-train registry package gate`);
+      targetErrors.push(`release-gates.registry-packages.${name} is not a release-train registry package gate`);
     }
   }
   for (const [name, expectedPackage] of Object.entries(packages)) {
     const gate = gates[name];
-    const label = `releaseGates.registryPackages.${name}`;
+    const label = `release-gates.registry-packages.${name}`;
     if (!isObject(gate)) {
       targetErrors.push(`${label} must be an object`);
       continue;
@@ -464,7 +464,7 @@ function requireRegistryPackageGates(gates, packages, targetErrors) {
 }
 
 function requireArtifactCollectionGate(gate, labelName, artifacts, expectedTag, targetErrors) {
-  const label = `releaseGates.githubReleaseAssets.${labelName}`;
+  const label = `release-gates.github-release-assets.${labelName}`;
   if (!isObject(gate)) {
     targetErrors.push(`${label} must be an object`);
     return;
@@ -472,21 +472,21 @@ function requireArtifactCollectionGate(gate, labelName, artifacts, expectedTag, 
   requireGateStatus(gate, label, targetErrors);
   requireEqual(gate.required, true, `${label}.required`, targetErrors);
   requireEqual(gate.tag, expectedTag, `${label}.tag`, targetErrors);
-  if (!Array.isArray(gate.artifactIds) || gate.artifactIds.length === 0) {
-    targetErrors.push(`${label}.artifactIds must be a non-empty array`);
+  if (!Array.isArray(gate["artifact-ids"]) || gate["artifact-ids"].length === 0) {
+    targetErrors.push(`${label}.artifact-ids must be a non-empty array`);
     return;
   }
   const artifactList = Array.isArray(artifacts) ? artifacts : Object.values(artifacts ?? {});
   const expectedIds = new Set(artifactList.map((artifact) => artifact?.id).filter(Boolean));
-  const actualIds = new Set(gate.artifactIds);
+  const actualIds = new Set(gate["artifact-ids"]);
   for (const artifactId of expectedIds) {
     if (!actualIds.has(artifactId)) {
-      targetErrors.push(`${label}.artifactIds must include ${JSON.stringify(artifactId)}`);
+      targetErrors.push(`${label}.artifact-ids must include ${JSON.stringify(artifactId)}`);
     }
   }
-  for (const artifactId of gate.artifactIds) {
+  for (const artifactId of gate["artifact-ids"]) {
     if (!expectedIds.has(artifactId)) {
-      targetErrors.push(`${label}.artifactIds contains unknown artifact id ${JSON.stringify(artifactId)}`);
+      targetErrors.push(`${label}.artifact-ids contains unknown artifact id ${JSON.stringify(artifactId)}`);
     }
   }
   requirePassedGate(gate, label, targetErrors);
@@ -494,50 +494,50 @@ function requireArtifactCollectionGate(gate, labelName, artifacts, expectedTag, 
 
 function requireChecksumGate(gate, manifestDocument, targetErrors) {
   if (!isObject(gate)) {
-    targetErrors.push("releaseGates.checksumVerification must be an object");
+    targetErrors.push("release-gates.checksum-verification must be an object");
     return;
   }
-  requireGateStatus(gate, "releaseGates.checksumVerification", targetErrors);
-  requireEqual(gate.required, true, "releaseGates.checksumVerification.required", targetErrors);
+  requireGateStatus(gate, "release-gates.checksum-verification", targetErrors);
+  requireEqual(gate.required, true, "release-gates.checksum-verification.required", targetErrors);
   const artifactsById = new Map();
   for (const artifact of collectArtifacts(manifestDocument)) {
     if (artifact?.id) {
       artifactsById.set(artifact.id, artifact);
     }
   }
-  const actualArtifactIds = new Set(gate.artifactIds ?? []);
+  const actualArtifactIds = new Set(gate["artifact-ids"] ?? []);
   for (const artifactId of artifactsById.keys()) {
     if (!actualArtifactIds.has(artifactId)) {
-      targetErrors.push(`releaseGates.checksumVerification.artifactIds must include ${JSON.stringify(artifactId)}`);
+      targetErrors.push(`release-gates.checksum-verification.artifact-ids must include ${JSON.stringify(artifactId)}`);
     }
   }
-  for (const artifactId of gate.artifactIds ?? []) {
+  for (const artifactId of gate["artifact-ids"] ?? []) {
     if (!artifactsById.has(artifactId)) {
-      targetErrors.push(`releaseGates.checksumVerification.artifactIds contains unknown artifact id ${JSON.stringify(artifactId)}`);
+      targetErrors.push(`release-gates.checksum-verification.artifact-ids contains unknown artifact id ${JSON.stringify(artifactId)}`);
     }
   }
-  const expectedChecksums = gate.expectedChecksums ?? {};
+  const expectedChecksums = gate["expected-checksums"] ?? {};
   for (const artifact of artifactsById.values()) {
     if (!requiresReleaseChecksum(artifact)) {
       continue;
     }
     const checksum = expectedChecksums[artifact.id];
     if (mode !== "prepare" && !isObject(checksum)) {
-      targetErrors.push(`releaseGates.checksumVerification.expectedChecksums.${artifact.id} must be present in publish/verify mode`);
+      targetErrors.push(`release-gates.checksum-verification.expected-checksums.${artifact.id} must be present in publish/verify mode`);
       continue;
     }
     if (isObject(checksum)) {
-      requireEqual(checksum.algorithm, "sha256", `releaseGates.checksumVerification.expectedChecksums.${artifact.id}.algorithm`, targetErrors);
+      requireEqual(checksum.algorithm, "sha256", `release-gates.checksum-verification.expected-checksums.${artifact.id}.algorithm`, targetErrors);
       if (checksum.value !== artifact.checksum?.value) {
-        targetErrors.push(`releaseGates.checksumVerification.expectedChecksums.${artifact.id}.value must match ${artifact.id} checksum`);
+        targetErrors.push(`release-gates.checksum-verification.expected-checksums.${artifact.id}.value must match ${artifact.id} checksum`);
       }
     }
   }
-  requirePassedGate(gate, "releaseGates.checksumVerification", targetErrors);
+  requirePassedGate(gate, "release-gates.checksum-verification", targetErrors);
 }
 
 function requiresReleaseChecksum(artifact) {
-  return artifact.supportTier === "release-blocking" || artifact.kind === "studio-web-bundle";
+  return artifact["support-tier"] === "release-blocking" || artifact.kind === "studio-web-bundle";
 }
 
 function requireArtifactChecksum(artifact, label, releaseBlocking, targetErrors) {
@@ -624,8 +624,8 @@ function rejectLocalReleaseSources(manifest, targetErrors) {
 
 function collectArtifacts(manifestDocument) {
   const runtimeBinaries = manifestDocument.components?.runtime?.binaries ?? {};
-  const studioDesktopPackages = manifestDocument.components?.studio?.desktopPackages ?? {};
-  const studioRuntimeSidecars = manifestDocument.components?.studio?.runtimeSidecars ?? {};
+  const studioDesktopPackages = manifestDocument.components?.studio?.["desktop-packages"] ?? {};
+  const studioRuntimeSidecars = manifestDocument.components?.studio?.["runtime-sidecars"] ?? {};
   return [
     ...Object.values(runtimeBinaries),
     ...Object.values(studioDesktopPackages),

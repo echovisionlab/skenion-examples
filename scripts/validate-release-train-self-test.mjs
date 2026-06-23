@@ -27,13 +27,13 @@ try {
   runCase("reject-old-owner-source", {
     mutate(manifest) {
       manifest.components.examples.repository = "echovisionlab/skenion-examples";
-      manifest.releaseGates.examplesConformance.repository = "echovisionlab/skenion-examples";
+      manifest["release-gates"]["examples-conformance"].repository = "echovisionlab/skenion-examples";
     },
     expectedOutput: ["echovisionlab"],
   });
   runCase("reject-main-ref", {
     mutate(manifest) {
-      manifest.releaseGates.examplesConformance.ref = "refs/heads/main";
+      manifest["release-gates"]["examples-conformance"].ref = "refs/heads/main";
     },
     expectedOutput: ["refs/heads/main"],
   });
@@ -52,7 +52,7 @@ try {
   });
   runCase("reject-runtime-registry-gate", {
     mutate(manifest) {
-      manifest.releaseGates.registryPackages.runtimeCrate = {
+      manifest["release-gates"]["registry-packages"]["runtime-crate"] = {
         required: true,
         status: "passed",
         package: {
@@ -62,7 +62,7 @@ try {
         },
       };
     },
-    expectedOutput: ["releaseGates.registryPackages.runtimeCrate"],
+    expectedOutput: ["release-gates.registry-packages.runtime-crate"],
   });
 } finally {
   await rm(tempRoot, { force: true, recursive: true });
@@ -123,21 +123,21 @@ function validManifest() {
     kind: "runtime-binary",
     repository: "skenion/skenion-runtime",
     tag: `skenion-runtime-v${version}`,
-    assetName: "skenion-runtime-x86_64-unknown-linux-gnu.tar.gz",
+    "asset-name": "skenion-runtime-x86_64-unknown-linux-gnu.tar.gz",
   });
   const studioDesktop = artifact({
     id: "studio-desktop-linux-x64",
     kind: "studio-desktop-package",
     repository: "skenion/skenion-studio",
     tag: `skenion-studio-v${version}`,
-    assetName: "skenion-studio-x86_64-unknown-linux-gnu.tar.gz",
+    "asset-name": "skenion-studio-x86_64-unknown-linux-gnu.tar.gz",
   });
   const studioSidecar = artifact({
     id: "studio-runtime-linux-x64",
     kind: "studio-runtime-sidecar",
     repository: "skenion/skenion-studio",
     tag: `skenion-studio-v${version}`,
-    assetName: "skenion-runtime-sidecar-x86_64-unknown-linux-gnu.tar.gz",
+    "asset-name": "skenion-runtime-sidecar-x86_64-unknown-linux-gnu.tar.gz",
   });
   const studioWebBundle = {
     id: "studio-web-bundle",
@@ -148,16 +148,16 @@ function validManifest() {
       kind: "github-release-asset",
       repository: "skenion/skenion-studio",
       tag: `skenion-studio-v${version}`,
-      assetName: `skenion-studio-web-bundle-v${version}.tar.gz`,
+      "asset-name": `skenion-studio-web-bundle-v${version}.tar.gz`,
     },
     checksum: checksum(),
   };
 
   return {
     schema: "skenion.release-train",
-    schemaVersion: "0.1.0",
-    trainVersion: version,
-    trainId,
+    "schema-version": "0.1.0",
+    "train-version": version,
+    "train-id": trainId,
     components: {
       contracts: {
         npm: contractsNpm,
@@ -172,10 +172,10 @@ function validManifest() {
         npm: sdkNpm,
       },
       studio: {
-        desktopPackages: {
+        "desktop-packages": {
           [target]: studioDesktop,
         },
-        runtimeSidecars: {
+        "runtime-sidecars": {
           [target]: studioSidecar,
         },
         "web-bundle": studioWebBundle,
@@ -184,7 +184,7 @@ function validManifest() {
         manual: {
           version,
           path: `/manual/${trainId}/`,
-          pagesUrl: `https://skenion.github.io/skenion-docs/manual/${trainId}/`,
+          "pages-url": `https://skenion.github.io/skenion-docs/manual/${trainId}/`,
         },
       },
       examples: {
@@ -194,62 +194,62 @@ function validManifest() {
         commit: commitSha,
       },
     },
-    releaseGates: {
-      examplesConformance: {
+    "release-gates": {
+      "examples-conformance": {
         required: true,
         status: "passed",
         repository: "skenion/skenion-examples",
         ref: `skenion-examples-v${version}`,
         version,
       },
-      docsPagesDeployment: {
+      "docs-pages-deployment": {
         required: true,
         status: "passed",
-        manualVersion: version,
-        manualPath: `/manual/${trainId}/`,
-        pagesUrl: `https://skenion.github.io/skenion-docs/manual/${trainId}/`,
+        "manual-version": version,
+        "manual-path": `/manual/${trainId}/`,
+        "pages-url": `https://skenion.github.io/skenion-docs/manual/${trainId}/`,
       },
-      runtimeSmoke: {
+      "runtime-smoke": {
         [target]: {
           required: true,
           status: "passed",
           target,
-          artifactId: runtimeArtifact.id,
+          "artifact-id": runtimeArtifact.id,
         },
       },
-      studioPackageSmoke: {
+      "studio-package-smoke": {
         [target]: {
           required: true,
           status: "passed",
           target,
-          desktopPackageArtifactId: studioDesktop.id,
-          runtimeSidecarArtifactId: studioSidecar.id,
+          "desktop-package-artifact-id": studioDesktop.id,
+          "runtime-sidecar-artifact-id": studioSidecar.id,
         },
       },
-      registryPackages: {
-        contractsNpm: gatePackage(contractsNpm),
-        contractsCrate: gatePackage(contractsCrate),
-        sdkNpm: gatePackage(sdkNpm),
+      "registry-packages": {
+        "contracts-npm": gatePackage(contractsNpm),
+        "contracts-crate": gatePackage(contractsCrate),
+        "sdk-npm": gatePackage(sdkNpm),
       },
-      githubReleaseAssets: {
+      "github-release-assets": {
         runtime: {
           required: true,
           status: "passed",
           tag: `skenion-runtime-v${version}`,
-          artifactIds: [runtimeArtifact.id],
+          "artifact-ids": [runtimeArtifact.id],
         },
         studio: {
           required: true,
           status: "passed",
           tag: `skenion-studio-v${version}`,
-          artifactIds: [studioDesktop.id, studioWebBundle.id, studioSidecar.id],
+          "artifact-ids": [studioDesktop.id, studioWebBundle.id, studioSidecar.id],
         },
       },
-      checksumVerification: {
+      "checksum-verification": {
         required: true,
         status: "passed",
-        artifactIds: [runtimeArtifact.id, studioDesktop.id, studioWebBundle.id, studioSidecar.id],
-        expectedChecksums: {
+        "artifact-ids": [runtimeArtifact.id, studioDesktop.id, studioWebBundle.id, studioSidecar.id],
+        "expected-checksums": {
           [runtimeArtifact.id]: checksum(),
           [studioDesktop.id]: checksum(),
           [studioWebBundle.id]: checksum(),
@@ -268,18 +268,18 @@ function pkg(ecosystem, name) {
   };
 }
 
-function artifact({ id, kind, repository, tag, assetName }) {
+function artifact({ id, kind, repository, tag, "asset-name": assetName }) {
   return {
     id,
     target,
     kind,
     version,
-    supportTier: "release-blocking",
+    "support-tier": "release-blocking",
     source: {
       kind: "github-release-asset",
       repository,
       tag,
-      assetName,
+      "asset-name": assetName,
     },
     checksum: checksum(),
   };
