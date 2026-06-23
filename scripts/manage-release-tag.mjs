@@ -101,10 +101,11 @@ function resolveRemoteTag(name) {
 }
 
 function git(gitArgs, options = {}) {
-  return execFileSync("git", gitArgs, {
+  const output = execFileSync("git", gitArgs, {
     encoding: "utf8",
     stdio: options.stdio ?? ["ignore", "pipe", "pipe"],
-  }).trim();
+  });
+  return typeof output === "string" ? output.trim() : "";
 }
 
 function isStrictExamplesReleaseTag(value, expectedVersion) {
