@@ -40,6 +40,17 @@ Examples tags may use their own component version, such as
 but the SDK's declared supported Contracts range must contain the released
 Contracts package version recorded in the matrix.
 
+All release-state writes must happen inside GitHub Actions. Do not create,
+edit, delete, promote, demote, or repair GitHub Releases, release assets, tags,
+prerelease/draft flags, release notes, compatibility matrices, examples
+conformance records, npm packages, or crates from a local shell. This includes
+`gh release edit`, `gh release upload`, `gh release delete`, manual tag
+mutation, local registry publish, or ad hoc release metadata patches with a
+locally exported token. Local commands may inspect state, run dry-run checks,
+create normal code PRs, or trigger approved `workflow_dispatch` jobs; the
+actual release mutation must run in CI with reviewed workflow code and
+auditable logs.
+
 ## Manager, Worker, And Review Gate Defaults
 
 Codex should operate as a manager/orchestrator on Skenion work. The manager owns
