@@ -1,4 +1,4 @@
-name: Release Examples Conformance
+name: Release Examples Compatibility
 
 on:
   workflow_dispatch:
@@ -17,21 +17,22 @@ on:
         required: true
         default: true
         type: boolean
-      train_version:
-        description: Lockstep product version, such as 0.43.0.
+      contracts_line:
+        description: Contracts compatibility line, such as 0.45.
+        required: true
+        default: "0.45"
+        type: string
+      matrix_ref:
+        description: Matrix repository ref. Publish/verify require a 40-character commit SHA; prepare may use a branch/ref.
         required: true
         type: string
-      manifest_ref:
-        description: Manifest repository ref. Publish/verify require a 40-character commit SHA; prepare may use a branch/ref.
+      matrix_path:
+        description: Repository-relative compatibility matrix path.
         required: true
-        type: string
-      manifest_path:
-        description: Repository-relative train manifest path.
-        required: true
-        default: releases/trains/0.43.0.json
+        default: releases/compatibility/contracts-0.45.json
         type: string
       target_ref:
-        description: Examples commit/ref to validate or tag. Publish/verify require the manifest commit SHA.
+        description: Examples commit/ref to validate or tag. Publish/verify require the matrix commit SHA.
         required: false
         type: string
       runtime_target:
@@ -41,84 +42,93 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: examples-release-${{ inputs.train_version }}
+  group: examples-compatibility-${{ inputs.contracts_line }}
   cancel-in-progress: false
 
 jobs:
   release-examples:
-    name: Released-artifact examples conformance
+    name: Released-artifact examples compatibility
     runs-on: ubuntu-latest
     steps:
       - name: Validate dispatch refs
         run: |
           set -euo pipefail
-          if [[ ! "${TRAIN_VERSION}" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
-            echo "train_version must be registry-compatible SemVer, got ${TRAIN_VERSION}" >&2
+          if [[ ! "${CONTRACTS_LINE}" =~ ^0\.(0|[1-9][0-9]*)$ ]]; then
+            echo "contracts_line must be a v0 minor line such as 0.45, got ${CONTRACTS_LINE}" >&2
             exit 1
           fi
-          expected_manifest_path="releases/trains/${TRAIN_VERSION}.json"
-          if [[ "${MANIFEST_PATH}" != "${expected_manifest_path}" ]]; then
-            echo "manifest_path must be exactly ${expected_manifest_path}; got ${MANIFEST_PATH}" >&2
+          expected_matrix_path="releases/compatibility/contracts-${CONTRACTS_LINE}.json"
+          if [[ "${MATRIX_PATH}" != "${expected_matrix_path}" ]]; then
+            echo "matrix_path must be exactly ${expected_matrix_path}; got ${MATRIX_PATH}" >&2
             exit 1
           fi
           if [[ "${MODE}" == "prepare" ]]; then
-            if [[ -n "${TARGET_REF}" && ! "${TARGET_REF}" =~ ^[0-9a-fA-F]{40}$ && "${TARGET_REF}" != "skenion-examples-v${TRAIN_VERSION}" ]]; then
-              echo "prepare mode target_ref must be omitted, a 40-character commit SHA, or skenion-examples-v${TRAIN_VERSION}; got ${TARGET_REF}" >&2
+            if [[ -n "${TARGET_REF}" && ! "${TARGET_REF}" =~ ^[0-9a-fA-F]{40}$ && ! "${TARGET_REF}" =~ ^skenion-examples-v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+              echo "prepare mode target_ref must be omitted, a 40-character commit SHA, or an exact skenion-examples-vX.Y.Z tag; got ${TARGET_REF}" >&2
               exit 1
             fi
             exit 0
           fi
-          if [[ ! "${MANIFEST_REF}" =~ ^[0-9a-fA-F]{40}$ ]]; then
-            echo "publish/verify mode requires manifest_ref to be a 40-character commit SHA, got ${MANIFEST_REF}" >&2
+          if [[ ! "${MATRIX_REF}" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "publish/verify mode requires matrix_ref to be a 40-character commit SHA, got ${MATRIX_REF}" >&2
             exit 1
           fi
           if [[ ! "${TARGET_REF}" =~ ^[0-9a-fA-F]{40}$ ]]; then
             echo "publish/verify mode requires target_ref to be a 40-character commit SHA, got ${TARGET_REF}" >&2
             exit 1
           fi
+          if [[ "${MODE}" != "prepare" && -z "${GH_TOKEN:-}" ]]; then
+            echo "publish/verify mode requires secrets.GH_TOKEN for repository checkout and release artifact access" >&2
+            exit 1
+          fi
         env:
           MODE: ${{ inputs.mode }}
-          TRAIN_VERSION: ${{ inputs.train_version }}
-          MANIFEST_PATH: ${{ inputs.manifest_path }}
-          MANIFEST_REF: ${{ inputs.manifest_ref }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          CONTRACTS_LINE: ${{ inputs.contracts_line }}
+          MATRIX_PATH: ${{ inputs.matrix_path }}
+          MATRIX_REF: ${{ inputs.matrix_ref }}
           TARGET_REF: ${{ inputs.target_ref }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Check out examples candidate
         uses: actions/checkout@v6
         with:
           ref: ${{ inputs.target_ref || github.sha }}
           fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+          persist-credentials: false
 
-      - name: Self-test release train validator
-        run: node scripts/validate-release-train-self-test.mjs
+      - name: Self-test compatibility matrix validator
+        run: node scripts/validate-compatibility-matrix-self-test.mjs
 
-      - name: Check out train manifest
+      - name: Check out compatibility matrix
         uses: actions/checkout@v6
         with:
           repository: skenion/skenion
-          ref: ${{ inputs.manifest_ref }}
-          path: .release/manifest
+          ref: ${{ inputs.matrix_ref }}
+          path: .release/matrix
+          token: ${{ secrets.GH_TOKEN }}
           persist-credentials: false
 
-      - name: Validate conductor manifest for examples release
-        id: train
+      - name: Validate compatibility matrix for examples release
+        id: matrix
         run: >-
-          node scripts/validate-release-train.mjs
-          --manifest ".release/manifest/${MANIFEST_PATH}"
-          --train-version "${TRAIN_VERSION}"
+          node scripts/validate-compatibility-matrix.mjs
+          --matrix ".release/matrix/${MATRIX_PATH}"
+          --contracts-line "${CONTRACTS_LINE}"
           --mode "${MODE}"
           --runtime-target "${RUNTIME_TARGET}"
           --target-ref "${TARGET_REF}"
-          --manifest-ref "${MANIFEST_REF}"
-          --manifest-repository skenion/skenion
-          --out-dir .skenion-train
+          --matrix-ref "${MATRIX_REF}"
+          --matrix-repository skenion/skenion
+          --out-dir .skenion-matrix
         env:
-          MANIFEST_PATH: ${{ inputs.manifest_path }}
-          MANIFEST_REF: ${{ inputs.manifest_ref }}
-          TRAIN_VERSION: ${{ inputs.train_version }}
+          MATRIX_PATH: ${{ inputs.matrix_path }}
+          MATRIX_REF: ${{ inputs.matrix_ref }}
+          CONTRACTS_LINE: ${{ inputs.contracts_line }}
           MODE: ${{ inputs.mode }}
           RUNTIME_TARGET: ${{ inputs.runtime_target }}
           TARGET_REF: ${{ inputs.target_ref }}
@@ -129,22 +139,22 @@ jobs:
           "@skenion/contracts@${CONTRACTS_VERSION}"
           "@skenion/sdk@${SDK_VERSION}"
         env:
-          CONTRACTS_VERSION: ${{ steps.train.outputs.contracts_npm_version }}
-          SDK_VERSION: ${{ steps.train.outputs.sdk_npm_version }}
+          CONTRACTS_VERSION: ${{ steps.matrix.outputs.contracts_npm_version }}
+          SDK_VERSION: ${{ steps.matrix.outputs.sdk_npm_version }}
 
       - name: Assert released Contracts package version
         run: |
           set -euo pipefail
-          node -e 'const fs = require("fs"); const version = JSON.parse(fs.readFileSync("node_modules/@skenion/contracts/package.json", "utf8")).version; if (version !== process.env.TRAIN_VERSION) { throw new Error(`@skenion/contracts version ${version} does not match ${process.env.TRAIN_VERSION}`); }'
+          node -e 'const fs = require("fs"); const version = JSON.parse(fs.readFileSync("node_modules/@skenion/contracts/package.json", "utf8")).version; if (version !== process.env.CONTRACTS_VERSION) { throw new Error(`@skenion/contracts version ${version} does not match matrix ${process.env.CONTRACTS_VERSION}`); }'
         env:
-          TRAIN_VERSION: ${{ inputs.train_version }}
+          CONTRACTS_VERSION: ${{ steps.matrix.outputs.contracts_npm_version }}
 
       - name: Assert released SDK package version
         run: |
           set -euo pipefail
-          node -e 'const fs = require("fs"); const version = JSON.parse(fs.readFileSync("node_modules/@skenion/sdk/package.json", "utf8")).version; if (version !== process.env.TRAIN_VERSION) { throw new Error(`@skenion/sdk version ${version} does not match ${process.env.TRAIN_VERSION}`); }'
+          node -e 'const fs = require("fs"); const version = JSON.parse(fs.readFileSync("node_modules/@skenion/sdk/package.json", "utf8")).version; if (version !== process.env.SDK_VERSION) { throw new Error(`@skenion/sdk version ${version} does not match matrix ${process.env.SDK_VERSION}`); }'
         env:
-          TRAIN_VERSION: ${{ inputs.train_version }}
+          SDK_VERSION: ${{ steps.matrix.outputs.sdk_npm_version }}
 
       - name: Validate fixtures with released Contracts
         run: |
@@ -160,11 +170,11 @@ jobs:
       - name: Validate fixtures with released SDK helpers
         run: >-
           node scripts/validate-sdk-compatibility.mjs
-          --manifest ".release/manifest/${MANIFEST_PATH}"
-          --train-version "${TRAIN_VERSION}"
+          --matrix ".release/matrix/${MATRIX_PATH}"
+          --contracts-line "${CONTRACTS_LINE}"
         env:
-          MANIFEST_PATH: ${{ inputs.manifest_path }}
-          TRAIN_VERSION: ${{ inputs.train_version }}
+          MATRIX_PATH: ${{ inputs.matrix_path }}
+          CONTRACTS_LINE: ${{ inputs.contracts_line }}
           SKENION_RELEASE_MODE: "1"
 
       - name: Download released Runtime binary
@@ -181,7 +191,7 @@ jobs:
 
           archive=".release/runtime-archive/${RUNTIME_ASSET}"
           if [[ -z "${RUNTIME_SHA256}" ]]; then
-            echo "manifest checksum is required before extracting ${RUNTIME_ASSET}" >&2
+            echo "matrix checksum is required before extracting ${RUNTIME_ASSET}" >&2
             exit 1
           fi
           printf '%s  %s\n' "${RUNTIME_SHA256}" "${RUNTIME_ASSET}" > ".release/runtime-archive/${RUNTIME_ASSET}.sha256"
@@ -214,11 +224,11 @@ jobs:
           chmod +x "${runtime_bin}"
           echo "runtime_bin=${runtime_bin}" >> "${GITHUB_OUTPUT}"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUNTIME_REPOSITORY: ${{ steps.train.outputs.runtime_repository }}
-          RUNTIME_TAG: ${{ steps.train.outputs.runtime_tag }}
-          RUNTIME_ASSET: ${{ steps.train.outputs.runtime_asset }}
-          RUNTIME_SHA256: ${{ steps.train.outputs.runtime_sha256 }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          RUNTIME_REPOSITORY: ${{ steps.matrix.outputs.runtime_repository }}
+          RUNTIME_TAG: ${{ steps.matrix.outputs.runtime_tag }}
+          RUNTIME_ASSET: ${{ steps.matrix.outputs.runtime_asset }}
+          RUNTIME_SHA256: ${{ steps.matrix.outputs.runtime_sha256 }}
 
       - name: Validate fixtures with released Runtime CLI
         if: ${{ inputs.mode != 'prepare' }}
@@ -252,47 +262,56 @@ jobs:
           SKENION_RUNTIME_BIN: ${{ steps.runtime.outputs.runtime_bin }}
 
       - name: Produce or verify examples release tag
-        run: >-
-          node scripts/manage-release-tag.mjs
-          --mode "${MODE}"
-          --dry-run "${DRY_RUN}"
-          --tag "${EXAMPLES_TAG}"
-          --train-version "${TRAIN_VERSION}"
-          --commit "${EXAMPLES_COMMIT:-$(git rev-parse HEAD)}"
+        run: |
+          set -euo pipefail
+          if [[ "${MODE}" == "publish" && "${DRY_RUN}" == "false" ]]; then
+            git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/skenion/skenion-examples.git"
+          fi
+          node scripts/manage-release-tag.mjs \
+            --mode "${MODE}" \
+            --dry-run "${DRY_RUN}" \
+            --tag "${EXAMPLES_TAG}" \
+            --version "${EXAMPLES_VERSION}" \
+            --commit "${EXAMPLES_COMMIT:-$(git rev-parse HEAD)}"
         env:
           MODE: ${{ inputs.mode }}
           DRY_RUN: ${{ inputs.dry_run }}
-          TRAIN_VERSION: ${{ inputs.train_version }}
-          EXAMPLES_TAG: ${{ steps.train.outputs.examples_tag }}
-          EXAMPLES_COMMIT: ${{ steps.train.outputs.examples_commit }}
+          EXAMPLES_VERSION: ${{ steps.matrix.outputs.examples_version }}
+          EXAMPLES_TAG: ${{ steps.matrix.outputs.examples_tag }}
+          EXAMPLES_COMMIT: ${{ steps.matrix.outputs.examples_commit }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Summarize release conformance
         run: |
           {
-            echo "## Examples Release Conformance"
+            echo "## Examples Release Compatibility"
             echo
-            echo "- Train: ${TRAIN_VERSION}"
+            echo "- Contracts line: ${CONTRACTS_LINE}"
             echo "- Mode: ${MODE}"
             echo "- Examples tag: ${EXAMPLES_TAG}"
             echo "- Contracts: @skenion/contracts@${CONTRACTS_VERSION}"
+            echo "- Contracts range: ${CONTRACTS_RANGE}"
             echo "- SDK: @skenion/sdk@${SDK_VERSION}"
+            echo "- SDK supported Contracts: ${SDK_CONTRACTS_RANGE}"
             echo "- Runtime artifact: ${RUNTIME_REPOSITORY}@${RUNTIME_TAG}/${RUNTIME_ASSET}"
             echo "- Runtime SHA-256: ${RUNTIME_SHA256}"
             echo "- Manual: ${MANUAL_VERSION} at ${MANUAL_PATH}"
-            echo "- Manifest: ${MANIFEST_REPOSITORY}@${MANIFEST_REF}:${MANIFEST_PATH}"
+            echo "- Matrix: ${MATRIX_REPOSITORY}@${MATRIX_REF}:${MATRIX_PATH}"
           } >> "${GITHUB_STEP_SUMMARY}"
         env:
-          TRAIN_VERSION: ${{ inputs.train_version }}
+          CONTRACTS_LINE: ${{ inputs.contracts_line }}
           MODE: ${{ inputs.mode }}
-          EXAMPLES_TAG: ${{ steps.train.outputs.examples_tag }}
-          CONTRACTS_VERSION: ${{ steps.train.outputs.contracts_npm_version }}
-          SDK_VERSION: ${{ steps.train.outputs.sdk_npm_version }}
-          RUNTIME_REPOSITORY: ${{ steps.train.outputs.runtime_repository }}
-          RUNTIME_TAG: ${{ steps.train.outputs.runtime_tag }}
-          RUNTIME_ASSET: ${{ steps.train.outputs.runtime_asset }}
-          RUNTIME_SHA256: ${{ steps.train.outputs.runtime_sha256 }}
-          MANUAL_VERSION: ${{ steps.train.outputs.manual_version }}
-          MANUAL_PATH: ${{ steps.train.outputs.manual_path }}
-          MANIFEST_REPOSITORY: skenion/skenion
-          MANIFEST_REF: ${{ inputs.manifest_ref }}
-          MANIFEST_PATH: ${{ inputs.manifest_path }}
+          EXAMPLES_TAG: ${{ steps.matrix.outputs.examples_tag }}
+          CONTRACTS_VERSION: ${{ steps.matrix.outputs.contracts_npm_version }}
+          CONTRACTS_RANGE: ${{ steps.matrix.outputs.contracts_range }}
+          SDK_VERSION: ${{ steps.matrix.outputs.sdk_npm_version }}
+          SDK_CONTRACTS_RANGE: ${{ steps.matrix.outputs.sdk_contracts_range }}
+          RUNTIME_REPOSITORY: ${{ steps.matrix.outputs.runtime_repository }}
+          RUNTIME_TAG: ${{ steps.matrix.outputs.runtime_tag }}
+          RUNTIME_ASSET: ${{ steps.matrix.outputs.runtime_asset }}
+          RUNTIME_SHA256: ${{ steps.matrix.outputs.runtime_sha256 }}
+          MANUAL_VERSION: ${{ steps.matrix.outputs.manual_version }}
+          MANUAL_PATH: ${{ steps.matrix.outputs.manual_path }}
+          MATRIX_REPOSITORY: skenion/skenion
+          MATRIX_REF: ${{ inputs.matrix_ref }}
+          MATRIX_PATH: ${{ inputs.matrix_path }}

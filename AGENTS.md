@@ -20,17 +20,25 @@ surface.
 
 ## Repository Role
 
-Examples should track the release train and provide conformance fixtures for
-subpatches, living help, package installation, native extension manifests,
-Runtime validation, and Studio authoring flows. Do not keep compatibility
-fixtures as normal examples.
+Examples should provide conformance fixtures for subpatches, living help,
+package installation, native extension manifests, Runtime validation, and
+Studio authoring flows. Release readiness is proven against the compatibility
+matrix for the supported Contracts line, not by equal component versions. Do
+not keep compatibility fixtures as normal examples.
 
-## Lockstep Release Train
+## Compatibility Matrix Release Model
 
-Skenion releasable packages and applications use lockstep product SemVer during
-v0. If the product train is `0.55`, examples should be tagged or pinned to that
-same train and referenced from the release train manifest. Do not create an
-independent examples version stream.
+Skenion component versions are independent during v0. The compatibility seed is
+the Contracts line: for example, Contracts line `0.45` means
+`>=0.45.0 <0.46.0`. Examples release validation must consume released
+Contracts/SDK packages, released Runtime/Studio artifacts, or checked-in
+compatibility matrix evidence. Release-mode validation must not consume sibling
+branches, `main`, `.deps`, workspace paths, or local build outputs.
+
+Examples tags may use their own component version, such as
+`skenion-examples-v0.45.1`. SDK and Contracts versions do not need to be equal,
+but the SDK's declared supported Contracts range must contain the released
+Contracts package version recorded in the matrix.
 
 ## Manager, Worker, And Review Gate Defaults
 

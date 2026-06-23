@@ -4,13 +4,13 @@
   "scripts": {
     "validate:contracts": "node scripts/validate-with-contracts.mjs",
     "validate:paths": "node scripts/validate-repo-path-references.mjs",
-    "validate:release-train": "node scripts/validate-release-train.mjs",
-    "validate:release-train:self-test": "node scripts/validate-release-train-self-test.mjs",
+    "validate:compatibility-matrix": "node scripts/validate-compatibility-matrix.mjs",
+    "validate:compatibility-matrix:self-test": "node scripts/validate-compatibility-matrix-self-test.mjs",
     "validate:runtime-payloads": "node scripts/validate-runtime-project-payloads.mjs",
     "validate:runtime-session-fixtures": "node scripts/validate-runtime-session-smoke-fixtures.mjs",
     "validate:sdk-compatibility": "node scripts/validate-sdk-compatibility.mjs"
   },
   "devDependencies": {
-    "@skenion/contracts": "0.38.0"
+    "@skenion/contracts": "0.45.0"
   }
 }

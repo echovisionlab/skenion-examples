@@ -2,52 +2,52 @@ import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 import path from "node:path";
 
-export function normalizeTrainManifestInput(input, {
-  trainVersion,
-  manifestRepository = "skenion/skenion",
+export function normalizeCompatibilityMatrixInput(input, {
+  contractsLine,
+  matrixRepository = "skenion/skenion",
   errors,
 }) {
   const targetErrors = errors ?? [];
   const trimmed = String(input ?? "").trim();
 
-  if (!isStrictSemver(trainVersion)) {
-    targetErrors.push("train version must be registry-compatible SemVer without leading zeros");
+  if (!isContractsLine(contractsLine)) {
+    targetErrors.push("contracts line must be a v0 minor line such as 0.45");
     return null;
   }
 
-  const expectedRepository = normalizeGitHubRepository(manifestRepository);
-  const expectedPath = trainManifestRepositoryPath(trainVersion);
+  const expectedRepository = normalizeGitHubRepository(matrixRepository);
+  const expectedPath = compatibilityMatrixRepositoryPath(contractsLine);
   const initialErrorCount = targetErrors.length;
 
   if (trimmed.length === 0) {
-    targetErrors.push("--manifest path must not be empty");
+    targetErrors.push("--matrix path must not be empty");
   }
   if (input !== trimmed) {
-    targetErrors.push("--manifest path must not contain surrounding whitespace");
+    targetErrors.push("--matrix path must not contain surrounding whitespace");
   }
   if (trimmed.includes("\0")) {
-    targetErrors.push("--manifest path must not contain null bytes");
+    targetErrors.push("--matrix path must not contain null bytes");
   }
   if (trimmed.includes("\\")) {
-    targetErrors.push("--manifest path must use forward slashes");
+    targetErrors.push("--matrix path must use forward slashes");
   }
   if (hasDotDotPathSegment(trimmed)) {
-    targetErrors.push("--manifest path must not contain .. segments");
+    targetErrors.push("--matrix path must not contain .. segments");
   }
   if (hasUrlLikeScheme(trimmed)) {
-    targetErrors.push("--manifest path must be a local train manifest file path, not a URL or scheme");
+    targetErrors.push("--matrix path must be a local compatibility matrix file path, not a URL or scheme");
   }
   if (targetErrors.length > initialErrorCount) {
     return null;
   }
 
   const absolutePath = path.resolve(trimmed);
-  const canonicalPath = canonicalizeManifestPath(absolutePath, targetErrors);
+  const canonicalPath = canonicalizeMatrixPath(absolutePath, targetErrors);
   if (!canonicalPath) {
     return null;
   }
 
-  const repositoryRoot = gitRootForManifestPath(canonicalPath, targetErrors);
+  const repositoryRoot = gitRootForMatrixPath(canonicalPath, targetErrors);
   if (!repositoryRoot) {
     return null;
   }
@@ -55,11 +55,11 @@ export function normalizeTrainManifestInput(input, {
   const canonicalRepositoryRoot = realpathSync.native(repositoryRoot);
   const repositoryRelativePath = toPosixPath(path.relative(canonicalRepositoryRoot, canonicalPath));
   if (repositoryRelativePath === ".." || repositoryRelativePath.startsWith("../") || path.isAbsolute(repositoryRelativePath)) {
-    targetErrors.push(`--manifest must be inside ${manifestRepository}`);
+    targetErrors.push(`--matrix must be inside ${matrixRepository}`);
     return null;
   }
   if (repositoryRelativePath !== expectedPath) {
-    targetErrors.push(`--manifest must point to ${expectedPath} inside ${manifestRepository}, got ${repositoryRelativePath}`);
+    targetErrors.push(`--matrix must point to ${expectedPath} inside ${matrixRepository}, got ${repositoryRelativePath}`);
     return null;
   }
 
@@ -68,7 +68,7 @@ export function normalizeTrainManifestInput(input, {
     return null;
   }
   if (actualRepository !== expectedRepository) {
-    targetErrors.push(`--manifest must come from ${expectedRepository}, got ${actualRepository}`);
+    targetErrors.push(`--matrix must come from ${expectedRepository}, got ${actualRepository}`);
     return null;
   }
 
@@ -80,8 +80,8 @@ export function normalizeTrainManifestInput(input, {
   };
 }
 
-export function trainManifestRepositoryPath(trainVersion) {
-  return `releases/trains/${trainVersion}.json`;
+export function compatibilityMatrixRepositoryPath(contractsLine) {
+  return `releases/compatibility/contracts-${contractsLine}.json`;
 }
 
 export function normalizeGitHubRepository(value) {
@@ -93,24 +93,24 @@ export function normalizeGitHubRepository(value) {
     .toLowerCase();
 }
 
-function gitRootForManifestPath(manifestPath, targetErrors) {
+function gitRootForMatrixPath(matrixPath, targetErrors) {
   try {
-    return execFileSync("git", ["-C", path.dirname(manifestPath), "rev-parse", "--show-toplevel"], {
+    return execFileSync("git", ["-C", path.dirname(matrixPath), "rev-parse", "--show-toplevel"], {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     }).trim();
   } catch {
-    targetErrors.push("--manifest must be inside a git checkout for skenion/skenion");
+    targetErrors.push("--matrix must be inside a git checkout for skenion/skenion");
     return "";
   }
 }
 
-function canonicalizeManifestPath(manifestPath, targetErrors) {
+function canonicalizeMatrixPath(matrixPath, targetErrors) {
   try {
-    const directory = realpathSync.native(path.dirname(manifestPath));
-    return path.join(directory, path.basename(manifestPath));
+    const directory = realpathSync.native(path.dirname(matrixPath));
+    return path.join(directory, path.basename(matrixPath));
   } catch {
-    targetErrors.push("--manifest parent directory must exist");
+    targetErrors.push("--matrix parent directory must exist");
     return "";
   }
 }
@@ -123,7 +123,7 @@ function gitOriginRepository(repositoryRoot, targetErrors) {
     }).trim();
     return normalizeGitHubRepository(originUrl);
   } catch {
-    targetErrors.push("--manifest git checkout must have an origin remote for skenion/skenion");
+    targetErrors.push("--matrix git checkout must have an origin remote for skenion/skenion");
     return "";
   }
 }
@@ -140,6 +140,6 @@ function toPosixPath(value) {
   return value.split(path.sep).join("/");
 }
 
-function isStrictSemver(value) {
-  return /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.test(String(value ?? ""));
+function isContractsLine(value) {
+  return /^0\.(0|[1-9][0-9]*)$/.test(String(value ?? ""));
 }

@@ -3,84 +3,102 @@ import { readFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import {
+  normalizeCompatibilityMatrixInput,
   normalizeGitHubRepository,
-  normalizeTrainManifestInput,
-} from "./release-train-manifest-path.mjs";
+} from "./compatibility-matrix-path.mjs";
 
 const args = parseArgs(process.argv.slice(2));
-const manifestInput = requireArg("manifest");
-const trainVersion = requireArg("train-version");
+const matrixInput = requireArg("matrix");
+const contractsLine = requireArg("contracts-line");
 const mode = normalizeMode(args.mode ?? "prepare");
-const outDir = args["out-dir"] ?? ".skenion-train";
+const outDir = args["out-dir"] ?? ".skenion-matrix";
 const runtimeTarget = args["runtime-target"] ?? "x86_64-unknown-linux-gnu";
 const targetRef = args["target-ref"] ?? "";
-const manifestRef = args["manifest-ref"] ?? "";
-const manifestRepository = normalizeRepository(args["manifest-repository"] ?? "skenion/skenion");
+const matrixRef = args["matrix-ref"] ?? "";
+const matrixRepository = normalizeRepository(args["matrix-repository"] ?? "skenion/skenion");
 const currentRepository = normalizeRepository(process.env.GITHUB_REPOSITORY ?? "skenion/skenion-examples");
 const errors = [];
 
-assertSemver(trainVersion, "train version", errors);
-requireManifestRef(manifestRef, mode, errors);
-requireManifestRepository(manifestRepository, mode, errors);
-const manifestSource = normalizeTrainManifestInput(manifestInput, {
-  trainVersion,
-  manifestRepository: "skenion/skenion",
+requireContractsLine(contractsLine, errors);
+requireMatrixRef(matrixRef, mode, errors);
+requireMatrixRepository(matrixRepository, mode, errors);
+const matrixSource = normalizeCompatibilityMatrixInput(matrixInput, {
+  contractsLine,
+  matrixRepository: "skenion/skenion",
   errors,
 });
 if (errors.length > 0) {
   reportErrorsAndExit(errors);
 }
-const manifest = await readManifest(manifestSource);
-const trainId = trainVersion.replace(/\.[0-9]+$/, "");
 
-requireEqual(manifest.schema, "skenion.release-train", "manifest.schema", errors);
-requireEqual(manifest["schema-version"], "0.1.0", "manifest.schema-version", errors);
-requireEqual(manifest["train-version"], trainVersion, "manifest.train-version", errors);
-requireEqual(manifest["train-id"], trainId, "manifest.train-id", errors);
+const matrix = await readMatrix(matrixSource);
+const contracts = matrix.contracts ?? matrix.components?.contracts;
+const contractsPackage = contracts?.npm;
+const contractsCrate = contracts?.crate;
+const runtimeBinary = matrix.components?.runtime?.binaries?.[runtimeTarget];
+const sdkPackage = matrix.components?.sdk?.npm;
+const sdkContractsRange = sdkPackage?.["supported-contracts"]
+  ?? sdkPackage?.["supported-contracts-range"]
+  ?? matrix.components?.sdk?.["supported-contracts"]
+  ?? matrix.components?.sdk?.["supported-contracts-range"];
+const manual = matrix.components?.docs?.manual;
+const examples = matrix.components?.examples;
+const examplesGate = matrix["release-gates"]?.["examples-conformance"];
+const contractsRange = contracts?.range ?? matrix["contracts-range"];
 
-const contractsPackage = manifest.components?.contracts?.npm;
-const contractsCrate = manifest.components?.contracts?.crate;
-const runtimeBinary = manifest.components?.runtime?.binaries?.[runtimeTarget];
-const sdkPackage = manifest.components?.sdk?.npm;
-const manual = manifest.components?.docs?.manual;
-const examples = manifest.components?.examples;
-const examplesGate = manifest["release-gates"]?.["examples-conformance"];
+requireEqual(matrix.schema, "skenion.compatibility-matrix", "matrix.schema", errors);
+requireEqual(matrix["schema-version"], "0.1.0", "matrix.schema-version", errors);
+requireEqual(contracts?.line ?? matrix["contracts-line"], contractsLine, "contracts.line", errors);
+requireEqual(contractsRange, contractsLineRange(contractsLine), "contracts.range", errors);
 
-requirePackage(contractsPackage, "components.contracts.npm", {
+requirePackage(contractsPackage, "contracts.npm", {
   ecosystem: "npm",
   name: "@skenion/contracts",
-  version: trainVersion,
 }, errors);
-requirePackage(contractsCrate, "components.contracts.crate", {
+requirePackage(contractsCrate, "contracts.crate", {
   ecosystem: "crates.io",
   name: "skenion-contracts",
-  version: trainVersion,
 }, errors);
 requirePackage(sdkPackage, "components.sdk.npm", {
   ecosystem: "npm",
   name: "@skenion/sdk",
-  version: trainVersion,
 }, errors);
-requireExamples(examples, examplesGate, trainVersion, currentRepository, errors);
+
+if (isObject(contractsPackage)) {
+  requireSemverInLine(contractsPackage.version, contractsLine, "contracts.npm.version", errors);
+}
+if (isObject(contractsCrate)) {
+  requireEqual(contractsCrate.version, contractsPackage?.version, "contracts.crate.version", errors);
+}
+if (isObject(sdkPackage)) {
+  assertSemver(sdkPackage.version, "components.sdk.npm.version", errors);
+}
+if (!rangeContainsVersion(sdkContractsRange, contractsPackage?.version)) {
+  errors.push(
+    `components.sdk.npm supported Contracts range must contain released Contracts ${contractsPackage?.version}; got ${JSON.stringify(sdkContractsRange)}`
+  );
+}
+
+requireExamples(examples, examplesGate, currentRepository, errors);
 requireReleaseTargetRef(targetRef, examples, errors);
-requireManual(manual, manifest["release-gates"]?.["docs-pages-deployment"], trainVersion, trainId, errors);
-requireRuntimeBinary(runtimeBinary, runtimeTarget, trainVersion, errors);
+requireManual(manual, matrix["release-gates"]?.["docs-pages-deployment"], contractsLine, errors);
+requireRuntimeBinary(runtimeBinary, runtimeTarget, errors);
 const runtimeChecksum = requireRuntimeChecksum(runtimeBinary, runtimeTarget, errors);
-requireRuntimeTier(manifest.components?.runtime?.binaries, manifest["release-gates"]?.["runtime-smoke"], trainVersion, errors);
-requireStudioCompatibility(manifest.components?.studio, manifest["release-gates"]?.["studio-package-smoke"], trainVersion, errors);
-requireRegistryPackageGates(manifest["release-gates"]?.["registry-packages"], {
+requireRuntimeTier(matrix.components?.runtime?.binaries, matrix["release-gates"]?.["runtime-smoke"], errors);
+requireStudioCompatibility(matrix.components?.studio, matrix["release-gates"]?.["studio-package-smoke"], errors);
+requireRegistryPackageGates(matrix["release-gates"]?.["registry-packages"], {
   "contracts-npm": contractsPackage,
   "contracts-crate": contractsCrate,
   "sdk-npm": sdkPackage,
 }, errors);
-requireArtifactCollectionGate(manifest["release-gates"]?.["github-release-assets"]?.runtime, "runtime", manifest.components?.runtime?.binaries, `skenion-runtime-v${trainVersion}`, errors);
-requireArtifactCollectionGate(manifest["release-gates"]?.["github-release-assets"]?.studio, "studio", [
-  ...Object.values(manifest.components?.studio?.["desktop-packages"] ?? {}),
-  manifest.components?.studio?.["web-bundle"],
-  ...Object.values(manifest.components?.studio?.["runtime-sidecars"] ?? {}),
-], `skenion-studio-v${trainVersion}`, errors);
-requireChecksumGate(manifest["release-gates"]?.["checksum-verification"], manifest, errors);
-rejectLocalReleaseSources(manifest, trainVersion, errors);
+requireArtifactCollectionGate(matrix["release-gates"]?.["github-release-assets"]?.runtime, "runtime", matrix.components?.runtime?.binaries, errors);
+requireArtifactCollectionGate(matrix["release-gates"]?.["github-release-assets"]?.studio, "studio", [
+  ...Object.values(matrix.components?.studio?.["desktop-packages"] ?? {}),
+  matrix.components?.studio?.["web-bundle"],
+  ...Object.values(matrix.components?.studio?.["runtime-sidecars"] ?? {}),
+], errors);
+requireChecksumGate(matrix["release-gates"]?.["checksum-verification"], matrix, errors);
+rejectLocalReleaseSources(matrix, errors);
 
 if (errors.length > 0) {
   reportErrorsAndExit(errors);
@@ -88,15 +106,16 @@ if (errors.length > 0) {
 
 await mkdir(outDir, { recursive: true });
 const summary = {
-  schema: "skenion.examples.release-train.validation",
+  schema: "skenion.examples.compatibility-matrix.validation",
   "schema-version": "1.0.0",
   mode,
-  "train-id": trainId,
-  "train-version": trainVersion,
-  "manifest-repository": manifestRepository,
+  "contracts-line": contractsLine,
+  "contracts-range": contractsRange,
+  "matrix-repository": matrixRepository,
   "contracts-package": `${contractsPackage.name}@${contractsPackage.version}`,
   "contracts-crate": `${contractsCrate.name}@${contractsCrate.version}`,
   "sdk-package": `${sdkPackage.name}@${sdkPackage.version}`,
+  "sdk-supported-contracts": sdkContractsRange,
   "runtime-target": runtimeTarget,
   "runtime-asset": {
     repository: runtimeBinary.source.repository,
@@ -116,28 +135,29 @@ const summary = {
     "pages-url": manual["pages-url"],
   },
 };
-await writeFile(path.join(outDir, "examples-release-train.json"), `${JSON.stringify(summary, null, 2)}\n`);
+await writeFile(path.join(outDir, "examples-compatibility-matrix.json"), `${JSON.stringify(summary, null, 2)}\n`);
 writeOutputs({
-  train_id: trainId,
-  train_version: trainVersion,
+  contracts_line: contractsLine,
+  contracts_range: contractsRange,
   contracts_npm_version: contractsPackage.version,
   contracts_crate_version: contractsCrate.version,
   sdk_npm_version: sdkPackage.version,
+  sdk_contracts_range: sdkContractsRange,
   runtime_repository: runtimeBinary.source.repository,
   runtime_tag: runtimeBinary.source.tag,
   runtime_asset: runtimeBinary.source["asset-name"],
   runtime_sha256: runtimeChecksum,
   runtime_target: runtimeTarget,
-  examples_repository: examples.repository,
+  examples_version: examples.version,
   examples_tag: examples.tag,
   examples_commit: examples.commit ?? "",
   manual_version: manual.version,
   manual_path: manual.path,
   manual_pages_url: manual["pages-url"],
-  summary: `Examples ${examples.tag} validated against released Contracts/Runtime ${trainVersion}`,
+  summary: `Examples ${examples.tag} validated against Contracts line ${contractsLine}`,
 });
 
-console.log(`Validated examples release train inputs for ${trainVersion} in ${mode} mode.`);
+console.log(`Validated examples compatibility matrix for Contracts ${contractsLine} in ${mode} mode.`);
 
 function parseArgs(argv) {
   const parsed = {};
@@ -165,7 +185,7 @@ function requireArg(name) {
   return value;
 }
 
-async function readManifest(source) {
+async function readMatrix(source) {
   const raw = await readFile(source.absolutePath, "utf8");
   return JSON.parse(raw);
 }
@@ -177,27 +197,40 @@ function normalizeMode(value) {
   return value;
 }
 
+function requireContractsLine(value, targetErrors) {
+  if (!isContractsLine(value)) {
+    targetErrors.push("contracts line must be a v0 minor line such as 0.45");
+  }
+}
+
 function assertSemver(value, label, targetErrors) {
   if (!isStrictSemver(value)) {
     targetErrors.push(`${label} must be registry-compatible SemVer without leading zeros`);
   }
 }
 
-function requireManifestRef(value, currentMode, targetErrors) {
+function requireSemverInLine(value, line, label, targetErrors) {
+  assertSemver(value, label, targetErrors);
+  if (isStrictSemver(value) && !versionInContractsLine(value, line)) {
+    targetErrors.push(`${label} must be in Contracts line ${line}, got ${value}`);
+  }
+}
+
+function requireMatrixRef(value, currentMode, targetErrors) {
   if (currentMode === "prepare") {
     return;
   }
   if (!isGitSha(value)) {
-    targetErrors.push("manifest ref must be an explicit 40-character git SHA in publish/verify mode");
+    targetErrors.push("matrix ref must be an explicit 40-character git SHA in publish/verify mode");
   }
 }
 
-function requireManifestRepository(value, currentMode, targetErrors) {
+function requireMatrixRepository(value, currentMode, targetErrors) {
   if (currentMode === "prepare") {
     return;
   }
   if (value !== "skenion/skenion") {
-    targetErrors.push("manifest repository must be skenion/skenion in publish/verify mode");
+    targetErrors.push("matrix repository must be skenion/skenion in publish/verify mode");
   }
 }
 
@@ -217,7 +250,7 @@ function requirePackage(actual, label, expected, targetErrors) {
   }
 }
 
-function requireExamples(examples, gate, expectedVersion, currentRepo, targetErrors) {
+function requireExamples(examples, gate, currentRepo, targetErrors) {
   if (!isObject(examples)) {
     targetErrors.push("components.examples must be an object");
     return;
@@ -225,9 +258,9 @@ function requireExamples(examples, gate, expectedVersion, currentRepo, targetErr
   if (normalizeRepository(examples.repository) !== currentRepo) {
     targetErrors.push(`components.examples.repository must match this repository (${currentRepo})`);
   }
-  requireEqual(examples.version, expectedVersion, "components.examples.version", targetErrors);
-  if (!isStrictExamplesReleaseTag(examples.tag, expectedVersion)) {
-    targetErrors.push(`components.examples.tag must be exactly skenion-examples-v${expectedVersion}`);
+  assertSemver(examples.version, "components.examples.version", targetErrors);
+  if (!isStrictExamplesReleaseTag(examples.tag, examples.version)) {
+    targetErrors.push(`components.examples.tag must be exactly skenion-examples-v${examples.version}`);
   }
   if (examples.commit !== undefined && !isSafeCommitMarker(examples.commit)) {
     targetErrors.push("components.examples.commit must be a non-empty commit marker without branch/path syntax");
@@ -242,18 +275,18 @@ function requireExamples(examples, gate, expectedVersion, currentRepo, targetErr
   }
   requireEqual(gate.repository, examples.repository, "release-gates.examples-conformance.repository", targetErrors);
   requireEqual(gate.ref, examples.tag, "release-gates.examples-conformance.ref", targetErrors);
-  if (!isStrictExamplesReleaseTag(gate.ref, expectedVersion)) {
-    targetErrors.push(`release-gates.examples-conformance.ref must be exactly skenion-examples-v${expectedVersion}`);
+  if (gate.tag !== undefined && !isStrictExamplesReleaseTag(gate.tag, examples.version)) {
+    targetErrors.push(`release-gates.examples-conformance.tag must be exactly skenion-examples-v${examples.version}`);
   }
-  if (gate.tag !== undefined && !isStrictExamplesReleaseTag(gate.tag, expectedVersion)) {
-    targetErrors.push(`release-gates.examples-conformance.tag must be exactly skenion-examples-v${expectedVersion}`);
-  }
-  requireEqual(gate.version, expectedVersion, "release-gates.examples-conformance.version", targetErrors);
+  requireEqual(gate.version, examples.version, "release-gates.examples-conformance.version", targetErrors);
+  requireGateStatus(gate, "release-gates.examples-conformance", targetErrors);
+  requireEqual(gate.required, true, "release-gates.examples-conformance.required", targetErrors);
+  requirePassedGate(gate, "release-gates.examples-conformance", targetErrors);
 }
 
 function requireReleaseTargetRef(value, examples, targetErrors) {
   if (mode === "prepare") {
-    if (value && !isSafeReleaseTargetRef(value, examples?.version ?? trainVersion)) {
+    if (value && !isSafeReleaseTargetRef(value, examples?.version)) {
       targetErrors.push("target ref must be a SHA or product-owned examples release tag in prepare mode");
     }
     return;
@@ -268,15 +301,15 @@ function requireReleaseTargetRef(value, examples, targetErrors) {
   }
 }
 
-function requireRuntimeBinary(artifact, target, expectedVersion, targetErrors) {
+function requireRuntimeBinary(artifact, target, targetErrors) {
   if (!isObject(artifact)) {
     targetErrors.push(`components.runtime.binaries.${target} must be present`);
     return;
   }
-  const expectedAssetName = runtimeAssetName(target, expectedVersion);
+  assertSemver(artifact.version, `components.runtime.binaries.${target}.version`, targetErrors);
+  const expectedAssetName = runtimeAssetName(target, artifact.version);
   requireEqual(artifact.target, target, `components.runtime.binaries.${target}.target`, targetErrors);
   requireEqual(artifact.kind, "runtime-binary", `components.runtime.binaries.${target}.kind`, targetErrors);
-  requireEqual(artifact.version, expectedVersion, `components.runtime.binaries.${target}.version`, targetErrors);
   requireEqual(artifact.name, expectedAssetName, `components.runtime.binaries.${target}.name`, targetErrors);
   if (!isObject(artifact.source)) {
     targetErrors.push(`components.runtime.binaries.${target}.source must be an object`);
@@ -286,20 +319,21 @@ function requireRuntimeBinary(artifact, target, expectedVersion, targetErrors) {
   if (normalizeRepository(artifact.source.repository) !== "skenion/skenion-runtime") {
     targetErrors.push(`components.runtime.binaries.${target}.source.repository must be skenion/skenion-runtime`);
   }
-  requireEqual(artifact.source.tag, `skenion-runtime-v${expectedVersion}`, `components.runtime.binaries.${target}.source.tag`, targetErrors);
+  requireEqual(artifact.source.tag, `skenion-runtime-v${artifact.version}`, `components.runtime.binaries.${target}.source.tag`, targetErrors);
   requireEqual(artifact.source["asset-name"], expectedAssetName, `components.runtime.binaries.${target}.source["asset-name"]`, targetErrors);
   if (!artifact.source["asset-name"] || artifact.source["asset-name"].includes("/") || artifact.source["asset-name"].includes("\\")) {
     targetErrors.push(`components.runtime.binaries.${target}.source["asset-name"] must be a release asset name`);
   }
 }
 
-function requireManual(manual, gate, expectedVersion, expectedTrainId, targetErrors) {
+function requireManual(manual, gate, expectedContractsLine, targetErrors) {
   if (!isObject(manual)) {
     targetErrors.push("components.docs.manual must be an object");
     return;
   }
-  requireEqual(manual.version, expectedVersion, "components.docs.manual.version", targetErrors);
-  requireEqual(manual.path, `/manual/${expectedTrainId}/`, "components.docs.manual.path", targetErrors);
+  assertSemver(manual.version, "components.docs.manual.version", targetErrors);
+  requireEqual(manual["contracts-line"], expectedContractsLine, "components.docs.manual.contracts-line", targetErrors);
+  requireEqual(manual.path, `/manual/${expectedContractsLine}/`, "components.docs.manual.path", targetErrors);
   if (!isHttpsUrl(manual["pages-url"])) {
     targetErrors.push("components.docs.manual.pages-url must be an https URL");
   } else if (!manual["pages-url"].includes(manual.path)) {
@@ -318,20 +352,20 @@ function requireManual(manual, gate, expectedVersion, expectedTrainId, targetErr
   requirePassedGate(gate, "release-gates.docs-pages-deployment", targetErrors);
 }
 
-function requireRuntimeTier(binaries, gates, expectedVersion, targetErrors) {
+function requireRuntimeTier(binaries, gates, targetErrors) {
   if (!isObject(binaries)) {
     targetErrors.push("components.runtime.binaries must be an object");
     return;
   }
   for (const [target, artifact] of Object.entries(binaries)) {
-    requireRuntimeBinary(artifact, target, expectedVersion, targetErrors);
+    requireRuntimeBinary(artifact, target, targetErrors);
     requireArtifactChecksum(artifact, `components.runtime.binaries.${target}`, artifact?.["support-tier"] === "release-blocking", targetErrors);
     const gate = gates?.[target];
     requireRuntimeSmokeGate(gate, artifact, target, targetErrors);
   }
 }
 
-function requireStudioCompatibility(studio, gates, expectedVersion, targetErrors) {
+function requireStudioCompatibility(studio, gates, targetErrors) {
   if (!isObject(studio)) {
     targetErrors.push("components.studio must be an object");
     return;
@@ -347,11 +381,11 @@ function requireStudioCompatibility(studio, gates, expectedVersion, targetErrors
     targetErrors.push("components.studio.runtime-sidecars must be an object");
     return;
   }
-  requireStudioWebBundleArtifact(webBundle, expectedVersion, targetErrors);
+  requireStudioWebBundleArtifact(webBundle, targetErrors);
   for (const [target, desktopPackage] of Object.entries(desktopPackages)) {
-    requireStudioArtifact(desktopPackage, target, "studio-desktop-package", expectedVersion, targetErrors);
+    requireStudioArtifact(desktopPackage, target, "studio-desktop-package", targetErrors);
     const sidecar = runtimeSidecars[target];
-    requireStudioArtifact(sidecar, target, "studio-runtime-sidecar", expectedVersion, targetErrors);
+    requireStudioArtifact(sidecar, target, "studio-runtime-sidecar", targetErrors);
     const releaseBlocking = desktopPackage?.["support-tier"] === "release-blocking" || sidecar?.["support-tier"] === "release-blocking";
     requireArtifactChecksum(desktopPackage, `components.studio.desktop-packages.${target}`, releaseBlocking, targetErrors);
     requireArtifactChecksum(sidecar, `components.studio.runtime-sidecars.${target}`, releaseBlocking, targetErrors);
@@ -359,7 +393,7 @@ function requireStudioCompatibility(studio, gates, expectedVersion, targetErrors
   }
 }
 
-function requireStudioWebBundleArtifact(artifact, expectedVersion, targetErrors) {
+function requireStudioWebBundleArtifact(artifact, targetErrors) {
   const label = `components.studio["web-bundle"]`;
   if (!isObject(artifact)) {
     targetErrors.push(`${label} must be an object`);
@@ -368,9 +402,9 @@ function requireStudioWebBundleArtifact(artifact, expectedVersion, targetErrors)
   if (typeof artifact.id !== "string" || artifact.id.trim() === "") {
     targetErrors.push(`${label}.id must be a non-empty string`);
   }
+  assertSemver(artifact.version, `${label}.version`, targetErrors);
   requireEqual(artifact.kind, "studio-web-bundle", `${label}.kind`, targetErrors);
-  requireEqual(artifact.version, expectedVersion, `${label}.version`, targetErrors);
-  requireEqual(artifact.name, `skenion-studio-web-bundle-v${expectedVersion}.tar.gz`, `${label}.name`, targetErrors);
+  requireEqual(artifact.name, `skenion-studio-web-bundle-v${artifact.version}.tar.gz`, `${label}.name`, targetErrors);
   if (!isObject(artifact.source)) {
     targetErrors.push(`${label}.source must be an object`);
     return;
@@ -379,10 +413,10 @@ function requireStudioWebBundleArtifact(artifact, expectedVersion, targetErrors)
   if (normalizeRepository(artifact.source.repository) !== "skenion/skenion-studio") {
     targetErrors.push(`${label}.source.repository must be skenion/skenion-studio`);
   }
-  requireEqual(artifact.source.tag, `skenion-studio-v${expectedVersion}`, `${label}.source.tag`, targetErrors);
+  requireEqual(artifact.source.tag, `skenion-studio-v${artifact.version}`, `${label}.source.tag`, targetErrors);
   requireEqual(
     artifact.source["asset-name"],
-    `skenion-studio-web-bundle-v${expectedVersion}.tar.gz`,
+    `skenion-studio-web-bundle-v${artifact.version}.tar.gz`,
     `${label}.source["asset-name"]`,
     targetErrors
   );
@@ -392,7 +426,7 @@ function requireStudioWebBundleArtifact(artifact, expectedVersion, targetErrors)
   requireArtifactChecksum(artifact, label, true, targetErrors);
 }
 
-function requireStudioArtifact(artifact, target, kind, expectedVersion, targetErrors) {
+function requireStudioArtifact(artifact, target, kind, targetErrors) {
   const label = kind === "studio-desktop-package"
     ? `components.studio.desktop-packages.${target}`
     : `components.studio.runtime-sidecars.${target}`;
@@ -400,9 +434,9 @@ function requireStudioArtifact(artifact, target, kind, expectedVersion, targetEr
     targetErrors.push(`${label} must be present`);
     return;
   }
+  assertSemver(artifact.version, `${label}.version`, targetErrors);
   requireEqual(artifact.target, target, `${label}.target`, targetErrors);
   requireEqual(artifact.kind, kind, `${label}.kind`, targetErrors);
-  requireEqual(artifact.version, expectedVersion, `${label}.version`, targetErrors);
   if (!isObject(artifact.source)) {
     targetErrors.push(`${label}.source must be an object`);
     return;
@@ -411,7 +445,7 @@ function requireStudioArtifact(artifact, target, kind, expectedVersion, targetEr
   if (normalizeRepository(artifact.source.repository) !== "skenion/skenion-studio") {
     targetErrors.push(`${label}.source.repository must be skenion/skenion-studio`);
   }
-  requireEqual(artifact.source.tag, `skenion-studio-v${expectedVersion}`, `${label}.source.tag`, targetErrors);
+  requireEqual(artifact.source.tag, `skenion-studio-v${artifact.version}`, `${label}.source.tag`, targetErrors);
   const assetName = artifact.source["asset-name"];
   if (!assetName || assetName.includes("/") || assetName.includes("\\")) {
     targetErrors.push(`${label}.source["asset-name"] must be a release asset name`);
@@ -459,7 +493,7 @@ function requireRegistryPackageGates(gates, packages, targetErrors) {
   const expectedGateNames = new Set(Object.keys(packages));
   for (const name of Object.keys(gates)) {
     if (!expectedGateNames.has(name)) {
-      targetErrors.push(`release-gates.registry-packages.${name} is not a release-train registry package gate`);
+      targetErrors.push(`release-gates.registry-packages.${name} is not a compatibility-matrix registry package gate`);
     }
   }
   for (const [name, expectedPackage] of Object.entries(packages)) {
@@ -476,7 +510,7 @@ function requireRegistryPackageGates(gates, packages, targetErrors) {
   }
 }
 
-function requireArtifactCollectionGate(gate, labelName, artifacts, expectedTag, targetErrors) {
+function requireArtifactCollectionGate(gate, labelName, artifacts, targetErrors) {
   const label = `release-gates.github-release-assets.${labelName}`;
   if (!isObject(gate)) {
     targetErrors.push(`${label} must be an object`);
@@ -484,7 +518,9 @@ function requireArtifactCollectionGate(gate, labelName, artifacts, expectedTag, 
   }
   requireGateStatus(gate, label, targetErrors);
   requireEqual(gate.required, true, `${label}.required`, targetErrors);
-  requireEqual(gate.tag, expectedTag, `${label}.tag`, targetErrors);
+  if (typeof gate.tag === "string" && !isAllowedReleaseRef(gate.tag)) {
+    targetErrors.push(`${label}.tag must be an exact component release tag`);
+  }
   if (!Array.isArray(gate["artifact-ids"]) || gate["artifact-ids"].length === 0) {
     targetErrors.push(`${label}.artifact-ids must be a non-empty array`);
     return;
@@ -505,7 +541,7 @@ function requireArtifactCollectionGate(gate, labelName, artifacts, expectedTag, 
   requirePassedGate(gate, label, targetErrors);
 }
 
-function requireChecksumGate(gate, manifestDocument, targetErrors) {
+function requireChecksumGate(gate, matrixDocument, targetErrors) {
   if (!isObject(gate)) {
     targetErrors.push("release-gates.checksum-verification must be an object");
     return;
@@ -513,7 +549,7 @@ function requireChecksumGate(gate, manifestDocument, targetErrors) {
   requireGateStatus(gate, "release-gates.checksum-verification", targetErrors);
   requireEqual(gate.required, true, "release-gates.checksum-verification.required", targetErrors);
   const artifactsById = new Map();
-  for (const artifact of collectArtifacts(manifestDocument)) {
+  for (const artifact of collectArtifacts(matrixDocument)) {
     if (artifact?.id) {
       artifactsById.set(artifact.id, artifact);
     }
@@ -600,7 +636,7 @@ function requireRuntimeChecksum(artifact, target, targetErrors) {
   }
   if (artifact.checksum.value === null || artifact.checksum.value === undefined || artifact.checksum.value === "") {
     if (mode !== "prepare") {
-      targetErrors.push(`${label}.value must be a manifest-pinned SHA-256 in publish/verify mode`);
+      targetErrors.push(`${label}.value must be a matrix-pinned SHA-256 in publish/verify mode`);
     }
     return "";
   }
@@ -611,29 +647,29 @@ function requireRuntimeChecksum(artifact, target, targetErrors) {
   return artifact.checksum.value.toLowerCase();
 }
 
-function rejectLocalReleaseSources(manifest, expectedVersion, targetErrors) {
-  for (const { fieldPath, value } of collectStringFields(manifest)) {
+function rejectLocalReleaseSources(matrixDocument, targetErrors) {
+  for (const { fieldPath, value } of collectStringFields(matrixDocument)) {
     const reason = forbiddenReleaseSourceReason(value, fieldPath);
     if (reason) {
-      targetErrors.push(`release manifest ${fieldPath} contains forbidden ${reason}: ${JSON.stringify(value)}`);
+      targetErrors.push(`compatibility matrix ${fieldPath} contains forbidden ${reason}: ${JSON.stringify(value)}`);
     }
   }
 
-  for (const { fieldPath, value } of collectRefs(manifest)) {
-    if (!isAllowedReleaseRef(value, expectedVersion)) {
-      targetErrors.push(`release source ref ${fieldPath}=${JSON.stringify(value)} must be an exact train release tag or 40-character git SHA`);
+  for (const { fieldPath, value } of collectRefs(matrixDocument)) {
+    if (!isAllowedReleaseRef(value)) {
+      targetErrors.push(`release source ref ${fieldPath}=${JSON.stringify(value)} must be an exact component release tag or 40-character git SHA`);
     }
   }
 }
 
-function collectArtifacts(manifestDocument) {
-  const runtimeBinaries = manifestDocument.components?.runtime?.binaries ?? {};
-  const studioDesktopPackages = manifestDocument.components?.studio?.["desktop-packages"] ?? {};
-  const studioRuntimeSidecars = manifestDocument.components?.studio?.["runtime-sidecars"] ?? {};
+function collectArtifacts(matrixDocument) {
+  const runtimeBinaries = matrixDocument.components?.runtime?.binaries ?? {};
+  const studioDesktopPackages = matrixDocument.components?.studio?.["desktop-packages"] ?? {};
+  const studioRuntimeSidecars = matrixDocument.components?.studio?.["runtime-sidecars"] ?? {};
   return [
     ...Object.values(runtimeBinaries),
     ...Object.values(studioDesktopPackages),
-    manifestDocument.components?.studio?.["web-bundle"],
+    matrixDocument.components?.studio?.["web-bundle"],
     ...Object.values(studioRuntimeSidecars),
   ].filter(isObject);
 }
@@ -670,7 +706,7 @@ function forbiddenReleaseSourceReason(value, fieldPath) {
   if (/\/Volumes\/(?:Linear|dev)\/Skenion\//i.test(value)) {
     return "sibling workspace path";
   }
-  if (isPathLikeReleaseSourceField(fieldPath) && isLocalPathSyntax(value) && !isAllowedManifestPath(fieldPath)) {
+  if (isPathLikeReleaseSourceField(fieldPath) && isLocalPathSyntax(value) && !isAllowedMatrixPath(fieldPath)) {
     return "local path";
   }
   return "";
@@ -689,7 +725,7 @@ function fieldPathKey(fieldPath) {
   return segments[segments.length - 1];
 }
 
-function isAllowedManifestPath(fieldPath) {
+function isAllowedMatrixPath(fieldPath) {
   return fieldPath === "$.components.docs.manual.path"
     || fieldPath === "$.release-gates.docs-pages-deployment.manual-path";
 }
@@ -718,29 +754,25 @@ function collectRefs(value, refs = [], fieldPath = "$") {
   return refs;
 }
 
-function isAllowedReleaseRef(value, expectedVersion) {
-  return isGitSha(value) || isExactTrainReleaseTag(value, expectedVersion);
+function isAllowedReleaseRef(value) {
+  return isGitSha(value) || isExactComponentReleaseTag(value);
 }
 
-function isExactTrainReleaseTag(value, expectedVersion) {
+function isExactComponentReleaseTag(value) {
   return typeof value === "string"
-    && new RegExp(`^skenion(?:-[a-z0-9]+)+-v${escapeRegExp(expectedVersion)}$`).test(value);
+    && /^skenion(?:-[a-z0-9]+)+-v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.test(value);
 }
 
-function runtimeAssetName(target, expectedVersion) {
-  return `skenion-runtime-v${expectedVersion}-${target}.tar.gz`;
+function runtimeAssetName(target, version) {
+  return `skenion-runtime-v${version}-${target}.tar.gz`;
 }
 
-function escapeRegExp(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function isStrictExamplesReleaseTag(value, version) {
+  return value === `skenion-examples-v${version}` && isStrictSemver(version);
 }
 
-function isStrictExamplesReleaseTag(value, expectedVersion) {
-  return value === `skenion-examples-v${expectedVersion}` && isStrictSemver(expectedVersion);
-}
-
-function isSafeReleaseTargetRef(value, expectedVersion) {
-  return isGitSha(value) || isStrictExamplesReleaseTag(value, expectedVersion);
+function isSafeReleaseTargetRef(value, version) {
+  return isGitSha(value) || isStrictExamplesReleaseTag(value, version);
 }
 
 function isSafeCommitMarker(value) {
@@ -752,6 +784,59 @@ function isSafeCommitMarker(value) {
     && !value.includes("\\")
     && !value.includes("..")
     && !value.includes(" ");
+}
+
+function contractsLineRange(line) {
+  const [, minor] = line.split(".");
+  return `>=0.${minor}.0 <0.${Number(minor) + 1}.0`;
+}
+
+function versionInContractsLine(version, line) {
+  const parsed = parseSemver(version);
+  const [, minor] = line.split(".");
+  return parsed !== null && parsed.major === 0 && parsed.minor === Number(minor);
+}
+
+function rangeContainsVersion(range, version) {
+  if (!isStrictSemver(version) || typeof range !== "string") {
+    return false;
+  }
+  const normalized = range.trim();
+  if (isStrictSemver(normalized)) {
+    return normalized === version;
+  }
+  const match = normalized.match(/^>=([0-9]+\.[0-9]+\.[0-9]+) <([0-9]+\.[0-9]+\.[0-9]+)$/);
+  if (!match) {
+    return false;
+  }
+  return compareSemver(version, match[1]) >= 0 && compareSemver(version, match[2]) < 0;
+}
+
+function parseSemver(value) {
+  const match = String(value ?? "").match(/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/);
+  if (!match) {
+    return null;
+  }
+  return {
+    major: Number(match[1]),
+    minor: Number(match[2]),
+    patch: Number(match[3]),
+  };
+}
+
+function compareSemver(left, right) {
+  const leftParsed = parseSemver(left);
+  const rightParsed = parseSemver(right);
+  for (const key of ["major", "minor", "patch"]) {
+    if (leftParsed[key] !== rightParsed[key]) {
+      return leftParsed[key] - rightParsed[key];
+    }
+  }
+  return 0;
+}
+
+function isContractsLine(value) {
+  return /^0\.(0|[1-9][0-9]*)$/.test(String(value ?? ""));
 }
 
 function isGitSha(value) {

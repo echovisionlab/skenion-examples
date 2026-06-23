@@ -4,16 +4,16 @@ import { execFileSync } from "node:child_process";
 const args = parseArgs(process.argv.slice(2));
 const mode = requireChoice(args.mode ?? "prepare", ["prepare", "publish", "verify"], "--mode");
 const tag = requireArg("tag");
-const trainVersion = requireArg("train-version");
+const version = requireArg("version");
 const expectedCommit = args.commit || "";
 const dryRun = args["dry-run"] !== "false";
 const expectedCommitIsSha = /^[0-9a-f]{40}$/i.test(expectedCommit);
 
-if (!isStrictSemver(trainVersion)) {
-  throw new Error("--train-version must be registry-compatible SemVer without leading zeros");
+if (!isStrictSemver(version)) {
+  throw new Error("--version must be registry-compatible SemVer without leading zeros");
 }
-if (!isStrictExamplesReleaseTag(tag, trainVersion)) {
-  throw new Error(`--tag must be exactly skenion-examples-v${trainVersion}`);
+if (!isStrictExamplesReleaseTag(tag, version)) {
+  throw new Error(`--tag must be exactly skenion-examples-v${version}`);
 }
 if (!expectedCommitIsSha && mode !== "prepare") {
   throw new Error("--commit must be a recorded 40-character git SHA in publish/verify mode");
@@ -24,7 +24,7 @@ const targetCommit = expectedCommitIsSha ? expectedCommit : head;
 git(["cat-file", "-e", `${targetCommit}^{commit}`]);
 
 if (mode === "prepare") {
-  const marker = expectedCommit && !expectedCommitIsSha ? `; manifest commit marker is ${expectedCommit}` : "";
+  const marker = expectedCommit && !expectedCommitIsSha ? `; matrix commit marker is ${expectedCommit}` : "";
   console.log(`Would bind ${tag} to ${targetCommit}${marker}${dryRun ? " (dry run)" : ""}.`);
   process.exit(0);
 }

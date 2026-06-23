@@ -7,127 +7,145 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const validator = path.join(root, "scripts", "validate-release-train.mjs");
-const tempRoot = await mkdtemp(path.join(tmpdir(), "skenion-release-train-"));
+const validator = path.join(root, "scripts", "validate-compatibility-matrix.mjs");
+const tempRoot = await mkdtemp(path.join(tmpdir(), "skenion-compatibility-matrix-"));
 
-const version = "0.43.0";
-const trainId = "0.43";
+const contractsLine = "0.45";
+const contractsVersion = "0.45.0";
+const sdkVersion = "0.43.0";
+const examplesVersion = "0.45.1";
+const runtimeVersion = "0.44.2";
+const studioVersion = "0.44.3";
+const manualVersion = "0.45.0";
 const target = "x86_64-unknown-linux-gnu";
 const commitSha = "b".repeat(40);
-const manifestRef = "c".repeat(40);
+const matrixRef = "c".repeat(40);
 const checksumValue = "a".repeat(64);
-const conductorRoot = path.join(tempRoot, "skenion");
-const conductorManifestFile = path.join(conductorRoot, "releases", "trains", `${version}.json`);
+const hubRoot = path.join(tempRoot, "skenion");
+const matrixFile = path.join(hubRoot, "releases", "compatibility", `contracts-${contractsLine}.json`);
 
 try {
-  await prepareConductorRepo();
-  runCase("valid-publish-without-runtime-crate", {
+  await prepareHubRepo();
+  runCase("valid-publish-with-independent-component-versions", {
     expectSuccess: true,
   });
   runCase("valid-publish-with-https-source-url", {
-    mutate(manifest) {
-      manifest.components.runtime.binaries[target].source.url = runtimeReleaseUrl();
+    mutate(matrix) {
+      matrix.components.runtime.binaries[target].source.url = runtimeReleaseUrl();
     },
     expectSuccess: true,
   });
-  runManifestPathCase("reject-manifest-path-traversal", {
-    manifestPath: `${path.join(conductorRoot, "releases", "trains")}/../../manifest.json`,
-    expectedOutput: ["--manifest path must not contain .. segments"],
+  runMatrixPathCase("reject-matrix-path-traversal", {
+    matrixPath: `${path.join(hubRoot, "releases", "compatibility")}/../../matrix.json`,
+    expectedOutput: ["--matrix path must not contain .. segments"],
   });
-  runManifestPathCase("reject-manifest-path-version-mismatch", {
-    manifestPath: path.join(conductorRoot, "releases", "trains", "0.42.0.json"),
-    expectedOutput: [`releases/trains/${version}.json`],
+  runMatrixPathCase("reject-matrix-path-line-mismatch", {
+    matrixPath: path.join(hubRoot, "releases", "compatibility", "contracts-0.44.json"),
+    expectedOutput: [`releases/compatibility/contracts-${contractsLine}.json`],
   });
-  runCase("reject-old-manifest-repository", {
-    manifestRepository: "echovisionlab/skenion",
-    expectedOutput: ["manifest repository must be skenion/skenion"],
+  runCase("reject-old-matrix-repository", {
+    matrixRepository: "echovisionlab/skenion",
+    expectedOutput: ["matrix repository must be skenion/skenion"],
+  });
+  runCase("reject-contracts-outside-line", {
+    mutate(matrix) {
+      matrix.contracts.npm.version = "0.44.0";
+      matrix.contracts.crate.version = "0.44.0";
+    },
+    expectedOutput: ["contracts.npm.version must be in Contracts line 0.45"],
+  });
+  runCase("reject-sdk-range-that-misses-contracts", {
+    mutate(matrix) {
+      matrix.components.sdk.npm["supported-contracts"] = ">=0.44.0 <0.45.0";
+    },
+    expectedOutput: ["supported Contracts range must contain released Contracts 0.45.0"],
   });
   runCase("reject-old-owner-source", {
-    mutate(manifest) {
-      manifest.components.examples.repository = "echovisionlab/skenion-examples";
-      manifest["release-gates"]["examples-conformance"].repository = "echovisionlab/skenion-examples";
+    mutate(matrix) {
+      matrix.components.examples.repository = "echovisionlab/skenion-examples";
+      matrix["release-gates"]["examples-conformance"].repository = "echovisionlab/skenion-examples";
     },
     expectedOutput: ["stale echovisionlab"],
   });
   runCase("reject-stale-echovisionlab-artifact-url", {
-    mutate(manifest) {
-      manifest.components.runtime.binaries[target].source.url =
+    mutate(matrix) {
+      matrix.components.runtime.binaries[target].source.url =
         `https://github.com/echovisionlab/skenion-runtime/releases/download/skenion-runtime-v0.34.0/skenion-runtime-v0.34.0-${target}.tar.gz`;
     },
     expectedOutput: ["stale echovisionlab"],
   });
   runCase("reject-absolute-source-url-path", {
-    mutate(manifest) {
-      manifest.components.runtime.binaries[target].source.url = "/tmp/runtime.tar.gz";
+    mutate(matrix) {
+      matrix.components.runtime.binaries[target].source.url = "/tmp/runtime.tar.gz";
     },
     expectedOutput: ["source.url", "non-https release artifact URL"],
   });
   runCase("reject-relative-source-url-path", {
-    mutate(manifest) {
-      manifest.components.runtime.binaries[target].source.url = "../runtime.tar.gz";
+    mutate(matrix) {
+      matrix.components.runtime.binaries[target].source.url = "../runtime.tar.gz";
     },
     expectedOutput: ["source.url", "non-https release artifact URL"],
   });
   runCase("reject-file-source-url", {
-    mutate(manifest) {
-      manifest.components.runtime.binaries[target].source.url = "file:///tmp/runtime.tar.gz";
+    mutate(matrix) {
+      matrix.components.runtime.binaries[target].source.url = "file:///tmp/runtime.tar.gz";
     },
     expectedOutput: ["source.url", "non-https release artifact URL"],
   });
   runCase("reject-main-ref", {
-    mutate(manifest) {
-      manifest["release-gates"]["examples-conformance"].ref = "refs/heads/main";
+    mutate(matrix) {
+      matrix["release-gates"]["examples-conformance"].ref = "refs/heads/main";
     },
     expectedOutput: ["refs/heads/main"],
   });
   runCase("reject-sibling-branch-ref", {
-    mutate(manifest) {
-      manifest.components.runtime.binaries[target].source.ref = "skenion-runtime/main";
+    mutate(matrix) {
+      matrix.components.runtime.binaries[target].source.ref = "skenion-runtime/main";
     },
-    expectedOutput: ["skenion-runtime/main", "exact train release tag"],
+    expectedOutput: ["skenion-runtime/main", "exact component release tag"],
   });
   runCase("reject-non-release-ref", {
-    mutate(manifest) {
-      manifest.components.runtime.binaries[target].source.ref = "release-candidate";
+    mutate(matrix) {
+      matrix.components.runtime.binaries[target].source.ref = "release-candidate";
     },
-    expectedOutput: ["release-candidate", "exact train release tag"],
+    expectedOutput: ["release-candidate", "exact component release tag"],
   });
   runCase("reject-deps-source", {
-    mutate(manifest) {
-      manifest.components.runtime.binaries[target].source.cachePath = ".deps/skenion-runtime";
+    mutate(matrix) {
+      matrix.components.runtime.binaries[target].source.cachePath = ".deps/skenion-runtime";
     },
     expectedOutput: [".deps"],
   });
   runCase("reject-sibling-worktree-source", {
-    mutate(manifest) {
-      manifest.components.runtime.binaries[target].source.localPath =
+    mutate(matrix) {
+      matrix.components.runtime.binaries[target].source.localPath =
         "/Volumes/Linear/Skenion/Skenion-runtime/target/release/skenion-runtime";
     },
     expectedOutput: ["target/release"],
   });
   runCase("reject-local-package-override", {
-    mutate(manifest) {
-      manifest.components.sdk.npm.override = "workspace:*";
+    mutate(matrix) {
+      matrix.components.sdk.npm.override = "workspace:*";
     },
     expectedOutput: ["local package override"],
   });
   runCase("reject-old-runtime-asset-name", {
-    mutate(manifest) {
+    mutate(matrix) {
       const oldName = `skenion-runtime-${target}.tar.gz`;
-      manifest.components.runtime.binaries[target].name = oldName;
-      manifest.components.runtime.binaries[target].source["asset-name"] = oldName;
+      matrix.components.runtime.binaries[target].name = oldName;
+      matrix.components.runtime.binaries[target].source["asset-name"] = oldName;
     },
-    expectedOutput: [`skenion-runtime-v${version}-${target}.tar.gz`],
+    expectedOutput: [`skenion-runtime-v${runtimeVersion}-${target}.tar.gz`],
   });
   runCase("reject-runtime-registry-gate", {
-    mutate(manifest) {
-      manifest["release-gates"]["registry-packages"]["runtime-crate"] = {
+    mutate(matrix) {
+      matrix["release-gates"]["registry-packages"]["runtime-crate"] = {
         required: true,
         status: "passed",
         package: {
           ecosystem: "crates.io",
           name: "skenion-runtime",
-          version,
+          version: runtimeVersion,
         },
       };
     },
@@ -137,28 +155,28 @@ try {
   await rm(tempRoot, { force: true, recursive: true });
 }
 
-console.log("validated release train negative cases");
+console.log("validated compatibility matrix negative cases");
 
 function runCase(name, options = {}) {
-  const manifest = validManifest();
-  options.mutate?.(manifest);
-  writeFileSync(conductorManifestFile, `${JSON.stringify(manifest, null, 2)}\n`);
+  const matrix = validMatrix();
+  options.mutate?.(matrix);
+  writeFileSync(matrixFile, `${JSON.stringify(matrix, null, 2)}\n`);
   const result = spawnSync(process.execPath, [
     validator,
-    "--manifest",
-    conductorManifestFile,
-    "--train-version",
-    version,
+    "--matrix",
+    matrixFile,
+    "--contracts-line",
+    contractsLine,
     "--mode",
     "publish",
     "--runtime-target",
     target,
     "--target-ref",
     commitSha,
-    "--manifest-ref",
-    manifestRef,
-    "--manifest-repository",
-    options.manifestRepository ?? "skenion/skenion",
+    "--matrix-ref",
+    matrixRef,
+    "--matrix-repository",
+    options.matrixRepository ?? "skenion/skenion",
     "--out-dir",
     path.join(tempRoot, name),
   ], {
@@ -184,22 +202,22 @@ function runCase(name, options = {}) {
   }
 }
 
-function runManifestPathCase(name, options) {
+function runMatrixPathCase(name, options) {
   const result = spawnSync(process.execPath, [
     validator,
-    "--manifest",
-    options.manifestPath,
-    "--train-version",
-    version,
+    "--matrix",
+    options.matrixPath,
+    "--contracts-line",
+    contractsLine,
     "--mode",
     "publish",
     "--runtime-target",
     target,
     "--target-ref",
     commitSha,
-    "--manifest-ref",
-    manifestRef,
-    "--manifest-repository",
+    "--matrix-ref",
+    matrixRef,
+    "--matrix-repository",
     "skenion/skenion",
     "--out-dir",
     path.join(tempRoot, name),
@@ -219,10 +237,10 @@ function runManifestPathCase(name, options) {
   }
 }
 
-async function prepareConductorRepo() {
-  await mkdir(path.join(conductorRoot, "releases", "trains"), { recursive: true });
-  runGit(["init", "--quiet"], conductorRoot);
-  runGit(["remote", "add", "origin", "git@github.com:skenion/skenion.git"], conductorRoot);
+async function prepareHubRepo() {
+  await mkdir(path.join(hubRoot, "releases", "compatibility"), { recursive: true });
+  runGit(["init", "--quiet"], hubRoot);
+  runGit(["remote", "add", "origin", "git@github.com:skenion/skenion.git"], hubRoot);
 }
 
 function runGit(args, cwd) {
@@ -235,55 +253,61 @@ function runGit(args, cwd) {
   }
 }
 
-function validManifest() {
-  const contractsNpm = pkg("npm", "@skenion/contracts");
-  const contractsCrate = pkg("crates.io", "skenion-contracts");
-  const sdkNpm = pkg("npm", "@skenion/sdk");
+function validMatrix() {
+  const contractsNpm = pkg("npm", "@skenion/contracts", contractsVersion);
+  const contractsCrate = pkg("crates.io", "skenion-contracts", contractsVersion);
+  const sdkNpm = {
+    ...pkg("npm", "@skenion/sdk", sdkVersion),
+    "supported-contracts": ">=0.45.0 <0.46.0",
+  };
   const runtimeArtifact = artifact({
     id: "runtime-linux-x64",
     kind: "runtime-binary",
+    version: runtimeVersion,
     repository: "skenion/skenion-runtime",
-    tag: `skenion-runtime-v${version}`,
-    "asset-name": `skenion-runtime-v${version}-x86_64-unknown-linux-gnu.tar.gz`,
+    tag: `skenion-runtime-v${runtimeVersion}`,
+    "asset-name": `skenion-runtime-v${runtimeVersion}-x86_64-unknown-linux-gnu.tar.gz`,
   });
   const studioDesktop = artifact({
     id: "studio-desktop-linux-x64",
     kind: "studio-desktop-package",
+    version: studioVersion,
     repository: "skenion/skenion-studio",
-    tag: `skenion-studio-v${version}`,
+    tag: `skenion-studio-v${studioVersion}`,
     "asset-name": "skenion-studio-x86_64-unknown-linux-gnu.tar.gz",
   });
   const studioSidecar = artifact({
     id: "studio-runtime-linux-x64",
     kind: "studio-runtime-sidecar",
+    version: studioVersion,
     repository: "skenion/skenion-studio",
-    tag: `skenion-studio-v${version}`,
+    tag: `skenion-studio-v${studioVersion}`,
     "asset-name": "skenion-runtime-sidecar-x86_64-unknown-linux-gnu.tar.gz",
   });
   const studioWebBundle = {
     id: "studio-web-bundle",
     kind: "studio-web-bundle",
-    name: `skenion-studio-web-bundle-v${version}.tar.gz`,
-    version,
+    name: `skenion-studio-web-bundle-v${studioVersion}.tar.gz`,
+    version: studioVersion,
     source: {
       kind: "github-release-asset",
       repository: "skenion/skenion-studio",
-      tag: `skenion-studio-v${version}`,
-      "asset-name": `skenion-studio-web-bundle-v${version}.tar.gz`,
+      tag: `skenion-studio-v${studioVersion}`,
+      "asset-name": `skenion-studio-web-bundle-v${studioVersion}.tar.gz`,
     },
     checksum: checksum(),
   };
 
   return {
-    schema: "skenion.release-train",
+    schema: "skenion.compatibility-matrix",
     "schema-version": "0.1.0",
-    "train-version": version,
-    "train-id": trainId,
+    contracts: {
+      line: contractsLine,
+      range: ">=0.45.0 <0.46.0",
+      npm: contractsNpm,
+      crate: contractsCrate,
+    },
     components: {
-      contracts: {
-        npm: contractsNpm,
-        crate: contractsCrate,
-      },
       runtime: {
         binaries: {
           [target]: runtimeArtifact,
@@ -303,15 +327,16 @@ function validManifest() {
       },
       docs: {
         manual: {
-          version,
-          path: `/manual/${trainId}/`,
-          "pages-url": `https://skenion.github.io/skenion-docs/manual/${trainId}/`,
+          version: manualVersion,
+          "contracts-line": contractsLine,
+          path: `/manual/${contractsLine}/`,
+          "pages-url": `https://skenion.github.io/skenion-docs/manual/${contractsLine}/`,
         },
       },
       examples: {
         repository: "skenion/skenion-examples",
-        version,
-        tag: `skenion-examples-v${version}`,
+        version: examplesVersion,
+        tag: `skenion-examples-v${examplesVersion}`,
         commit: commitSha,
       },
     },
@@ -320,15 +345,15 @@ function validManifest() {
         required: true,
         status: "passed",
         repository: "skenion/skenion-examples",
-        ref: `skenion-examples-v${version}`,
-        version,
+        ref: `skenion-examples-v${examplesVersion}`,
+        version: examplesVersion,
       },
       "docs-pages-deployment": {
         required: true,
         status: "passed",
-        "manual-version": version,
-        "manual-path": `/manual/${trainId}/`,
-        "pages-url": `https://skenion.github.io/skenion-docs/manual/${trainId}/`,
+        "manual-version": manualVersion,
+        "manual-path": `/manual/${contractsLine}/`,
+        "pages-url": `https://skenion.github.io/skenion-docs/manual/${contractsLine}/`,
       },
       "runtime-smoke": {
         [target]: {
@@ -356,13 +381,13 @@ function validManifest() {
         runtime: {
           required: true,
           status: "passed",
-          tag: `skenion-runtime-v${version}`,
+          tag: `skenion-runtime-v${runtimeVersion}`,
           "artifact-ids": [runtimeArtifact.id],
         },
         studio: {
           required: true,
           status: "passed",
-          tag: `skenion-studio-v${version}`,
+          tag: `skenion-studio-v${studioVersion}`,
           "artifact-ids": [studioDesktop.id, studioWebBundle.id, studioSidecar.id],
         },
       },
@@ -381,7 +406,7 @@ function validManifest() {
   };
 }
 
-function pkg(ecosystem, name) {
+function pkg(ecosystem, name, version) {
   return {
     ecosystem,
     name,
@@ -389,7 +414,7 @@ function pkg(ecosystem, name) {
   };
 }
 
-function artifact({ id, kind, repository, tag, "asset-name": assetName }) {
+function artifact({ id, kind, version, repository, tag, "asset-name": assetName }) {
   return {
     id,
     target,
@@ -408,7 +433,7 @@ function artifact({ id, kind, repository, tag, "asset-name": assetName }) {
 }
 
 function runtimeReleaseUrl() {
-  return `https://github.com/skenion/skenion-runtime/releases/download/skenion-runtime-v${version}/skenion-runtime-v${version}-${target}.tar.gz`;
+  return `https://github.com/skenion/skenion-runtime/releases/download/skenion-runtime-v${runtimeVersion}/skenion-runtime-v${runtimeVersion}-${target}.tar.gz`;
 }
 
 function checksum() {

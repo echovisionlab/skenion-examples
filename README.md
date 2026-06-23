@@ -105,43 +105,46 @@ bash scripts/validate-with-runtime.sh /Volumes/dev/skenion/skenion-runtime
 SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-v01-projects.sh
 ```
 
-## Release Train Conformance
+## Compatibility Matrix Conformance
 
-The `Release Examples Conformance` workflow is the conductor-controlled release
-path for this repository. It accepts an exact `train_version`, manifest
-repository/ref/path, and examples target ref. In `publish` mode it can create
-the `components.examples.tag` recorded in the train manifest; in `verify` mode
-it verifies that tag against the recorded manifest commit.
+The `Release Examples Compatibility` workflow is the matrix-controlled release
+path for this repository. It accepts a Contracts line such as `0.45`, a
+compatibility matrix repository/ref/path, and an Examples target ref. Contracts
+line `0.45` means `>=0.45.0 <0.46.0`.
 
-Release mode installs `@skenion/contracts@<train_version>` and
-`@skenion/sdk@<train_version>` from npm, validates Studio-compatible project and
-help fixtures through the released SDK helpers, and checks Manual metadata in
-the train manifest. It validates Runtime and Studio artifact metadata for exact
-release tags and the release-blocking support tier; publish/verify mode also
-requires required gates to be passed and release-blocking artifact checksums to
-be pinned. The selected Runtime binary is downloaded from the Runtime GitHub
-release, checked against the manifest SHA-256, extracted, and used for CLI and
-server smoke coverage.
+Release mode installs the matrix-recorded `@skenion/contracts` and
+`@skenion/sdk` packages from npm. Those versions do not need to be equal, but
+the released SDK package must declare an `@skenion/contracts` range that
+contains the matrix-recorded Contracts package version. Studio-compatible
+project and help fixtures are then validated through the released SDK helpers.
 
-Publish/verify mode also requires `components.examples.commit` and `target_ref`
-to be the same 40-character git SHA, and requires the examples release tag to be
-exactly `skenion-examples-v<train_version>` with SemVer components that have no
+The matrix also records released Runtime, Studio, Docs, and Examples evidence.
+Runtime and Studio artifact metadata must point at exact component release tags;
+publish/verify mode requires required gates to be passed and release-blocking
+artifact checksums to be pinned. The selected Runtime binary is downloaded from
+the Runtime GitHub release, checked against the matrix SHA-256, extracted, and
+used for CLI and server smoke coverage.
+
+Publish/verify mode requires `components.examples.commit` and `target_ref` to
+be the same 40-character git SHA, and requires the Examples release tag to be
+exactly `skenion-examples-v<version>` with SemVer components that have no
 leading zeros. It rejects `.deps`, sibling worktrees, local Runtime or SDK
 builds, branch refs such as `main`, `refs/*` names, slashes, arbitrary tag
 names, and path-based package overrides so release conformance cannot pass by
 using local or sibling artifacts.
 
-Run the release-train guardrails locally with:
+Run the compatibility-matrix guardrails locally with:
 
 ```sh
-node scripts/validate-release-train-self-test.mjs
-node scripts/validate-release-train.mjs --manifest /Volumes/Linear/Skenion/Skenion/releases/trains/0.43.0.json --train-version 0.43.0 --mode prepare --runtime-target x86_64-unknown-linux-gnu --target-ref skenion-examples-v0.43.0 --manifest-repository skenion/skenion --out-dir .skenion-train
+node scripts/validate-compatibility-matrix-self-test.mjs
+node scripts/validate-compatibility-matrix.mjs --matrix /Volumes/Linear/Skenion/Skenion/releases/compatibility/contracts-0.45.json --contracts-line 0.45 --mode prepare --runtime-target x86_64-unknown-linux-gnu --target-ref skenion-examples-v0.45.1 --matrix-repository skenion/skenion --out-dir .skenion-matrix
 ```
 
-The prepare-mode manifest check accepts pending release gates and unpinned
-Studio checksums while still requiring exact train versions, current
-kebab-case Runtime artifact names, release tags, registry package identities,
-and no local or sibling artifact sources.
+The prepare-mode matrix check accepts pending release gates and unpinned Studio
+checksums while still requiring a concrete Contracts package inside the
+Contracts line, a compatible SDK range, current kebab-case Runtime artifact
+names, exact component release tags, registry package identities, and no local
+or sibling artifact sources.
 
 ## Status
 

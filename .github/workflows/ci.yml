@@ -19,40 +19,16 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/checkout@v6
         with:
-          repository: skenion/skenion-contracts
-          path: .deps/skenion-contracts
-      - uses: actions/checkout@v6
-        with:
           repository: skenion/skenion-runtime
           path: .deps/skenion-runtime
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libasound2-dev pkg-config
-      - name: Align cross-repo dependency branches
+      - name: Align runtime dependency branch
         if: github.event_name == 'pull_request'
         run: |
-          for dep in .deps/skenion-contracts .deps/skenion-runtime; do
-            (
-              cd "${dep}"
-              if git ls-remote --exit-code origin "refs/heads/${GITHUB_HEAD_REF}" >/dev/null 2>&1; then
-                git fetch --depth=1 origin "${GITHUB_HEAD_REF}"
-                git checkout FETCH_HEAD
-              fi
-            )
-          done
-      - name: Align contracts checkout to runtime crate dependency
-        run: |
-          runtime_contracts_version="$(awk -F'"' '/skenion-contracts[[:space:]]*=/{ print $2; exit }' .deps/skenion-runtime/Cargo.toml)"
-          contracts_ref="skenion-contracts-v${runtime_contracts_version}"
-          contracts_version="$(awk -F'"' '/^version[[:space:]]*=/{ print $2; exit }' .deps/skenion-contracts/packages/rust/Cargo.toml)"
-          if [[ "${contracts_version}" != "${runtime_contracts_version}" ]]; then
-            git -C .deps/skenion-contracts fetch --depth=1 origin "refs/tags/${contracts_ref}:refs/tags/${contracts_ref}"
-            git -C .deps/skenion-contracts checkout "${contracts_ref}"
-            contracts_version="$(awk -F'"' '/^version[[:space:]]*=/{ print $2; exit }' .deps/skenion-contracts/packages/rust/Cargo.toml)"
+          if git -C .deps/skenion-runtime ls-remote --exit-code origin "refs/heads/${GITHUB_HEAD_REF}" >/dev/null 2>&1; then
+            git -C .deps/skenion-runtime fetch --depth=1 origin "${GITHUB_HEAD_REF}"
+            git -C .deps/skenion-runtime checkout FETCH_HEAD
           fi
-          if [[ "${contracts_version}" != "${runtime_contracts_version}" ]]; then
-            echo "contracts checkout version ${contracts_version} does not match runtime dependency ${runtime_contracts_version}" >&2
-            exit 1
-          fi
-      - run: ln -sfn skenion-contracts .deps/Skenion-contracts
       - uses: pnpm/action-setup@v6
         with:
           version: 10.12.4
@@ -62,13 +38,8 @@ jobs:
           cache: pnpm
           cache-dependency-path: |
             pnpm-lock.yaml
-            .deps/skenion-contracts/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm install --frozen-lockfile
-        working-directory: .deps/skenion-contracts
-      - run: pnpm run build
-        working-directory: .deps/skenion-contracts
-      - run: node scripts/validate-release-train-self-test.mjs
+      - run: node scripts/validate-compatibility-matrix-self-test.mjs
       - run: node scripts/validate-with-contracts.mjs
       - run: node scripts/validate-repo-path-references.mjs
       - run: node scripts/audit-node-conventions.mjs

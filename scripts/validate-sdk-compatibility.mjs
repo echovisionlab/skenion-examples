@@ -3,20 +3,20 @@ import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { normalizeTrainManifestInput } from "./release-train-manifest-path.mjs";
+import { normalizeCompatibilityMatrixInput } from "./compatibility-matrix-path.mjs";
 
 const root = process.cwd();
 const args = parseArgs(process.argv.slice(2));
-const manifestPath = requireArg("manifest");
-const trainVersion = requireArg("train-version");
-const manifestPathErrors = [];
-const manifestSource = normalizeTrainManifestInput(manifestPath, {
-  trainVersion,
-  manifestRepository: "skenion/skenion",
-  errors: manifestPathErrors,
+const matrixPath = requireArg("matrix");
+const contractsLine = requireArg("contracts-line");
+const matrixPathErrors = [];
+const matrixSource = normalizeCompatibilityMatrixInput(matrixPath, {
+  contractsLine,
+  matrixRepository: "skenion/skenion",
+  errors: matrixPathErrors,
 });
-if (manifestPathErrors.length > 0) {
-  throw new Error(manifestPathErrors.join("; "));
+if (matrixPathErrors.length > 0) {
+  throw new Error(matrixPathErrors.join("; "));
 }
 const releaseMode = process.env.SKENION_RELEASE_MODE === "1";
 const sdkPackageOverride = process.env.SKENION_SDK_PACKAGE;
@@ -31,28 +31,40 @@ if (releaseMode && existsSync(linkedSdkPackage)) {
 }
 
 const sdk = await importSdk();
-const manifest = await readJson(manifestSource.absolutePath);
+const matrix = await readJson(matrixSource.absolutePath);
+const matrixContractsPackage = matrix.contracts?.npm ?? matrix.components?.contracts?.npm;
+const matrixSdkPackage = matrix.components?.sdk?.npm;
 const sdkPackageJson = await readInstalledPackageJson("@skenion/sdk");
 const contractsPackageJson = await readInstalledPackageJson("@skenion/contracts");
 
-if (sdkPackageJson.version !== trainVersion) {
-  throw new Error(`installed @skenion/sdk version ${sdkPackageJson.version} does not match ${trainVersion}`);
+if (contractsPackageJson.version !== matrixContractsPackage?.version) {
+  throw new Error(`installed @skenion/contracts version ${contractsPackageJson.version} does not match matrix ${matrixContractsPackage?.version}`);
 }
-if (contractsPackageJson.version !== trainVersion) {
-  throw new Error(`installed @skenion/contracts version ${contractsPackageJson.version} does not match ${trainVersion}`);
+if (sdkPackageJson.version !== matrixSdkPackage?.version) {
+  throw new Error(`installed @skenion/sdk version ${sdkPackageJson.version} does not match matrix ${matrixSdkPackage?.version}`);
 }
 
-const releaseBlockingRuntimeTargets = releaseBlockingTargets(manifest.components?.runtime?.binaries);
-const releaseBlockingStudioSidecarTargets = releaseBlockingTargets(manifest.components?.studio?.["runtime-sidecars"]);
-const trainValidation = sdk.validateReleaseTrainManifestForSdk(manifest, {
+const sdkContractsRange = sdkPackageJson.peerDependencies?.["@skenion/contracts"]
+  ?? sdkPackageJson.dependencies?.["@skenion/contracts"];
+if (!rangeContainsVersion(sdkContractsRange, contractsPackageJson.version)) {
+  throw new Error(`installed @skenion/sdk declares @skenion/contracts range ${JSON.stringify(sdkContractsRange)}, which does not contain ${contractsPackageJson.version}`);
+}
+
+const releaseBlockingRuntimeTargets = releaseBlockingTargets(matrix.components?.runtime?.binaries);
+const releaseBlockingStudioSidecarTargets = releaseBlockingTargets(matrix.components?.studio?.["runtime-sidecars"]);
+const validateMatrixForSdk = sdk.validateCompatibilityMatrixForSdk;
+if (typeof validateMatrixForSdk !== "function") {
+  throw new Error("released SDK does not expose compatibility matrix validation helpers");
+}
+const matrixValidation = validateMatrixForSdk(matrix, {
   sdkPackageVersion: sdkPackageJson.version,
   contractsPackageVersion: contractsPackageJson.version,
-  contractsDependencyRange: sdkPackageJson.peerDependencies?.["@skenion/contracts"],
+  contractsDependencyRange: sdkContractsRange,
   requiredRuntimeTargets: releaseBlockingRuntimeTargets,
   requiredStudioSidecarTargets: releaseBlockingStudioSidecarTargets,
 });
-if (!trainValidation.ok) {
-  throw new Error(`released SDK rejected train manifest: ${trainValidation.diagnostics.map((diagnostic) => diagnostic.message).join("; ")}`);
+if (!matrixValidation.ok) {
+  throw new Error(`released SDK rejected compatibility matrix: ${matrixValidation.diagnostics.map((diagnostic) => diagnostic.message).join("; ")}`);
 }
 
 let projectCount = 0;
@@ -113,7 +125,7 @@ if (!validateUrl.endsWith("/v0/sessions/sdk-release-conformance/validate")) {
 sdk.createRuntimeEventReplayCursorState("0");
 
 console.log(
-  `validated released SDK helpers with ${projectCount} Studio project fixtures, ${runtimePayloadCount} runtime project payloads, ${patchContractCount} derived patch contracts, ${fragmentCount} graph fragments, ${pasteOperationCount} paste operations, and manifest ${manifest["train-version"]}`
+  `validated released SDK helpers with ${projectCount} Studio project fixtures, ${runtimePayloadCount} runtime project payloads, ${patchContractCount} derived patch contracts, ${fragmentCount} graph fragments, ${pasteOperationCount} paste operations, and Contracts line ${contractsLine}`
 );
 
 function parseArgs(argv) {
@@ -235,4 +247,46 @@ function releaseBlockingTargets(artifacts) {
   return Object.entries(artifacts ?? {})
     .filter(([, artifact]) => artifact?.["support-tier"] === "release-blocking")
     .map(([target]) => target);
+}
+
+function rangeContainsVersion(range, version) {
+  if (!isStrictSemver(version) || typeof range !== "string") {
+    return false;
+  }
+  const normalized = range.trim();
+  if (isStrictSemver(normalized)) {
+    return normalized === version;
+  }
+  const match = normalized.match(/^>=([0-9]+\.[0-9]+\.[0-9]+) <([0-9]+\.[0-9]+\.[0-9]+)$/);
+  if (!match) {
+    return false;
+  }
+  return compareSemver(version, match[1]) >= 0 && compareSemver(version, match[2]) < 0;
+}
+
+function compareSemver(left, right) {
+  const leftParsed = parseSemver(left);
+  const rightParsed = parseSemver(right);
+  for (const key of ["major", "minor", "patch"]) {
+    if (leftParsed[key] !== rightParsed[key]) {
+      return leftParsed[key] - rightParsed[key];
+    }
+  }
+  return 0;
+}
+
+function parseSemver(value) {
+  const match = String(value ?? "").match(/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/);
+  if (!match) {
+    return null;
+  }
+  return {
+    major: Number(match[1]),
+    minor: Number(match[2]),
+    patch: Number(match[3]),
+  };
+}
+
+function isStrictSemver(value) {
+  return /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.test(String(value ?? ""));
 }
