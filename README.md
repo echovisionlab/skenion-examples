@@ -137,7 +137,7 @@ Run the compatibility-matrix guardrails locally with:
 
 ```sh
 node scripts/validate-compatibility-matrix-self-test.mjs
-node scripts/validate-compatibility-matrix.mjs --matrix /Volumes/Linear/Skenion/Skenion/releases/compatibility/contracts-0.45.json --contracts-line 0.45 --mode prepare --runtime-target x86_64-unknown-linux-gnu --target-ref skenion-examples-v0.45.1 --matrix-repository skenion/skenion --out-dir .skenion-matrix
+node scripts/validate-compatibility-matrix.mjs --matrix /Volumes/Linear/Skenion/Skenion/releases/compatibility/0.45.json --contracts-line 0.45 --mode prepare --runtime-target x86_64-unknown-linux-gnu --target-ref skenion-examples-v0.45.0 --matrix-repository skenion/skenion --out-dir .skenion-matrix
 ```
 
 The prepare-mode matrix check accepts pending release gates and unpinned Studio

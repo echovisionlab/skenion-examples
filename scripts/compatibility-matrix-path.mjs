@@ -81,7 +81,7 @@ export function normalizeCompatibilityMatrixInput(input, {
 }
 
 export function compatibilityMatrixRepositoryPath(contractsLine) {
-  return `releases/compatibility/contracts-${contractsLine}.json`;
+  return `releases/compatibility/${contractsLine}.json`;
 }
 
 export function normalizeGitHubRepository(value) {

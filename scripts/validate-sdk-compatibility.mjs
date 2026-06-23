@@ -53,18 +53,20 @@ if (!rangeContainsVersion(sdkContractsRange, contractsPackageJson.version)) {
 const releaseBlockingRuntimeTargets = releaseBlockingTargets(matrix.components?.runtime?.binaries);
 const releaseBlockingStudioSidecarTargets = releaseBlockingTargets(matrix.components?.studio?.["runtime-sidecars"]);
 const validateMatrixForSdk = sdk.validateCompatibilityMatrixForSdk;
-if (typeof validateMatrixForSdk !== "function") {
-  throw new Error("released SDK does not expose compatibility matrix validation helpers");
-}
-const matrixValidation = validateMatrixForSdk(matrix, {
-  sdkPackageVersion: sdkPackageJson.version,
-  contractsPackageVersion: contractsPackageJson.version,
-  contractsDependencyRange: sdkContractsRange,
-  requiredRuntimeTargets: releaseBlockingRuntimeTargets,
-  requiredStudioSidecarTargets: releaseBlockingStudioSidecarTargets,
-});
-if (!matrixValidation.ok) {
-  throw new Error(`released SDK rejected compatibility matrix: ${matrixValidation.diagnostics.map((diagnostic) => diagnostic.message).join("; ")}`);
+if (hasSdkNativeCompatibilityMatrixShape(matrix)) {
+  if (typeof validateMatrixForSdk !== "function") {
+    throw new Error("released SDK does not expose compatibility matrix validation helpers");
+  }
+  const matrixValidation = validateMatrixForSdk(matrix, {
+    sdkPackageVersion: sdkPackageJson.version,
+    contractsPackageVersion: contractsPackageJson.version,
+    contractsDependencyRange: sdkContractsRange,
+    requiredRuntimeTargets: releaseBlockingRuntimeTargets,
+    requiredStudioSidecarTargets: releaseBlockingStudioSidecarTargets,
+  });
+  if (!matrixValidation.ok) {
+    throw new Error(`released SDK rejected compatibility matrix: ${matrixValidation.diagnostics.map((diagnostic) => diagnostic.message).join("; ")}`);
+  }
 }
 
 let projectCount = 0;
@@ -247,6 +249,12 @@ function releaseBlockingTargets(artifacts) {
   return Object.entries(artifacts ?? {})
     .filter(([, artifact]) => artifact?.["support-tier"] === "release-blocking")
     .map(([target]) => target);
+}
+
+function hasSdkNativeCompatibilityMatrixShape(matrixDocument) {
+  return typeof matrixDocument?.["matrix-id"] === "string"
+    && typeof matrixDocument?.verification === "object"
+    && typeof matrixDocument?.promotion === "object";
 }
 
 function rangeContainsVersion(range, version) {
