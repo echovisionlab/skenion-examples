@@ -131,6 +131,18 @@ builds, branch refs such as `main`, `refs/*` names, slashes, arbitrary tag
 names, and path-based package overrides so release conformance cannot pass by
 using local or sibling artifacts.
 
+Run the release-train guardrails locally with:
+
+```sh
+node scripts/validate-release-train-self-test.mjs
+node scripts/validate-release-train.mjs --manifest /Volumes/Linear/Skenion/Skenion/releases/trains/0.43.0.json --train-version 0.43.0 --mode prepare --runtime-target x86_64-unknown-linux-gnu --target-ref skenion-examples-v0.43.0 --manifest-repository skenion/skenion --out-dir .skenion-train
+```
+
+The prepare-mode manifest check accepts pending release gates and unpinned
+Studio checksums while still requiring exact train versions, current
+kebab-case Runtime artifact names, release tags, registry package identities,
+and no local or sibling artifact sources.
+
 ## Status
 
 Bootstrap repository for the skenion project. Implementation follows the public architecture and release rules defined in [skenion/skenion](https://github.com/skenion/skenion).

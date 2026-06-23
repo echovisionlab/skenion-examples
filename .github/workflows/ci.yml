@@ -68,6 +68,7 @@ jobs:
         working-directory: .deps/skenion-contracts
       - run: pnpm run build
         working-directory: .deps/skenion-contracts
+      - run: node scripts/validate-release-train-self-test.mjs
       - run: node scripts/validate-with-contracts.mjs
       - run: node scripts/validate-repo-path-references.mjs
       - run: node scripts/audit-node-conventions.mjs

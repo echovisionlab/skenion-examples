@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import { mkdtemp, rm } from "node:fs/promises";
+import { writeFileSync } from "node:fs";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,10 +16,27 @@ const target = "x86_64-unknown-linux-gnu";
 const commitSha = "b".repeat(40);
 const manifestRef = "c".repeat(40);
 const checksumValue = "a".repeat(64);
+const conductorRoot = path.join(tempRoot, "skenion");
+const conductorManifestFile = path.join(conductorRoot, "releases", "trains", `${version}.json`);
 
 try {
+  await prepareConductorRepo();
   runCase("valid-publish-without-runtime-crate", {
     expectSuccess: true,
+  });
+  runCase("valid-publish-with-https-source-url", {
+    mutate(manifest) {
+      manifest.components.runtime.binaries[target].source.url = runtimeReleaseUrl();
+    },
+    expectSuccess: true,
+  });
+  runManifestPathCase("reject-manifest-path-traversal", {
+    manifestPath: `${path.join(conductorRoot, "releases", "trains")}/../../manifest.json`,
+    expectedOutput: ["--manifest path must not contain .. segments"],
+  });
+  runManifestPathCase("reject-manifest-path-version-mismatch", {
+    manifestPath: path.join(conductorRoot, "releases", "trains", "0.42.0.json"),
+    expectedOutput: [`releases/trains/${version}.json`],
   });
   runCase("reject-old-manifest-repository", {
     manifestRepository: "echovisionlab/skenion",
@@ -29,13 +47,50 @@ try {
       manifest.components.examples.repository = "echovisionlab/skenion-examples";
       manifest["release-gates"]["examples-conformance"].repository = "echovisionlab/skenion-examples";
     },
-    expectedOutput: ["echovisionlab"],
+    expectedOutput: ["stale echovisionlab"],
+  });
+  runCase("reject-stale-echovisionlab-artifact-url", {
+    mutate(manifest) {
+      manifest.components.runtime.binaries[target].source.url =
+        `https://github.com/echovisionlab/skenion-runtime/releases/download/skenion-runtime-v0.34.0/skenion-runtime-v0.34.0-${target}.tar.gz`;
+    },
+    expectedOutput: ["stale echovisionlab"],
+  });
+  runCase("reject-absolute-source-url-path", {
+    mutate(manifest) {
+      manifest.components.runtime.binaries[target].source.url = "/tmp/runtime.tar.gz";
+    },
+    expectedOutput: ["source.url", "non-https release artifact URL"],
+  });
+  runCase("reject-relative-source-url-path", {
+    mutate(manifest) {
+      manifest.components.runtime.binaries[target].source.url = "../runtime.tar.gz";
+    },
+    expectedOutput: ["source.url", "non-https release artifact URL"],
+  });
+  runCase("reject-file-source-url", {
+    mutate(manifest) {
+      manifest.components.runtime.binaries[target].source.url = "file:///tmp/runtime.tar.gz";
+    },
+    expectedOutput: ["source.url", "non-https release artifact URL"],
   });
   runCase("reject-main-ref", {
     mutate(manifest) {
       manifest["release-gates"]["examples-conformance"].ref = "refs/heads/main";
     },
     expectedOutput: ["refs/heads/main"],
+  });
+  runCase("reject-sibling-branch-ref", {
+    mutate(manifest) {
+      manifest.components.runtime.binaries[target].source.ref = "skenion-runtime/main";
+    },
+    expectedOutput: ["skenion-runtime/main", "exact train release tag"],
+  });
+  runCase("reject-non-release-ref", {
+    mutate(manifest) {
+      manifest.components.runtime.binaries[target].source.ref = "release-candidate";
+    },
+    expectedOutput: ["release-candidate", "exact train release tag"],
   });
   runCase("reject-deps-source", {
     mutate(manifest) {
@@ -48,7 +103,21 @@ try {
       manifest.components.runtime.binaries[target].source.localPath =
         "/Volumes/Linear/Skenion/Skenion-runtime/target/release/skenion-runtime";
     },
-    expectedOutput: ["forbidden local/sibling/main source pattern"],
+    expectedOutput: ["target/release"],
+  });
+  runCase("reject-local-package-override", {
+    mutate(manifest) {
+      manifest.components.sdk.npm.override = "workspace:*";
+    },
+    expectedOutput: ["local package override"],
+  });
+  runCase("reject-old-runtime-asset-name", {
+    mutate(manifest) {
+      const oldName = `skenion-runtime-${target}.tar.gz`;
+      manifest.components.runtime.binaries[target].name = oldName;
+      manifest.components.runtime.binaries[target].source["asset-name"] = oldName;
+    },
+    expectedOutput: [`skenion-runtime-v${version}-${target}.tar.gz`],
   });
   runCase("reject-runtime-registry-gate", {
     mutate(manifest) {
@@ -73,10 +142,11 @@ console.log("validated release train negative cases");
 function runCase(name, options = {}) {
   const manifest = validManifest();
   options.mutate?.(manifest);
+  writeFileSync(conductorManifestFile, `${JSON.stringify(manifest, null, 2)}\n`);
   const result = spawnSync(process.execPath, [
     validator,
     "--manifest",
-    JSON.stringify(manifest),
+    conductorManifestFile,
     "--train-version",
     version,
     "--mode",
@@ -114,6 +184,57 @@ function runCase(name, options = {}) {
   }
 }
 
+function runManifestPathCase(name, options) {
+  const result = spawnSync(process.execPath, [
+    validator,
+    "--manifest",
+    options.manifestPath,
+    "--train-version",
+    version,
+    "--mode",
+    "publish",
+    "--runtime-target",
+    target,
+    "--target-ref",
+    commitSha,
+    "--manifest-ref",
+    manifestRef,
+    "--manifest-repository",
+    "skenion/skenion",
+    "--out-dir",
+    path.join(tempRoot, name),
+  ], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  const output = `${result.stdout}${result.stderr}`;
+
+  if (result.status === 0) {
+    throw new Error(`${name} passed unexpectedly`);
+  }
+  for (const expected of options.expectedOutput ?? []) {
+    if (!output.includes(expected)) {
+      throw new Error(`${name} did not include ${JSON.stringify(expected)}:\n${output}`);
+    }
+  }
+}
+
+async function prepareConductorRepo() {
+  await mkdir(path.join(conductorRoot, "releases", "trains"), { recursive: true });
+  runGit(["init", "--quiet"], conductorRoot);
+  runGit(["remote", "add", "origin", "git@github.com:skenion/skenion.git"], conductorRoot);
+}
+
+function runGit(args, cwd) {
+  const result = spawnSync("git", args, {
+    cwd,
+    encoding: "utf8",
+  });
+  if (result.status !== 0) {
+    throw new Error(`git ${args.join(" ")} failed:\n${result.stdout}${result.stderr}`);
+  }
+}
+
 function validManifest() {
   const contractsNpm = pkg("npm", "@skenion/contracts");
   const contractsCrate = pkg("crates.io", "skenion-contracts");
@@ -123,7 +244,7 @@ function validManifest() {
     kind: "runtime-binary",
     repository: "skenion/skenion-runtime",
     tag: `skenion-runtime-v${version}`,
-    "asset-name": "skenion-runtime-x86_64-unknown-linux-gnu.tar.gz",
+    "asset-name": `skenion-runtime-v${version}-x86_64-unknown-linux-gnu.tar.gz`,
   });
   const studioDesktop = artifact({
     id: "studio-desktop-linux-x64",
@@ -273,6 +394,7 @@ function artifact({ id, kind, repository, tag, "asset-name": assetName }) {
     id,
     target,
     kind,
+    name: assetName,
     version,
     "support-tier": "release-blocking",
     source: {
@@ -283,6 +405,10 @@ function artifact({ id, kind, repository, tag, "asset-name": assetName }) {
     },
     checksum: checksum(),
   };
+}
+
+function runtimeReleaseUrl() {
+  return `https://github.com/skenion/skenion-runtime/releases/download/skenion-runtime-v${version}/skenion-runtime-v${version}-${target}.tar.gz`;
 }
 
 function checksum() {
