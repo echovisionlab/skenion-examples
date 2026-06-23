@@ -1,4 +1,4 @@
-# Skenion Active Compatibility Fixtures
+# skenion Active Compatibility Fixtures
 
 This directory contains the active product fixtures for Port/Edge/Feedback
 Semantics, subpatches, live help, graph fragments, runtime operations,

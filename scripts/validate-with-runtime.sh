@@ -11,7 +11,8 @@ if [[ "${release_mode}" == "1" && -z "${runtime_bin}" ]]; then
   exit 1
 fi
 
-if [[ "${release_mode}" == "1" && ( "${runtime_bin}" == .deps/* || "${runtime_bin}" == *"/Skenion-runtime/"* || "${runtime_bin}" == *"/target/debug/"* || "${runtime_bin}" == *"/target/release/"* ) ]]; then
+runtime_bin_lc="$(printf '%s' "${runtime_bin}" | tr '[:upper:]' '[:lower:]')"
+if [[ "${release_mode}" == "1" && ( "${runtime_bin}" == .deps/* || "${runtime_bin_lc}" == *"/skenion-runtime/"* || "${runtime_bin_lc}" == *"/target/debug/"* || "${runtime_bin_lc}" == *"/target/release/"* ) ]]; then
   echo "release mode must not use a sibling/local Runtime build: ${runtime_bin}" >&2
   exit 1
 fi

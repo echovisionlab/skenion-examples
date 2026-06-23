@@ -21,11 +21,6 @@ on:
         description: Lockstep product version, such as 0.43.0.
         required: true
         type: string
-      manifest_repository:
-        description: Repository that owns the train manifest.
-        required: true
-        default: echovisionlab/skenion
-        type: string
       manifest_ref:
         description: Manifest repository ref. Publish/verify require a 40-character commit SHA; prepare may use a branch/ref.
         required: true
@@ -80,7 +75,7 @@ jobs:
       - name: Check out train manifest
         uses: actions/checkout@v6
         with:
-          repository: ${{ inputs.manifest_repository }}
+          repository: skenion/skenion
           ref: ${{ inputs.manifest_ref }}
           path: .release/manifest
           persist-credentials: false
@@ -95,6 +90,7 @@ jobs:
           --runtime-target "${RUNTIME_TARGET}"
           --target-ref "${TARGET_REF}"
           --manifest-ref "${MANIFEST_REF}"
+          --manifest-repository skenion/skenion
           --out-dir .skenion-train
         env:
           MANIFEST_PATH: ${{ inputs.manifest_path }}
@@ -257,7 +253,6 @@ jobs:
             echo "- Examples tag: ${EXAMPLES_TAG}"
             echo "- Contracts: @skenion/contracts@${CONTRACTS_VERSION}"
             echo "- SDK: @skenion/sdk@${SDK_VERSION}"
-            echo "- Studio packages: @skenion/studio-web@${STUDIO_WEB_VERSION}, @skenion/studio-desktop@${STUDIO_DESKTOP_VERSION}"
             echo "- Runtime artifact: ${RUNTIME_REPOSITORY}@${RUNTIME_TAG}/${RUNTIME_ASSET}"
             echo "- Runtime SHA-256: ${RUNTIME_SHA256}"
             echo "- Manual: ${MANUAL_VERSION} at ${MANUAL_PATH}"
@@ -269,14 +264,12 @@ jobs:
           EXAMPLES_TAG: ${{ steps.train.outputs.examples_tag }}
           CONTRACTS_VERSION: ${{ steps.train.outputs.contracts_npm_version }}
           SDK_VERSION: ${{ steps.train.outputs.sdk_npm_version }}
-          STUDIO_WEB_VERSION: ${{ steps.train.outputs.studio_web_version }}
-          STUDIO_DESKTOP_VERSION: ${{ steps.train.outputs.studio_desktop_version }}
           RUNTIME_REPOSITORY: ${{ steps.train.outputs.runtime_repository }}
           RUNTIME_TAG: ${{ steps.train.outputs.runtime_tag }}
           RUNTIME_ASSET: ${{ steps.train.outputs.runtime_asset }}
           RUNTIME_SHA256: ${{ steps.train.outputs.runtime_sha256 }}
           MANUAL_VERSION: ${{ steps.train.outputs.manual_version }}
           MANUAL_PATH: ${{ steps.train.outputs.manual_path }}
-          MANIFEST_REPOSITORY: ${{ inputs.manifest_repository }}
+          MANIFEST_REPOSITORY: skenion/skenion
           MANIFEST_REF: ${{ inputs.manifest_ref }}
           MANIFEST_PATH: ${{ inputs.manifest_path }}

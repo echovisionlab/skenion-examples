@@ -35,7 +35,7 @@
         "manualRoute": "/manual/0.33/model/subpatches",
         "patchId": "help.core.subpatch",
         "fixture": "compatibility/v0.1/projects/valid/subpatch-boundary.project.json",
-        "summary": "Open the current 0.1 subpatch boundary fixture from the Skenion Manual."
+        "summary": "Open the current 0.1 subpatch boundary fixture from the skenion Manual."
       },
       "ports": [
         {

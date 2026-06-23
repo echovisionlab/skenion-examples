@@ -42,7 +42,7 @@ produces a `resource<gpu.texture2d>` output for the local preview window.
 The `render.fullscreen-shader` node fixture is the first shader-oriented render
 node. Its params are `{ "language": "wgsl", "source": "..." }`.
 Runtimes should compile the WGSL fragment source into a fullscreen triangle
-pass, provide a generated Skenion frame/uniform header, and report shader
+pass, provide a generated skenion frame/uniform header, and report shader
 compile or render errors through preview telemetry. Dynamic value inputs are
 declared with `// @skenion.uniform <portId> <dataKind>` comments.
 The `fullscreen-shader-uniform.project.json` payload connects

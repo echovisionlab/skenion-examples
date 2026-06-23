@@ -54,7 +54,7 @@ if (dryRun) {
   process.exit(0);
 }
 
-git(["tag", "-a", tag, targetCommit, "-m", `Skenion examples ${tag}`], { stdio: "inherit" });
+git(["tag", "-a", tag, targetCommit, "-m", `skenion examples ${tag}`], { stdio: "inherit" });
 git(["push", "origin", `refs/tags/${tag}`], { stdio: "inherit" });
 console.log(`Created and pushed ${tag} at ${targetCommit}.`);
 
