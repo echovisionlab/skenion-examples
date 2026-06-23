@@ -9,13 +9,13 @@ importers:
   .:
     devDependencies:
       '@skenion/contracts':
-        specifier: 0.38.0
-        version: 0.38.0
+        specifier: 0.45.0
+        version: 0.45.0
 
 packages:
 
-  '@skenion/contracts@0.38.0':
-    resolution: {integrity: sha512-IonX2o5sdd7U7OLj3EjxGA0cs1yFqWJdpMdD2GXK/za9URa3MzhmbHooc3UnKse3OepGUuKYWPQFr8Y2SqLifg==}
+  '@skenion/contracts@0.45.0':
+    resolution: {integrity: sha512-8tS2t54fgTcNenGCXOtGAtRQ6vz1s0T2MoRvQwDZBexPmcOzfqfqF/D0y9rZf4o133l1dCbxq7vXGVKSH5kvbQ==}
 
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
@@ -35,7 +35,7 @@ packages:
 
 snapshots:
 
-  '@skenion/contracts@0.38.0':
+  '@skenion/contracts@0.45.0':
     dependencies:
       ajv: 8.20.0
 
