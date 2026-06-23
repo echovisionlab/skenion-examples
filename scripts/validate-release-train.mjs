@@ -11,11 +11,13 @@ const outDir = args["out-dir"] ?? ".skenion-train";
 const runtimeTarget = args["runtime-target"] ?? "x86_64-unknown-linux-gnu";
 const targetRef = args["target-ref"] ?? "";
 const manifestRef = args["manifest-ref"] ?? "";
-const currentRepository = normalizeRepository(process.env.GITHUB_REPOSITORY ?? "echovisionlab/Skenion-examples");
+const manifestRepository = normalizeRepository(args["manifest-repository"] ?? "skenion/skenion");
+const currentRepository = normalizeRepository(process.env.GITHUB_REPOSITORY ?? "skenion/skenion-examples");
 const errors = [];
 
 assertSemver(trainVersion, "train version", errors);
 requireManifestRef(manifestRef, mode, errors);
+requireManifestRepository(manifestRepository, mode, errors);
 const manifest = await readManifest(manifestInput);
 const trainId = trainVersion.replace(/\.[0-9]+$/, "");
 
@@ -26,11 +28,8 @@ requireEqual(manifest.trainId, trainId, "manifest.trainId", errors);
 
 const contractsPackage = manifest.components?.contracts?.npm;
 const contractsCrate = manifest.components?.contracts?.crate;
-const runtimeCrate = manifest.components?.runtime?.crate;
 const runtimeBinary = manifest.components?.runtime?.binaries?.[runtimeTarget];
 const sdkPackage = manifest.components?.sdk?.npm;
-const studioWebPackage = manifest.components?.studio?.web;
-const studioDesktopPackage = manifest.components?.studio?.desktop;
 const manual = manifest.components?.docs?.manual;
 const examples = manifest.components?.examples;
 const examplesGate = manifest.releaseGates?.examplesConformance;
@@ -45,24 +44,9 @@ requirePackage(contractsCrate, "components.contracts.crate", {
   name: "skenion-contracts",
   version: trainVersion,
 }, errors);
-requirePackage(runtimeCrate, "components.runtime.crate", {
-  ecosystem: "crates.io",
-  name: "skenion-runtime",
-  version: trainVersion,
-}, errors);
 requirePackage(sdkPackage, "components.sdk.npm", {
   ecosystem: "npm",
   name: "@skenion/sdk",
-  version: trainVersion,
-}, errors);
-requirePackage(studioWebPackage, "components.studio.web", {
-  ecosystem: "npm",
-  name: "@skenion/studio-web",
-  version: trainVersion,
-}, errors);
-requirePackage(studioDesktopPackage, "components.studio.desktop", {
-  ecosystem: "npm",
-  name: "@skenion/studio-desktop",
   version: trainVersion,
 }, errors);
 requireExamples(examples, examplesGate, trainVersion, currentRepository, errors);
@@ -75,14 +59,12 @@ requireStudioCompatibility(manifest.components?.studio, manifest.releaseGates?.s
 requireRegistryPackageGates(manifest.releaseGates?.registryPackages, {
   contractsNpm: contractsPackage,
   contractsCrate,
-  runtimeCrate,
   sdkNpm: sdkPackage,
-  studioWeb: studioWebPackage,
-  studioDesktop: studioDesktopPackage,
 }, errors);
 requireArtifactCollectionGate(manifest.releaseGates?.githubReleaseAssets?.runtime, "runtime", manifest.components?.runtime?.binaries, `skenion-runtime-v${trainVersion}`, errors);
 requireArtifactCollectionGate(manifest.releaseGates?.githubReleaseAssets?.studio, "studio", [
   ...Object.values(manifest.components?.studio?.desktopPackages ?? {}),
+  manifest.components?.studio?.["web-bundle"],
   ...Object.values(manifest.components?.studio?.runtimeSidecars ?? {}),
 ], `skenion-studio-v${trainVersion}`, errors);
 requireChecksumGate(manifest.releaseGates?.checksumVerification, manifest, errors);
@@ -102,14 +84,10 @@ const summary = {
   mode,
   trainId,
   trainVersion,
+  manifestRepository,
   contractsPackage: `${contractsPackage.name}@${contractsPackage.version}`,
   contractsCrate: `${contractsCrate.name}@${contractsCrate.version}`,
-  runtimeCrate: `${runtimeCrate.name}@${runtimeCrate.version}`,
   sdkPackage: `${sdkPackage.name}@${sdkPackage.version}`,
-  studioPackages: {
-    web: `${studioWebPackage.name}@${studioWebPackage.version}`,
-    desktop: `${studioDesktopPackage.name}@${studioDesktopPackage.version}`,
-  },
   runtimeTarget,
   runtimeAsset: {
     repository: runtimeBinary.source.repository,
@@ -136,8 +114,6 @@ writeOutputs({
   contracts_npm_version: contractsPackage.version,
   contracts_crate_version: contractsCrate.version,
   sdk_npm_version: sdkPackage.version,
-  studio_web_version: studioWebPackage.version,
-  studio_desktop_version: studioDesktopPackage.version,
   runtime_repository: runtimeBinary.source.repository,
   runtime_tag: runtimeBinary.source.tag,
   runtime_asset: runtimeBinary.source.assetName,
@@ -206,6 +182,15 @@ function requireManifestRef(value, currentMode, targetErrors) {
   }
   if (!isGitSha(value)) {
     targetErrors.push("manifest ref must be an explicit 40-character git SHA in publish/verify mode");
+  }
+}
+
+function requireManifestRepository(value, currentMode, targetErrors) {
+  if (currentMode === "prepare") {
+    return;
+  }
+  if (value !== "skenion/skenion") {
+    targetErrors.push("manifest repository must be skenion/skenion in publish/verify mode");
   }
 }
 
@@ -289,8 +274,8 @@ function requireRuntimeBinary(artifact, target, expectedVersion, targetErrors) {
     return;
   }
   requireEqual(artifact.source.kind, "github-release-asset", `components.runtime.binaries.${target}.source.kind`, targetErrors);
-  if (normalizeRepository(artifact.source.repository) !== "echovisionlab/Skenion-runtime".toLowerCase()) {
-    targetErrors.push(`components.runtime.binaries.${target}.source.repository must be echovisionlab/Skenion-runtime`);
+  if (normalizeRepository(artifact.source.repository) !== "skenion/skenion-runtime") {
+    targetErrors.push(`components.runtime.binaries.${target}.source.repository must be skenion/skenion-runtime`);
   }
   requireEqual(artifact.source.tag, `skenion-runtime-v${expectedVersion}`, `components.runtime.binaries.${target}.source.tag`, targetErrors);
   if (!artifact.source.assetName || artifact.source.assetName.includes("/") || artifact.source.assetName.includes("\\")) {
@@ -343,6 +328,7 @@ function requireStudioCompatibility(studio, gates, expectedVersion, targetErrors
   }
   const desktopPackages = studio.desktopPackages;
   const runtimeSidecars = studio.runtimeSidecars;
+  const webBundle = studio["web-bundle"];
   if (!isObject(desktopPackages)) {
     targetErrors.push("components.studio.desktopPackages must be an object");
     return;
@@ -351,6 +337,7 @@ function requireStudioCompatibility(studio, gates, expectedVersion, targetErrors
     targetErrors.push("components.studio.runtimeSidecars must be an object");
     return;
   }
+  requireStudioWebBundleArtifact(webBundle, expectedVersion, targetErrors);
   for (const [target, desktopPackage] of Object.entries(desktopPackages)) {
     requireStudioArtifact(desktopPackage, target, "studio-desktop-package", expectedVersion, targetErrors);
     const sidecar = runtimeSidecars[target];
@@ -360,6 +347,39 @@ function requireStudioCompatibility(studio, gates, expectedVersion, targetErrors
     requireArtifactChecksum(sidecar, `components.studio.runtimeSidecars.${target}`, releaseBlocking, targetErrors);
     requireStudioSmokeGate(gates?.[target], desktopPackage, sidecar, target, releaseBlocking, targetErrors);
   }
+}
+
+function requireStudioWebBundleArtifact(artifact, expectedVersion, targetErrors) {
+  const label = `components.studio["web-bundle"]`;
+  if (!isObject(artifact)) {
+    targetErrors.push(`${label} must be an object`);
+    return;
+  }
+  if (typeof artifact.id !== "string" || artifact.id.trim() === "") {
+    targetErrors.push(`${label}.id must be a non-empty string`);
+  }
+  requireEqual(artifact.kind, "studio-web-bundle", `${label}.kind`, targetErrors);
+  requireEqual(artifact.version, expectedVersion, `${label}.version`, targetErrors);
+  requireEqual(artifact.name, `skenion-studio-web-bundle-v${expectedVersion}.tar.gz`, `${label}.name`, targetErrors);
+  if (!isObject(artifact.source)) {
+    targetErrors.push(`${label}.source must be an object`);
+    return;
+  }
+  requireEqual(artifact.source.kind, "github-release-asset", `${label}.source.kind`, targetErrors);
+  if (normalizeRepository(artifact.source.repository) !== "skenion/skenion-studio") {
+    targetErrors.push(`${label}.source.repository must be skenion/skenion-studio`);
+  }
+  requireEqual(artifact.source.tag, `skenion-studio-v${expectedVersion}`, `${label}.source.tag`, targetErrors);
+  requireEqual(
+    artifact.source.assetName,
+    `skenion-studio-web-bundle-v${expectedVersion}.tar.gz`,
+    `${label}.source.assetName`,
+    targetErrors
+  );
+  if (!artifact.source.assetName || artifact.source.assetName.includes("/") || artifact.source.assetName.includes("\\")) {
+    targetErrors.push(`${label}.source.assetName must be a release asset name`);
+  }
+  requireArtifactChecksum(artifact, label, true, targetErrors);
 }
 
 function requireStudioArtifact(artifact, target, kind, expectedVersion, targetErrors) {
@@ -378,8 +398,8 @@ function requireStudioArtifact(artifact, target, kind, expectedVersion, targetEr
     return;
   }
   requireEqual(artifact.source.kind, "github-release-asset", `${label}.source.kind`, targetErrors);
-  if (normalizeRepository(artifact.source.repository) !== "echovisionlab/Skenion-studio".toLowerCase()) {
-    targetErrors.push(`${label}.source.repository must be echovisionlab/Skenion-studio`);
+  if (normalizeRepository(artifact.source.repository) !== "skenion/skenion-studio") {
+    targetErrors.push(`${label}.source.repository must be skenion/skenion-studio`);
   }
   requireEqual(artifact.source.tag, `skenion-studio-v${expectedVersion}`, `${label}.source.tag`, targetErrors);
   if (!artifact.source.assetName || artifact.source.assetName.includes("/") || artifact.source.assetName.includes("\\")) {
@@ -423,6 +443,12 @@ function requireRegistryPackageGates(gates, packages, targetErrors) {
     targetErrors.push("releaseGates.registryPackages must be an object");
     return;
   }
+  const expectedGateNames = new Set(Object.keys(packages));
+  for (const name of Object.keys(gates)) {
+    if (!expectedGateNames.has(name)) {
+      targetErrors.push(`releaseGates.registryPackages.${name} is not a release-train registry package gate`);
+    }
+  }
   for (const [name, expectedPackage] of Object.entries(packages)) {
     const gate = gates[name];
     const label = `releaseGates.registryPackages.${name}`;
@@ -452,6 +478,12 @@ function requireArtifactCollectionGate(gate, labelName, artifacts, expectedTag, 
   }
   const artifactList = Array.isArray(artifacts) ? artifacts : Object.values(artifacts ?? {});
   const expectedIds = new Set(artifactList.map((artifact) => artifact?.id).filter(Boolean));
+  const actualIds = new Set(gate.artifactIds);
+  for (const artifactId of expectedIds) {
+    if (!actualIds.has(artifactId)) {
+      targetErrors.push(`${label}.artifactIds must include ${JSON.stringify(artifactId)}`);
+    }
+  }
   for (const artifactId of gate.artifactIds) {
     if (!expectedIds.has(artifactId)) {
       targetErrors.push(`${label}.artifactIds contains unknown artifact id ${JSON.stringify(artifactId)}`);
@@ -473,6 +505,12 @@ function requireChecksumGate(gate, manifestDocument, targetErrors) {
       artifactsById.set(artifact.id, artifact);
     }
   }
+  const actualArtifactIds = new Set(gate.artifactIds ?? []);
+  for (const artifactId of artifactsById.keys()) {
+    if (!actualArtifactIds.has(artifactId)) {
+      targetErrors.push(`releaseGates.checksumVerification.artifactIds must include ${JSON.stringify(artifactId)}`);
+    }
+  }
   for (const artifactId of gate.artifactIds ?? []) {
     if (!artifactsById.has(artifactId)) {
       targetErrors.push(`releaseGates.checksumVerification.artifactIds contains unknown artifact id ${JSON.stringify(artifactId)}`);
@@ -480,7 +518,7 @@ function requireChecksumGate(gate, manifestDocument, targetErrors) {
   }
   const expectedChecksums = gate.expectedChecksums ?? {};
   for (const artifact of artifactsById.values()) {
-    if (artifact.supportTier !== "release-blocking") {
+    if (!requiresReleaseChecksum(artifact)) {
       continue;
     }
     const checksum = expectedChecksums[artifact.id];
@@ -496,6 +534,10 @@ function requireChecksumGate(gate, manifestDocument, targetErrors) {
     }
   }
   requirePassedGate(gate, "releaseGates.checksumVerification", targetErrors);
+}
+
+function requiresReleaseChecksum(artifact) {
+  return artifact.supportTier === "release-blocking" || artifact.kind === "studio-web-bundle";
 }
 
 function requireArtifactChecksum(artifact, label, releaseBlocking, targetErrors) {
@@ -559,11 +601,12 @@ function requireRuntimeChecksum(artifact, target, targetErrors) {
 function rejectLocalReleaseSources(manifest, targetErrors) {
   const serialized = JSON.stringify(manifest);
   const forbidden = [
+    /echovisionlab\//i,
     /node_modules/i,
     /\.deps/i,
     /target\/debug/i,
     /target\/release/i,
-    /\/Volumes\/Linear\/Skenion\//i,
+    /\/Volumes\/Linear\/skenion\//i,
     /file:/i,
     /refs\/heads\/main/i,
   ];
@@ -586,6 +629,7 @@ function collectArtifacts(manifestDocument) {
   return [
     ...Object.values(runtimeBinaries),
     ...Object.values(studioDesktopPackages),
+    manifestDocument.components?.studio?.["web-bundle"],
     ...Object.values(studioRuntimeSidecars),
   ].filter(isObject);
 }

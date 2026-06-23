@@ -1,6 +1,6 @@
-# Skenion Examples
+# skenion Examples
 
-Example scenes, fixtures, sample projects, public assets, and compatibility samples for Skenion.
+Example scenes, fixtures, sample projects, public assets, and compatibility samples for skenion.
 
 Code is Apache-2.0 by default; asset-specific licenses must be declared beside assets.
 
@@ -100,8 +100,8 @@ pnpm install --frozen-lockfile
 node scripts/validate-with-contracts.mjs
 node scripts/validate-runtime-project-payloads.mjs
 node scripts/validate-runtime-session-smoke-fixtures.mjs
-SKENION_CONTRACTS_DIR=/Volumes/dev/Skenion/Skenion-contracts node scripts/audit-node-conventions.mjs
-bash scripts/validate-with-runtime.sh /Volumes/dev/Skenion/Skenion-runtime
+SKENION_CONTRACTS_DIR=/Volumes/dev/skenion/skenion-contracts node scripts/audit-node-conventions.mjs
+bash scripts/validate-with-runtime.sh /Volumes/dev/skenion/skenion-runtime
 SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-v01-projects.sh
 ```
 
@@ -133,10 +133,10 @@ using local or sibling artifacts.
 
 ## Status
 
-Bootstrap repository for the Skenion project. Implementation follows the public architecture and release rules defined in [EchoVisionLab/skenion](https://github.com/echovisionlab/skenion).
+Bootstrap repository for the skenion project. Implementation follows the public architecture and release rules defined in [skenion/skenion](https://github.com/skenion/skenion).
 
 ## License And Credit
 
 This repository is licensed under the Apache License, Version 2.0.
 
-Redistributions must preserve copyright, license, and NOTICE information as required by Apache-2.0. If Skenion helps your artwork, research, publication, installation, or tool, please credit Skenion and EchoVisionLab.
+Redistributions must preserve copyright, license, and NOTICE information as required by Apache-2.0. If skenion helps your artwork, research, publication, installation, or tool, please credit skenion.
