@@ -265,6 +265,8 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "${MODE}" == "publish" && "${DRY_RUN}" == "false" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/skenion/skenion-examples.git"
           fi
           node scripts/manage-release-tag.mjs \
