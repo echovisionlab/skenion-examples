@@ -29,6 +29,20 @@ jobs:
             git -C .deps/skenion-runtime fetch --depth=1 origin "${GITHUB_HEAD_REF}"
             git -C .deps/skenion-runtime checkout FETCH_HEAD
           fi
+      - name: Use released Contracts crate for Runtime smoke
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path(".deps/skenion-runtime/Cargo.toml")
+          old = 'skenion-contracts = { version = "0.45.0", path = "../Skenion-contracts/packages/rust" }'
+          new = 'skenion-contracts = "0.45.0"'
+          text = manifest.read_text()
+          if old not in text:
+              raise SystemExit(f"{manifest}: expected local skenion-contracts path dependency was not found")
+          manifest.write_text(text.replace(old, new, 1))
+          PY
       - uses: pnpm/action-setup@v6
         with:
           version: 10.12.4
