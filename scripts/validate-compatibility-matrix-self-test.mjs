@@ -13,16 +13,14 @@ const tempRoot = await mkdtemp(path.join(tmpdir(), "skenion-compatibility-matrix
 const contractsLine = "0.45";
 const contractsVersion = "0.45.0";
 const sdkVersion = "0.43.0";
-const examplesVersion = "0.45.1";
 const runtimeVersion = "0.44.2";
 const studioVersion = "0.44.3";
-const manualVersion = "0.45.0";
 const target = "x86_64-unknown-linux-gnu";
 const commitSha = "b".repeat(40);
 const matrixRef = "c".repeat(40);
 const checksumValue = "a".repeat(64);
 const hubRoot = path.join(tempRoot, "skenion");
-const matrixFile = path.join(hubRoot, "releases", "compatibility", `contracts-${contractsLine}.json`);
+const matrixFile = path.join(hubRoot, "releases", "compatibility", `${contractsLine}.json`);
 
 try {
   await prepareHubRepo();
@@ -40,8 +38,12 @@ try {
     expectedOutput: ["--matrix path must not contain .. segments"],
   });
   runMatrixPathCase("reject-matrix-path-line-mismatch", {
-    matrixPath: path.join(hubRoot, "releases", "compatibility", "contracts-0.44.json"),
-    expectedOutput: [`releases/compatibility/contracts-${contractsLine}.json`],
+    matrixPath: path.join(hubRoot, "releases", "compatibility", "0.44.json"),
+    expectedOutput: [`releases/compatibility/${contractsLine}.json`],
+  });
+  runMatrixPathCase("reject-legacy-contracts-prefixed-matrix-path", {
+    matrixPath: path.join(hubRoot, "releases", "compatibility", `contracts-${contractsLine}.json`),
+    expectedOutput: [`releases/compatibility/${contractsLine}.json`],
   });
   runCase("reject-old-matrix-repository", {
     matrixRepository: "echovisionlab/skenion",
@@ -139,6 +141,7 @@ try {
   });
   runCase("reject-runtime-registry-gate", {
     mutate(matrix) {
+      matrix["release-gates"]["registry-packages"] = {};
       matrix["release-gates"]["registry-packages"]["runtime-crate"] = {
         required: true,
         status: "passed",
@@ -268,35 +271,6 @@ function validMatrix() {
     tag: `skenion-runtime-v${runtimeVersion}`,
     "asset-name": `skenion-runtime-v${runtimeVersion}-x86_64-unknown-linux-gnu.tar.gz`,
   });
-  const studioDesktop = artifact({
-    id: "studio-desktop-linux-x64",
-    kind: "studio-desktop-package",
-    version: studioVersion,
-    repository: "skenion/skenion-studio",
-    tag: `skenion-studio-v${studioVersion}`,
-    "asset-name": "skenion-studio-x86_64-unknown-linux-gnu.tar.gz",
-  });
-  const studioSidecar = artifact({
-    id: "studio-runtime-linux-x64",
-    kind: "studio-runtime-sidecar",
-    version: studioVersion,
-    repository: "skenion/skenion-studio",
-    tag: `skenion-studio-v${studioVersion}`,
-    "asset-name": "skenion-runtime-sidecar-x86_64-unknown-linux-gnu.tar.gz",
-  });
-  const studioWebBundle = {
-    id: "studio-web-bundle",
-    kind: "studio-web-bundle",
-    name: `skenion-studio-web-bundle-v${studioVersion}.tar.gz`,
-    version: studioVersion,
-    source: {
-      kind: "github-release-asset",
-      repository: "skenion/skenion-studio",
-      tag: `skenion-studio-v${studioVersion}`,
-      "asset-name": `skenion-studio-web-bundle-v${studioVersion}.tar.gz`,
-    },
-    checksum: checksum(),
-  };
 
   return {
     schema: "skenion.compatibility-matrix",
@@ -317,90 +291,62 @@ function validMatrix() {
         npm: sdkNpm,
       },
       studio: {
-        "desktop-packages": {
-          [target]: studioDesktop,
+        "contracts-line": contractsLine,
+        "contracts-range": ">=0.45.0 <0.46.0",
+        version: studioVersion,
+        release: {
+          repository: "skenion/skenion-studio",
+          tag: `skenion-studio-v${studioVersion}`,
+          status: "verified",
         },
-        "runtime-sidecars": {
-          [target]: studioSidecar,
+        web: {
+          status: "pending",
         },
-        "web-bundle": studioWebBundle,
+        "desktop-packages": [],
+        "runtime-sidecars": [],
+        "artifact-status": "pending",
       },
       docs: {
         manual: {
-          version: manualVersion,
-          "contracts-line": contractsLine,
+          version: contractsLine,
           path: `/manual/${contractsLine}/`,
-          "pages-url": `https://skenion.github.io/skenion-docs/manual/${contractsLine}/`,
+          "pages-url": "https://skenion.github.io/skenion-docs/",
         },
       },
       examples: {
         repository: "skenion/skenion-examples",
-        version: examplesVersion,
-        tag: `skenion-examples-v${examplesVersion}`,
+        ref: "main",
         commit: commitSha,
       },
     },
     "release-gates": {
-      "examples-conformance": {
+      "contracts-registry": {
         required: true,
         status: "passed",
-        repository: "skenion/skenion-examples",
-        ref: `skenion-examples-v${examplesVersion}`,
-        version: examplesVersion,
+      },
+      "runtime-release-assets": {
+        required: true,
+        status: "passed",
+      },
+      "sdk-registry": {
+        required: true,
+        status: "passed",
+      },
+      "studio-web": {
+        required: true,
+        status: "pending",
+      },
+      "studio-desktop": {
+        required: true,
+        status: "pending",
+      },
+      "examples-conformance": {
+        required: true,
+        status: "pending",
       },
       "docs-pages-deployment": {
         required: true,
-        status: "passed",
-        "manual-version": manualVersion,
-        "manual-path": `/manual/${contractsLine}/`,
-        "pages-url": `https://skenion.github.io/skenion-docs/manual/${contractsLine}/`,
-      },
-      "runtime-smoke": {
-        [target]: {
-          required: true,
-          status: "passed",
-          target,
-          "artifact-id": runtimeArtifact.id,
-        },
-      },
-      "studio-package-smoke": {
-        [target]: {
-          required: true,
-          status: "passed",
-          target,
-          "desktop-package-artifact-id": studioDesktop.id,
-          "runtime-sidecar-artifact-id": studioSidecar.id,
-        },
-      },
-      "registry-packages": {
-        "contracts-npm": gatePackage(contractsNpm),
-        "contracts-crate": gatePackage(contractsCrate),
-        "sdk-npm": gatePackage(sdkNpm),
-      },
-      "github-release-assets": {
-        runtime: {
-          required: true,
-          status: "passed",
-          tag: `skenion-runtime-v${runtimeVersion}`,
-          "artifact-ids": [runtimeArtifact.id],
-        },
-        studio: {
-          required: true,
-          status: "passed",
-          tag: `skenion-studio-v${studioVersion}`,
-          "artifact-ids": [studioDesktop.id, studioWebBundle.id, studioSidecar.id],
-        },
-      },
-      "checksum-verification": {
-        required: true,
-        status: "passed",
-        "artifact-ids": [runtimeArtifact.id, studioDesktop.id, studioWebBundle.id, studioSidecar.id],
-        "expected-checksums": {
-          [runtimeArtifact.id]: checksum(),
-          [studioDesktop.id]: checksum(),
-          [studioWebBundle.id]: checksum(),
-          [studioSidecar.id]: checksum(),
-        },
+        status: "pending",
       },
     },
   };
@@ -440,13 +386,5 @@ function checksum() {
   return {
     algorithm: "sha256",
     value: checksumValue,
-  };
-}
-
-function gatePackage(packageMetadata) {
-  return {
-    required: true,
-    status: "passed",
-    package: packageMetadata,
   };
 }

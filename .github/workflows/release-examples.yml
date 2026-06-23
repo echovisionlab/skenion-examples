@@ -29,7 +29,7 @@ on:
       matrix_path:
         description: Repository-relative compatibility matrix path.
         required: true
-        default: releases/compatibility/contracts-0.45.json
+        default: releases/compatibility/0.45.json
         type: string
       target_ref:
         description: Examples commit/ref to validate or tag. Publish/verify require the matrix commit SHA.
@@ -60,7 +60,7 @@ jobs:
             echo "contracts_line must be a v0 minor line such as 0.45, got ${CONTRACTS_LINE}" >&2
             exit 1
           fi
-          expected_matrix_path="releases/compatibility/contracts-${CONTRACTS_LINE}.json"
+          expected_matrix_path="releases/compatibility/${CONTRACTS_LINE}.json"
           if [[ "${MATRIX_PATH}" != "${expected_matrix_path}" ]]; then
             echo "matrix_path must be exactly ${expected_matrix_path}; got ${MATRIX_PATH}" >&2
             exit 1

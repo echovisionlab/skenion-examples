@@ -40,11 +40,15 @@ const sdkPackage = matrix.components?.sdk?.npm;
 const sdkContractsRange = sdkPackage?.["supported-contracts"]
   ?? sdkPackage?.["supported-contracts-range"]
   ?? matrix.components?.sdk?.["supported-contracts"]
-  ?? matrix.components?.sdk?.["supported-contracts-range"];
+  ?? matrix.components?.sdk?.["supported-contracts-range"]
+  ?? matrix.components?.sdk?.["contracts-range"]
+  ?? matrix.components?.sdk?.range;
 const manual = matrix.components?.docs?.manual;
 const examples = matrix.components?.examples;
 const examplesGate = matrix["release-gates"]?.["examples-conformance"];
 const contractsRange = contracts?.range ?? matrix["contracts-range"];
+const examplesVersion = examples?.version ?? contractsPackage?.version;
+const examplesTag = examples?.tag ?? (isStrictSemver(examplesVersion) ? `skenion-examples-v${examplesVersion}` : "");
 
 requireEqual(matrix.schema, "skenion.compatibility-matrix", "matrix.schema", errors);
 requireEqual(matrix["schema-version"], "0.1.0", "matrix.schema-version", errors);
@@ -79,25 +83,19 @@ if (!rangeContainsVersion(sdkContractsRange, contractsPackage?.version)) {
   );
 }
 
-requireExamples(examples, examplesGate, currentRepository, errors);
-requireReleaseTargetRef(targetRef, examples, errors);
+requireExamples(examples, examplesGate, currentRepository, examplesVersion, examplesTag, errors);
+requireReleaseTargetRef(targetRef, examples, examplesVersion, errors);
 requireManual(manual, matrix["release-gates"]?.["docs-pages-deployment"], contractsLine, errors);
 requireRuntimeBinary(runtimeBinary, runtimeTarget, errors);
 const runtimeChecksum = requireRuntimeChecksum(runtimeBinary, runtimeTarget, errors);
-requireRuntimeTier(matrix.components?.runtime?.binaries, matrix["release-gates"]?.["runtime-smoke"], errors);
-requireStudioCompatibility(matrix.components?.studio, matrix["release-gates"]?.["studio-package-smoke"], errors);
-requireRegistryPackageGates(matrix["release-gates"]?.["registry-packages"], {
-  "contracts-npm": contractsPackage,
-  "contracts-crate": contractsCrate,
-  "sdk-npm": sdkPackage,
+requireRuntimeArtifacts(matrix.components?.runtime?.binaries, matrix["release-gates"]?.["runtime-release-assets"], errors);
+requireStudioMetadata(matrix.components?.studio, {
+  web: matrix["release-gates"]?.["studio-web"],
+  desktop: matrix["release-gates"]?.["studio-desktop"],
 }, errors);
-requireArtifactCollectionGate(matrix["release-gates"]?.["github-release-assets"]?.runtime, "runtime", matrix.components?.runtime?.binaries, errors);
-requireArtifactCollectionGate(matrix["release-gates"]?.["github-release-assets"]?.studio, "studio", [
-  ...Object.values(matrix.components?.studio?.["desktop-packages"] ?? {}),
-  matrix.components?.studio?.["web-bundle"],
-  ...Object.values(matrix.components?.studio?.["runtime-sidecars"] ?? {}),
-], errors);
-requireChecksumGate(matrix["release-gates"]?.["checksum-verification"], matrix, errors);
+requireRegistryGate(matrix["release-gates"]?.["contracts-registry"], "release-gates.contracts-registry", errors);
+requireRegistryGate(matrix["release-gates"]?.["sdk-registry"], "release-gates.sdk-registry", errors);
+rejectRuntimeRegistryPublishing(matrix, errors);
 rejectLocalReleaseSources(matrix, errors);
 
 if (errors.length > 0) {
@@ -125,8 +123,8 @@ const summary = {
   },
   examples: {
     repository: examples.repository,
-    version: examples.version,
-    tag: examples.tag,
+    version: examplesVersion,
+    tag: examplesTag,
     commit: examples.commit ?? null,
   },
   manual: {
@@ -148,8 +146,8 @@ writeOutputs({
   runtime_asset: runtimeBinary.source["asset-name"],
   runtime_sha256: runtimeChecksum,
   runtime_target: runtimeTarget,
-  examples_version: examples.version,
-  examples_tag: examples.tag,
+  examples_version: examplesVersion,
+  examples_tag: examplesTag,
   examples_commit: examples.commit ?? "",
   manual_version: manual.version,
   manual_path: manual.path,
@@ -250,7 +248,7 @@ function requirePackage(actual, label, expected, targetErrors) {
   }
 }
 
-function requireExamples(examples, gate, currentRepo, targetErrors) {
+function requireExamples(examples, gate, currentRepo, examplesVersion, examplesTag, targetErrors) {
   if (!isObject(examples)) {
     targetErrors.push("components.examples must be an object");
     return;
@@ -258,9 +256,9 @@ function requireExamples(examples, gate, currentRepo, targetErrors) {
   if (normalizeRepository(examples.repository) !== currentRepo) {
     targetErrors.push(`components.examples.repository must match this repository (${currentRepo})`);
   }
-  assertSemver(examples.version, "components.examples.version", targetErrors);
-  if (!isStrictExamplesReleaseTag(examples.tag, examples.version)) {
-    targetErrors.push(`components.examples.tag must be exactly skenion-examples-v${examples.version}`);
+  assertSemver(examplesVersion, "components.examples.version or contracts.npm.version", targetErrors);
+  if (!isStrictExamplesReleaseTag(examplesTag, examplesVersion)) {
+    targetErrors.push(`components.examples.tag must be exactly skenion-examples-v${examplesVersion}`);
   }
   if (examples.commit !== undefined && !isSafeCommitMarker(examples.commit)) {
     targetErrors.push("components.examples.commit must be a non-empty commit marker without branch/path syntax");
@@ -273,20 +271,28 @@ function requireExamples(examples, gate, currentRepo, targetErrors) {
     targetErrors.push("release-gates.examples-conformance must be an object");
     return;
   }
-  requireEqual(gate.repository, examples.repository, "release-gates.examples-conformance.repository", targetErrors);
-  requireEqual(gate.ref, examples.tag, "release-gates.examples-conformance.ref", targetErrors);
-  if (gate.tag !== undefined && !isStrictExamplesReleaseTag(gate.tag, examples.version)) {
-    targetErrors.push(`release-gates.examples-conformance.tag must be exactly skenion-examples-v${examples.version}`);
+  if (gate.repository !== undefined) {
+    requireEqual(gate.repository, examples.repository, "release-gates.examples-conformance.repository", targetErrors);
   }
-  requireEqual(gate.version, examples.version, "release-gates.examples-conformance.version", targetErrors);
+  if (gate.ref !== undefined) {
+    requireEqual(gate.ref, examplesTag, "release-gates.examples-conformance.ref", targetErrors);
+  }
+  if (gate.tag !== undefined && !isStrictExamplesReleaseTag(gate.tag, examplesVersion)) {
+    targetErrors.push(`release-gates.examples-conformance.tag must be exactly skenion-examples-v${examplesVersion}`);
+  }
+  if (gate.version !== undefined) {
+    requireEqual(gate.version, examplesVersion, "release-gates.examples-conformance.version", targetErrors);
+  }
   requireGateStatus(gate, "release-gates.examples-conformance", targetErrors);
   requireEqual(gate.required, true, "release-gates.examples-conformance.required", targetErrors);
-  requirePassedGate(gate, "release-gates.examples-conformance", targetErrors);
+  if (mode !== "prepare" && !["pending", "passed"].includes(gate.status)) {
+    targetErrors.push("release-gates.examples-conformance.status must be pending or passed before this conformance workflow runs");
+  }
 }
 
-function requireReleaseTargetRef(value, examples, targetErrors) {
+function requireReleaseTargetRef(value, examples, examplesVersion, targetErrors) {
   if (mode === "prepare") {
-    if (value && !isSafeReleaseTargetRef(value, examples?.version)) {
+    if (value && !isSafeReleaseTargetRef(value, examplesVersion)) {
       targetErrors.push("target ref must be a SHA or product-owned examples release tag in prepare mode");
     }
     return;
@@ -326,18 +332,105 @@ function requireRuntimeBinary(artifact, target, targetErrors) {
   }
 }
 
+function requireRuntimeArtifacts(binaries, gate, targetErrors) {
+  if (!isObject(binaries)) {
+    targetErrors.push("components.runtime.binaries must be an object");
+    return;
+  }
+  for (const [target, artifact] of Object.entries(binaries)) {
+    requireRuntimeBinary(artifact, target, targetErrors);
+    requireArtifactChecksum(artifact, `components.runtime.binaries.${target}`, artifact?.["support-tier"] === "release-blocking", targetErrors);
+  }
+  if (!isObject(gate)) {
+    targetErrors.push("release-gates.runtime-release-assets must be an object");
+    return;
+  }
+  requireGateStatus(gate, "release-gates.runtime-release-assets", targetErrors);
+  requireEqual(gate.required, true, "release-gates.runtime-release-assets.required", targetErrors);
+  requirePassedGate(gate, "release-gates.runtime-release-assets", targetErrors);
+}
+
+function requireStudioMetadata(studio, gates, targetErrors) {
+  if (!isObject(studio)) {
+    targetErrors.push("components.studio must be an object");
+    return;
+  }
+  requireEqual(studio["contracts-line"], contractsLine, "components.studio.contracts-line", targetErrors);
+  requireEqual(studio["contracts-range"], contractsLineRange(contractsLine), "components.studio.contracts-range", targetErrors);
+  assertSemver(studio.version, "components.studio.version", targetErrors);
+
+  const webGate = gates.web;
+  if (!isObject(webGate)) {
+    targetErrors.push("release-gates.studio-web must be an object");
+  } else {
+    requireGateStatus(webGate, "release-gates.studio-web", targetErrors);
+    requireEqual(webGate.required, true, "release-gates.studio-web.required", targetErrors);
+  }
+
+  const desktopGate = gates.desktop;
+  if (!isObject(desktopGate)) {
+    targetErrors.push("release-gates.studio-desktop must be an object");
+  } else {
+    requireGateStatus(desktopGate, "release-gates.studio-desktop", targetErrors);
+    requireEqual(desktopGate.required, true, "release-gates.studio-desktop.required", targetErrors);
+  }
+
+  const webBundle = studio["web-bundle"];
+  if (webBundle !== undefined) {
+    requireStudioWebBundleArtifact(webBundle, targetErrors);
+  }
+  for (const [target, desktopPackage] of studioArtifactEntries(studio["desktop-packages"])) {
+    requireStudioArtifact(desktopPackage, target, "studio-desktop-package", targetErrors);
+    requireArtifactChecksum(desktopPackage, `components.studio.desktop-packages.${target}`, desktopPackage?.["support-tier"] === "release-blocking", targetErrors);
+  }
+  for (const [target, sidecar] of studioArtifactEntries(studio["runtime-sidecars"])) {
+    requireStudioArtifact(sidecar, target, "studio-runtime-sidecar", targetErrors);
+    requireArtifactChecksum(sidecar, `components.studio.runtime-sidecars.${target}`, sidecar?.["support-tier"] === "release-blocking", targetErrors);
+  }
+}
+
+function requireRegistryGate(gate, label, targetErrors) {
+  if (!isObject(gate)) {
+    targetErrors.push(`${label} must be an object`);
+    return;
+  }
+  requireGateStatus(gate, label, targetErrors);
+  requireEqual(gate.required, true, `${label}.required`, targetErrors);
+  requirePassedGate(gate, label, targetErrors);
+}
+
+function rejectRuntimeRegistryPublishing(matrixDocument, targetErrors) {
+  const runtimeComponent = matrixDocument.components?.runtime;
+  for (const key of ["npm", "crate", "package"]) {
+    if (runtimeComponent?.[key] !== undefined) {
+      targetErrors.push(`components.runtime.${key} is not allowed; Runtime distribution must use GitHub Release binaries`);
+    }
+  }
+  const registryPackages = matrixDocument["release-gates"]?.["registry-packages"];
+  if (isObject(registryPackages)) {
+    for (const [name, gate] of Object.entries(registryPackages)) {
+      const packageName = gate?.package?.name ?? "";
+      if (name === "runtime-crate" || name === "runtime-npm" || packageName === "skenion-runtime" || packageName === "@skenion/runtime") {
+        targetErrors.push(`release-gates.registry-packages.${name} is not a compatibility-matrix registry package gate`);
+      }
+    }
+  }
+}
+
 function requireManual(manual, gate, expectedContractsLine, targetErrors) {
   if (!isObject(manual)) {
     targetErrors.push("components.docs.manual must be an object");
     return;
   }
-  assertSemver(manual.version, "components.docs.manual.version", targetErrors);
-  requireEqual(manual["contracts-line"], expectedContractsLine, "components.docs.manual.contracts-line", targetErrors);
+  if (!isStrictSemver(manual.version) && manual.version !== expectedContractsLine) {
+    targetErrors.push("components.docs.manual.version must be SemVer or the Contracts line");
+  }
+  if (manual["contracts-line"] !== undefined) {
+    requireEqual(manual["contracts-line"], expectedContractsLine, "components.docs.manual.contracts-line", targetErrors);
+  }
   requireEqual(manual.path, `/manual/${expectedContractsLine}/`, "components.docs.manual.path", targetErrors);
   if (!isHttpsUrl(manual["pages-url"])) {
     targetErrors.push("components.docs.manual.pages-url must be an https URL");
-  } else if (!manual["pages-url"].includes(manual.path)) {
-    targetErrors.push("components.docs.manual.pages-url must include components.docs.manual.path");
   }
 
   if (!isObject(gate)) {
@@ -346,50 +439,14 @@ function requireManual(manual, gate, expectedContractsLine, targetErrors) {
   }
   requireGateStatus(gate, "release-gates.docs-pages-deployment", targetErrors);
   requireEqual(gate.required, true, "release-gates.docs-pages-deployment.required", targetErrors);
-  requireEqual(gate["manual-version"], manual.version, "release-gates.docs-pages-deployment.manual-version", targetErrors);
-  requireEqual(gate["manual-path"], manual.path, "release-gates.docs-pages-deployment.manual-path", targetErrors);
-  requireEqual(gate["pages-url"], manual["pages-url"], "release-gates.docs-pages-deployment.pages-url", targetErrors);
-  requirePassedGate(gate, "release-gates.docs-pages-deployment", targetErrors);
-}
-
-function requireRuntimeTier(binaries, gates, targetErrors) {
-  if (!isObject(binaries)) {
-    targetErrors.push("components.runtime.binaries must be an object");
-    return;
+  if (gate["manual-version"] !== undefined) {
+    requireEqual(gate["manual-version"], manual.version, "release-gates.docs-pages-deployment.manual-version", targetErrors);
   }
-  for (const [target, artifact] of Object.entries(binaries)) {
-    requireRuntimeBinary(artifact, target, targetErrors);
-    requireArtifactChecksum(artifact, `components.runtime.binaries.${target}`, artifact?.["support-tier"] === "release-blocking", targetErrors);
-    const gate = gates?.[target];
-    requireRuntimeSmokeGate(gate, artifact, target, targetErrors);
+  if (gate["manual-path"] !== undefined) {
+    requireEqual(gate["manual-path"], manual.path, "release-gates.docs-pages-deployment.manual-path", targetErrors);
   }
-}
-
-function requireStudioCompatibility(studio, gates, targetErrors) {
-  if (!isObject(studio)) {
-    targetErrors.push("components.studio must be an object");
-    return;
-  }
-  const desktopPackages = studio["desktop-packages"];
-  const runtimeSidecars = studio["runtime-sidecars"];
-  const webBundle = studio["web-bundle"];
-  if (!isObject(desktopPackages)) {
-    targetErrors.push("components.studio.desktop-packages must be an object");
-    return;
-  }
-  if (!isObject(runtimeSidecars)) {
-    targetErrors.push("components.studio.runtime-sidecars must be an object");
-    return;
-  }
-  requireStudioWebBundleArtifact(webBundle, targetErrors);
-  for (const [target, desktopPackage] of Object.entries(desktopPackages)) {
-    requireStudioArtifact(desktopPackage, target, "studio-desktop-package", targetErrors);
-    const sidecar = runtimeSidecars[target];
-    requireStudioArtifact(sidecar, target, "studio-runtime-sidecar", targetErrors);
-    const releaseBlocking = desktopPackage?.["support-tier"] === "release-blocking" || sidecar?.["support-tier"] === "release-blocking";
-    requireArtifactChecksum(desktopPackage, `components.studio.desktop-packages.${target}`, releaseBlocking, targetErrors);
-    requireArtifactChecksum(sidecar, `components.studio.runtime-sidecars.${target}`, releaseBlocking, targetErrors);
-    requireStudioSmokeGate(gates?.[target], desktopPackage, sidecar, target, releaseBlocking, targetErrors);
+  if (gate["pages-url"] !== undefined) {
+    requireEqual(gate["pages-url"], manual["pages-url"], "release-gates.docs-pages-deployment.pages-url", targetErrors);
   }
 }
 
@@ -452,141 +509,6 @@ function requireStudioArtifact(artifact, target, kind, targetErrors) {
   } else {
     requireEqual(artifact.name, assetName, `${label}.name`, targetErrors);
   }
-}
-
-function requireRuntimeSmokeGate(gate, artifact, target, targetErrors) {
-  const label = `release-gates.runtime-smoke.${target}`;
-  if (!isObject(gate)) {
-    targetErrors.push(`${label} must be an object`);
-    return;
-  }
-  requireGateStatus(gate, label, targetErrors);
-  requireEqual(gate.target, target, `${label}.target`, targetErrors);
-  requireEqual(gate["artifact-id"], artifact?.id, `${label}.artifact-id`, targetErrors);
-  if (artifact?.["support-tier"] === "release-blocking") {
-    requireEqual(gate.required, true, `${label}.required`, targetErrors);
-    requirePassedGate(gate, label, targetErrors);
-  }
-}
-
-function requireStudioSmokeGate(gate, desktopPackage, sidecar, target, releaseBlocking, targetErrors) {
-  const label = `release-gates.studio-package-smoke.${target}`;
-  if (!isObject(gate)) {
-    targetErrors.push(`${label} must be an object`);
-    return;
-  }
-  requireGateStatus(gate, label, targetErrors);
-  requireEqual(gate.target, target, `${label}.target`, targetErrors);
-  requireEqual(gate["desktop-package-artifact-id"], desktopPackage?.id, `${label}.desktop-package-artifact-id`, targetErrors);
-  requireEqual(gate["runtime-sidecar-artifact-id"], sidecar?.id, `${label}.runtime-sidecar-artifact-id`, targetErrors);
-  if (releaseBlocking) {
-    requireEqual(gate.required, true, `${label}.required`, targetErrors);
-    requirePassedGate(gate, label, targetErrors);
-  }
-}
-
-function requireRegistryPackageGates(gates, packages, targetErrors) {
-  if (!isObject(gates)) {
-    targetErrors.push("release-gates.registry-packages must be an object");
-    return;
-  }
-  const expectedGateNames = new Set(Object.keys(packages));
-  for (const name of Object.keys(gates)) {
-    if (!expectedGateNames.has(name)) {
-      targetErrors.push(`release-gates.registry-packages.${name} is not a compatibility-matrix registry package gate`);
-    }
-  }
-  for (const [name, expectedPackage] of Object.entries(packages)) {
-    const gate = gates[name];
-    const label = `release-gates.registry-packages.${name}`;
-    if (!isObject(gate)) {
-      targetErrors.push(`${label} must be an object`);
-      continue;
-    }
-    requireGateStatus(gate, label, targetErrors);
-    requireEqual(gate.required, true, `${label}.required`, targetErrors);
-    requirePackage(gate.package, `${label}.package`, expectedPackage, targetErrors);
-    requirePassedGate(gate, label, targetErrors);
-  }
-}
-
-function requireArtifactCollectionGate(gate, labelName, artifacts, targetErrors) {
-  const label = `release-gates.github-release-assets.${labelName}`;
-  if (!isObject(gate)) {
-    targetErrors.push(`${label} must be an object`);
-    return;
-  }
-  requireGateStatus(gate, label, targetErrors);
-  requireEqual(gate.required, true, `${label}.required`, targetErrors);
-  if (typeof gate.tag === "string" && !isAllowedReleaseRef(gate.tag)) {
-    targetErrors.push(`${label}.tag must be an exact component release tag`);
-  }
-  if (!Array.isArray(gate["artifact-ids"]) || gate["artifact-ids"].length === 0) {
-    targetErrors.push(`${label}.artifact-ids must be a non-empty array`);
-    return;
-  }
-  const artifactList = Array.isArray(artifacts) ? artifacts : Object.values(artifacts ?? {});
-  const expectedIds = new Set(artifactList.map((artifact) => artifact?.id).filter(Boolean));
-  const actualIds = new Set(gate["artifact-ids"]);
-  for (const artifactId of expectedIds) {
-    if (!actualIds.has(artifactId)) {
-      targetErrors.push(`${label}.artifact-ids must include ${JSON.stringify(artifactId)}`);
-    }
-  }
-  for (const artifactId of gate["artifact-ids"]) {
-    if (!expectedIds.has(artifactId)) {
-      targetErrors.push(`${label}.artifact-ids contains unknown artifact id ${JSON.stringify(artifactId)}`);
-    }
-  }
-  requirePassedGate(gate, label, targetErrors);
-}
-
-function requireChecksumGate(gate, matrixDocument, targetErrors) {
-  if (!isObject(gate)) {
-    targetErrors.push("release-gates.checksum-verification must be an object");
-    return;
-  }
-  requireGateStatus(gate, "release-gates.checksum-verification", targetErrors);
-  requireEqual(gate.required, true, "release-gates.checksum-verification.required", targetErrors);
-  const artifactsById = new Map();
-  for (const artifact of collectArtifacts(matrixDocument)) {
-    if (artifact?.id) {
-      artifactsById.set(artifact.id, artifact);
-    }
-  }
-  const actualArtifactIds = new Set(gate["artifact-ids"] ?? []);
-  for (const artifactId of artifactsById.keys()) {
-    if (!actualArtifactIds.has(artifactId)) {
-      targetErrors.push(`release-gates.checksum-verification.artifact-ids must include ${JSON.stringify(artifactId)}`);
-    }
-  }
-  for (const artifactId of gate["artifact-ids"] ?? []) {
-    if (!artifactsById.has(artifactId)) {
-      targetErrors.push(`release-gates.checksum-verification.artifact-ids contains unknown artifact id ${JSON.stringify(artifactId)}`);
-    }
-  }
-  const expectedChecksums = gate["expected-checksums"] ?? {};
-  for (const artifact of artifactsById.values()) {
-    if (!requiresReleaseChecksum(artifact)) {
-      continue;
-    }
-    const checksum = expectedChecksums[artifact.id];
-    if (mode !== "prepare" && !isObject(checksum)) {
-      targetErrors.push(`release-gates.checksum-verification.expected-checksums.${artifact.id} must be present in publish/verify mode`);
-      continue;
-    }
-    if (isObject(checksum)) {
-      requireEqual(checksum.algorithm, "sha256", `release-gates.checksum-verification.expected-checksums.${artifact.id}.algorithm`, targetErrors);
-      if (checksum.value !== artifact.checksum?.value) {
-        targetErrors.push(`release-gates.checksum-verification.expected-checksums.${artifact.id}.value must match ${artifact.id} checksum`);
-      }
-    }
-  }
-  requirePassedGate(gate, "release-gates.checksum-verification", targetErrors);
-}
-
-function requiresReleaseChecksum(artifact) {
-  return artifact["support-tier"] === "release-blocking" || artifact.kind === "studio-web-bundle";
 }
 
 function requireArtifactChecksum(artifact, label, releaseBlocking, targetErrors) {
@@ -662,16 +584,16 @@ function rejectLocalReleaseSources(matrixDocument, targetErrors) {
   }
 }
 
-function collectArtifacts(matrixDocument) {
-  const runtimeBinaries = matrixDocument.components?.runtime?.binaries ?? {};
-  const studioDesktopPackages = matrixDocument.components?.studio?.["desktop-packages"] ?? {};
-  const studioRuntimeSidecars = matrixDocument.components?.studio?.["runtime-sidecars"] ?? {};
-  return [
-    ...Object.values(runtimeBinaries),
-    ...Object.values(studioDesktopPackages),
-    matrixDocument.components?.studio?.["web-bundle"],
-    ...Object.values(studioRuntimeSidecars),
-  ].filter(isObject);
+function studioArtifactEntries(value) {
+  if (Array.isArray(value)) {
+    return value
+      .filter(isObject)
+      .map((artifact, index) => [artifact.target ?? String(index), artifact]);
+  }
+  if (isObject(value)) {
+    return Object.entries(value);
+  }
+  return [];
 }
 
 function collectStringFields(value, fieldPath = "$", fields = []) {
@@ -745,13 +667,18 @@ function collectRefs(value, refs = [], fieldPath = "$") {
     value.forEach((item, index) => collectRefs(item, refs, `${fieldPath}[${index}]`));
   } else if (isObject(value)) {
     for (const [key, item] of Object.entries(value)) {
-      if (["ref", "tag", "targetRef"].includes(key) && typeof item === "string") {
-        refs.push({ fieldPath: `${fieldPath}.${key}`, value: item });
+      const nextFieldPath = `${fieldPath}.${key}`;
+      if (["ref", "tag", "targetRef"].includes(key) && typeof item === "string" && !isInformationalExamplesRef(nextFieldPath)) {
+        refs.push({ fieldPath: nextFieldPath, value: item });
       }
-      collectRefs(item, refs, `${fieldPath}.${key}`);
+      collectRefs(item, refs, nextFieldPath);
     }
   }
   return refs;
+}
+
+function isInformationalExamplesRef(fieldPath) {
+  return fieldPath === "$.components.examples.ref";
 }
 
 function isAllowedReleaseRef(value) {
