@@ -2,6 +2,10 @@
 import { readFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import {
+  normalizeGitHubRepository,
+  normalizeTrainManifestInput,
+} from "./release-train-manifest-path.mjs";
 
 const args = parseArgs(process.argv.slice(2));
 const manifestInput = requireArg("manifest");
@@ -18,7 +22,15 @@ const errors = [];
 assertSemver(trainVersion, "train version", errors);
 requireManifestRef(manifestRef, mode, errors);
 requireManifestRepository(manifestRepository, mode, errors);
-const manifest = await readManifest(manifestInput);
+const manifestSource = normalizeTrainManifestInput(manifestInput, {
+  trainVersion,
+  manifestRepository: "skenion/skenion",
+  errors,
+});
+if (errors.length > 0) {
+  reportErrorsAndExit(errors);
+}
+const manifest = await readManifest(manifestSource);
 const trainId = trainVersion.replace(/\.[0-9]+$/, "");
 
 requireEqual(manifest.schema, "skenion.release-train", "manifest.schema", errors);
@@ -68,13 +80,10 @@ requireArtifactCollectionGate(manifest["release-gates"]?.["github-release-assets
   ...Object.values(manifest.components?.studio?.["runtime-sidecars"] ?? {}),
 ], `skenion-studio-v${trainVersion}`, errors);
 requireChecksumGate(manifest["release-gates"]?.["checksum-verification"], manifest, errors);
-rejectLocalReleaseSources(manifest, errors);
+rejectLocalReleaseSources(manifest, trainVersion, errors);
 
 if (errors.length > 0) {
-  for (const error of errors) {
-    console.error(`- ${error}`);
-  }
-  process.exit(1);
+  reportErrorsAndExit(errors);
 }
 
 await mkdir(outDir, { recursive: true });
@@ -156,10 +165,8 @@ function requireArg(name) {
   return value;
 }
 
-async function readManifest(input) {
-  const raw = input.trim().startsWith("{")
-    ? input
-    : await readFile(path.resolve(input), "utf8");
+async function readManifest(source) {
+  const raw = await readFile(source.absolutePath, "utf8");
   return JSON.parse(raw);
 }
 
@@ -266,9 +273,11 @@ function requireRuntimeBinary(artifact, target, expectedVersion, targetErrors) {
     targetErrors.push(`components.runtime.binaries.${target} must be present`);
     return;
   }
+  const expectedAssetName = runtimeAssetName(target, expectedVersion);
   requireEqual(artifact.target, target, `components.runtime.binaries.${target}.target`, targetErrors);
   requireEqual(artifact.kind, "runtime-binary", `components.runtime.binaries.${target}.kind`, targetErrors);
   requireEqual(artifact.version, expectedVersion, `components.runtime.binaries.${target}.version`, targetErrors);
+  requireEqual(artifact.name, expectedAssetName, `components.runtime.binaries.${target}.name`, targetErrors);
   if (!isObject(artifact.source)) {
     targetErrors.push(`components.runtime.binaries.${target}.source must be an object`);
     return;
@@ -278,6 +287,7 @@ function requireRuntimeBinary(artifact, target, expectedVersion, targetErrors) {
     targetErrors.push(`components.runtime.binaries.${target}.source.repository must be skenion/skenion-runtime`);
   }
   requireEqual(artifact.source.tag, `skenion-runtime-v${expectedVersion}`, `components.runtime.binaries.${target}.source.tag`, targetErrors);
+  requireEqual(artifact.source["asset-name"], expectedAssetName, `components.runtime.binaries.${target}.source["asset-name"]`, targetErrors);
   if (!artifact.source["asset-name"] || artifact.source["asset-name"].includes("/") || artifact.source["asset-name"].includes("\\")) {
     targetErrors.push(`components.runtime.binaries.${target}.source["asset-name"] must be a release asset name`);
   }
@@ -402,8 +412,11 @@ function requireStudioArtifact(artifact, target, kind, expectedVersion, targetEr
     targetErrors.push(`${label}.source.repository must be skenion/skenion-studio`);
   }
   requireEqual(artifact.source.tag, `skenion-studio-v${expectedVersion}`, `${label}.source.tag`, targetErrors);
-  if (!artifact.source["asset-name"] || artifact.source["asset-name"].includes("/") || artifact.source["asset-name"].includes("\\")) {
+  const assetName = artifact.source["asset-name"];
+  if (!assetName || assetName.includes("/") || assetName.includes("\\")) {
     targetErrors.push(`${label}.source["asset-name"] must be a release asset name`);
+  } else {
+    requireEqual(artifact.name, assetName, `${label}.name`, targetErrors);
   }
 }
 
@@ -598,26 +611,17 @@ function requireRuntimeChecksum(artifact, target, targetErrors) {
   return artifact.checksum.value.toLowerCase();
 }
 
-function rejectLocalReleaseSources(manifest, targetErrors) {
-  const serialized = JSON.stringify(manifest);
-  const forbidden = [
-    /echovisionlab\//i,
-    /node_modules/i,
-    /\.deps/i,
-    /target\/debug/i,
-    /target\/release/i,
-    /\/Volumes\/Linear\/skenion\//i,
-    /file:/i,
-    /refs\/heads\/main/i,
-  ];
-  for (const pattern of forbidden) {
-    if (pattern.test(serialized)) {
-      targetErrors.push(`release manifest contains forbidden local/sibling/main source pattern ${pattern}`);
+function rejectLocalReleaseSources(manifest, expectedVersion, targetErrors) {
+  for (const { fieldPath, value } of collectStringFields(manifest)) {
+    const reason = forbiddenReleaseSourceReason(value, fieldPath);
+    if (reason) {
+      targetErrors.push(`release manifest ${fieldPath} contains forbidden ${reason}: ${JSON.stringify(value)}`);
     }
   }
-  for (const ref of collectRefs(manifest)) {
-    if (!isImmutableReleaseRef(ref)) {
-      targetErrors.push(`release source ref ${JSON.stringify(ref)} is branch-shaped or not an immutable release ref`);
+
+  for (const { fieldPath, value } of collectRefs(manifest)) {
+    if (!isAllowedReleaseRef(value, expectedVersion)) {
+      targetErrors.push(`release source ref ${fieldPath}=${JSON.stringify(value)} must be an exact train release tag or 40-character git SHA`);
     }
   }
 }
@@ -634,30 +638,101 @@ function collectArtifacts(manifestDocument) {
   ].filter(isObject);
 }
 
-function collectRefs(value, refs = []) {
+function collectStringFields(value, fieldPath = "$", fields = []) {
   if (Array.isArray(value)) {
-    for (const item of value) {
-      collectRefs(item, refs);
+    value.forEach((item, index) => collectStringFields(item, `${fieldPath}[${index}]`, fields));
+  } else if (isObject(value)) {
+    for (const [key, item] of Object.entries(value)) {
+      collectStringFields(item, `${fieldPath}.${key}`, fields);
     }
+  } else if (typeof value === "string") {
+    fields.push({ fieldPath, value });
+  }
+  return fields;
+}
+
+function forbiddenReleaseSourceReason(value, fieldPath) {
+  if (/\bechovisionlab\//i.test(value)) {
+    return "stale echovisionlab artifact reference";
+  }
+  if (isUrlReleaseSourceField(fieldPath) && !isHttpsUrl(value)) {
+    return "non-https release artifact URL";
+  }
+  if (/\b(?:file|link|workspace):/i.test(value)) {
+    return "local package override";
+  }
+  if (/(^|[\\/])(?:\.deps|node_modules)([\\/]|$)/i.test(value)) {
+    return "local dependency path";
+  }
+  if (/(^|[\\/])target[\\/](?:debug|release)([\\/]|$)/i.test(value)) {
+    return "local build output path";
+  }
+  if (/\/Volumes\/(?:Linear|dev)\/Skenion\//i.test(value)) {
+    return "sibling workspace path";
+  }
+  if (isPathLikeReleaseSourceField(fieldPath) && isLocalPathSyntax(value) && !isAllowedManifestPath(fieldPath)) {
+    return "local path";
+  }
+  return "";
+}
+
+function isPathLikeReleaseSourceField(fieldPath) {
+  return ["path", "localPath", "cachePath", "packagePath", "override", "specifier", "url"].includes(fieldPathKey(fieldPath));
+}
+
+function isUrlReleaseSourceField(fieldPath) {
+  return fieldPathKey(fieldPath) === "url";
+}
+
+function fieldPathKey(fieldPath) {
+  const segments = fieldPath.split(".");
+  return segments[segments.length - 1];
+}
+
+function isAllowedManifestPath(fieldPath) {
+  return fieldPath === "$.components.docs.manual.path"
+    || fieldPath === "$.release-gates.docs-pages-deployment.manual-path";
+}
+
+function isLocalPathSyntax(value) {
+  return value.startsWith("/")
+    || value.startsWith("./")
+    || value.startsWith("../")
+    || value.startsWith(".\\")
+    || value.startsWith("..\\")
+    || value.startsWith("~/")
+    || /^[a-z]:[\\/]/i.test(value);
+}
+
+function collectRefs(value, refs = [], fieldPath = "$") {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => collectRefs(item, refs, `${fieldPath}[${index}]`));
   } else if (isObject(value)) {
     for (const [key, item] of Object.entries(value)) {
       if (["ref", "tag", "targetRef"].includes(key) && typeof item === "string") {
-        refs.push(item);
+        refs.push({ fieldPath: `${fieldPath}.${key}`, value: item });
       }
-      collectRefs(item, refs);
+      collectRefs(item, refs, `${fieldPath}.${key}`);
     }
   }
   return refs;
 }
 
-function isImmutableReleaseRef(value) {
+function isAllowedReleaseRef(value, expectedVersion) {
+  return isGitSha(value) || isExactTrainReleaseTag(value, expectedVersion);
+}
+
+function isExactTrainReleaseTag(value, expectedVersion) {
   return typeof value === "string"
-    && value.length > 0
-    && !["main", "master", "HEAD"].includes(value)
-    && !value.startsWith("refs/")
-    && !value.includes("/")
-    && !value.includes("..")
-    && !value.includes(" ");
+    && new RegExp(`^skenion(?:-[a-z0-9]+)+-v${escapeRegExp(expectedVersion)}$`).test(value);
+}
+
+function runtimeAssetName(target, expectedVersion) {
+  return `skenion-runtime-v${expectedVersion}-${target}.tar.gz`;
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function isStrictExamplesReleaseTag(value, expectedVersion) {
@@ -696,7 +771,7 @@ function isHttpsUrl(value) {
 }
 
 function normalizeRepository(value) {
-  return String(value ?? "").replace(/^https:\/\/github.com\//i, "").replace(/\.git$/i, "").toLowerCase();
+  return normalizeGitHubRepository(value);
 }
 
 function isObject(value) {
@@ -712,4 +787,11 @@ function writeOutputs(outputs) {
     input: `${lines.join("\n")}\n`,
     env: process.env,
   });
+}
+
+function reportErrorsAndExit(targetErrors) {
+  for (const error of targetErrors) {
+    console.error(`- ${error}`);
+  }
+  process.exit(1);
 }

@@ -3,25 +3,35 @@ import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { normalizeTrainManifestInput } from "./release-train-manifest-path.mjs";
 
 const root = process.cwd();
 const args = parseArgs(process.argv.slice(2));
 const manifestPath = requireArg("manifest");
 const trainVersion = requireArg("train-version");
+const manifestPathErrors = [];
+const manifestSource = normalizeTrainManifestInput(manifestPath, {
+  trainVersion,
+  manifestRepository: "skenion/skenion",
+  errors: manifestPathErrors,
+});
+if (manifestPathErrors.length > 0) {
+  throw new Error(manifestPathErrors.join("; "));
+}
 const releaseMode = process.env.SKENION_RELEASE_MODE === "1";
 const sdkPackageOverride = process.env.SKENION_SDK_PACKAGE;
 const sdkPackage = sdkPackageOverride ?? "@skenion/sdk";
 const linkedSdkPackage = path.join(root, ".deps/skenion-sdk/dist/index.js");
 
-if (releaseMode && sdkPackageOverride && (sdkPackageOverride.startsWith(".") || path.isAbsolute(sdkPackageOverride))) {
-  throw new Error("release mode must use the released @skenion/sdk package, not a local SDK path");
+if (releaseMode && sdkPackageOverride && sdkPackageOverride !== "@skenion/sdk") {
+  throw new Error("release mode must use the released @skenion/sdk package, not a SKENION_SDK_PACKAGE override");
 }
 if (releaseMode && existsSync(linkedSdkPackage)) {
   throw new Error("release mode must not consume .deps/skenion-sdk; remove the sibling checkout from the release job");
 }
 
 const sdk = await importSdk();
-const manifest = await readJson(manifestPath);
+const manifest = await readJson(manifestSource.absolutePath);
 const sdkPackageJson = await readInstalledPackageJson("@skenion/sdk");
 const contractsPackageJson = await readInstalledPackageJson("@skenion/contracts");
 
@@ -33,7 +43,7 @@ if (contractsPackageJson.version !== trainVersion) {
 }
 
 const releaseBlockingRuntimeTargets = releaseBlockingTargets(manifest.components?.runtime?.binaries);
-const releaseBlockingStudioSidecarTargets = releaseBlockingTargets(manifest.components?.studio?.runtimeSidecars);
+const releaseBlockingStudioSidecarTargets = releaseBlockingTargets(manifest.components?.studio?.["runtime-sidecars"]);
 const trainValidation = sdk.validateReleaseTrainManifestForSdk(manifest, {
   sdkPackageVersion: sdkPackageJson.version,
   contractsPackageVersion: contractsPackageJson.version,
@@ -103,7 +113,7 @@ if (!validateUrl.endsWith("/v0/sessions/sdk-release-conformance/validate")) {
 sdk.createRuntimeEventReplayCursorState("0");
 
 console.log(
-  `validated released SDK helpers with ${projectCount} Studio project fixtures, ${runtimePayloadCount} runtime project payloads, ${patchContractCount} derived patch contracts, ${fragmentCount} graph fragments, ${pasteOperationCount} paste operations, and manifest ${manifest.trainVersion}`
+  `validated released SDK helpers with ${projectCount} Studio project fixtures, ${runtimePayloadCount} runtime project payloads, ${patchContractCount} derived patch contracts, ${fragmentCount} graph fragments, ${pasteOperationCount} paste operations, and manifest ${manifest["train-version"]}`
 );
 
 function parseArgs(argv) {
@@ -223,6 +233,6 @@ function projectDocumentPayload(document) {
 
 function releaseBlockingTargets(artifacts) {
   return Object.entries(artifacts ?? {})
-    .filter(([, artifact]) => artifact?.supportTier === "release-blocking")
+    .filter(([, artifact]) => artifact?.["support-tier"] === "release-blocking")
     .map(([target]) => target);
 }

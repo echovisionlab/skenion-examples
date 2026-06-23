@@ -7,8 +7,8 @@ const root = process.cwd();
 const linkedContractsPackage = path.join(root, ".deps/skenion-contracts/packages/ts/dist/index.js");
 const releaseMode = process.env.SKENION_RELEASE_MODE === "1";
 const contractsPackageOverride = process.env.SKENION_CONTRACTS_PACKAGE;
-if (releaseMode && contractsPackageOverride && (contractsPackageOverride.startsWith(".") || path.isAbsolute(contractsPackageOverride))) {
-  throw new Error("release mode must use the released @skenion/contracts package, not a local Contracts path");
+if (releaseMode && contractsPackageOverride && contractsPackageOverride !== "@skenion/contracts") {
+  throw new Error("release mode must use the released @skenion/contracts package, not a SKENION_CONTRACTS_PACKAGE override");
 }
 if (releaseMode && existsSync(linkedContractsPackage)) {
   throw new Error("release mode must not consume .deps/skenion-contracts; remove the sibling checkout from the release job");
