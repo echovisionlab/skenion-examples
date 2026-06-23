@@ -261,6 +261,14 @@ jobs:
           SKENION_RELEASE_MODE: "1"
           SKENION_RUNTIME_BIN: ${{ steps.runtime.outputs.runtime_bin }}
 
+      - name: Check out release tooling
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          path: .release/tools
+          token: ${{ secrets.GH_TOKEN }}
+          persist-credentials: false
+
       - name: Produce or verify examples release tag
         run: |
           set -euo pipefail
@@ -269,7 +277,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/skenion/skenion-examples.git"
           fi
-          node scripts/manage-release-tag.mjs \
+          node .release/tools/scripts/manage-release-tag.mjs \
             --mode "${MODE}" \
             --dry-run "${DRY_RUN}" \
             --tag "${EXAMPLES_TAG}" \
