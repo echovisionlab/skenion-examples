@@ -5,44 +5,26 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      runtime_ref:
+        description: Runtime branch, tag, or SHA for explicit source integration smoke.
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  SKENION_CONTRACTS_PACKAGE: "@skenion/contracts"
 
 jobs:
   examples:
+    name: Examples validation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/checkout@v6
-        with:
-          repository: skenion/skenion-runtime
-          path: .deps/skenion-runtime
-      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libasound2-dev pkg-config
-      - name: Align runtime dependency branch
-        if: github.event_name == 'pull_request'
-        run: |
-          if git -C .deps/skenion-runtime ls-remote --exit-code origin "refs/heads/${GITHUB_HEAD_REF}" >/dev/null 2>&1; then
-            git -C .deps/skenion-runtime fetch --depth=1 origin "${GITHUB_HEAD_REF}"
-            git -C .deps/skenion-runtime checkout FETCH_HEAD
-          fi
-      - name: Use released Contracts crate for Runtime smoke
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-
-          manifest = Path(".deps/skenion-runtime/Cargo.toml")
-          old = 'skenion-contracts = { version = "0.45.0", path = "../Skenion-contracts/packages/rust" }'
-          new = 'skenion-contracts = "0.45.0"'
-          text = manifest.read_text()
-          if old not in text:
-              raise SystemExit(f"{manifest}: expected local skenion-contracts path dependency was not found")
-          manifest.write_text(text.replace(old, new, 1))
-          PY
       - uses: pnpm/action-setup@v6
         with:
           version: 10.12.4
@@ -59,6 +41,30 @@ jobs:
       - run: node scripts/audit-node-conventions.mjs
       - run: node scripts/validate-runtime-project-payloads.mjs
       - run: node scripts/validate-runtime-session-smoke-fixtures.mjs
+
+  runtime-source-integration:
+    name: Runtime source integration smoke
+    if: github.event_name == 'workflow_dispatch'
+    needs: examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: skenion/skenion-runtime
+          ref: ${{ inputs.runtime_ref }}
+          path: .deps/skenion-runtime
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libasound2-dev pkg-config
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10.12.4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
       - run: |
           mkdir -p .deps/skenion-runtime/.deps
           ln -sfn "${GITHUB_WORKSPACE}" .deps/skenion-runtime/.deps/skenion-examples
@@ -75,9 +81,9 @@ jobs:
       - run: |
           SKENION_PREVIEW_DRY_RUN=1 .deps/skenion-runtime/target/debug/skenion-runtime serve --host 127.0.0.1 --port 3761 &
           SERVER_PID=$!
-          trap "kill $SERVER_PID" EXIT
+          trap 'kill "$SERVER_PID"' EXIT
           READY=false
-          for attempt in $(seq 1 20); do
+          for _ in $(seq 1 20); do
             if curl --fail --silent http://127.0.0.1:3761/health >/dev/null; then
               READY=true
               break
