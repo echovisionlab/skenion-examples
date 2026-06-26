@@ -1,20 +1,9 @@
-import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { importContracts, resolveContractsPackage } from "./contracts-package-source.mjs";
 
 const root = process.cwd();
-const linkedContractsPackage = path.join(root, ".deps/skenion-contracts/packages/ts/dist/index.js");
-const releaseMode = process.env.SKENION_RELEASE_MODE === "1";
-const contractsPackageOverride = process.env.SKENION_CONTRACTS_PACKAGE;
-if (releaseMode && contractsPackageOverride && contractsPackageOverride !== "@skenion/contracts") {
-  throw new Error("release mode must use the released @skenion/contracts package, not a SKENION_CONTRACTS_PACKAGE override");
-}
-if (releaseMode && existsSync(linkedContractsPackage)) {
-  throw new Error("release mode must not consume .deps/skenion-contracts; remove the sibling checkout from the release job");
-}
-const contractsPackage = process.env.SKENION_CONTRACTS_PACKAGE
-  ?? (releaseMode ? "@skenion/contracts" : (existsSync(linkedContractsPackage) ? linkedContractsPackage : "@skenion/contracts"));
+const contractsPackage = resolveContractsPackage(root);
 const runtimeUrl = process.env.SKENION_RUNTIME_URL?.replace(/\/+$/, "");
 const currentFixtureRoot = path.join(root, "compatibility/v0.1/runtime-session-fixtures");
 const unsupportedFixtureRoot = path.join(root, "compatibility/unsupported/pre-consolidation-v0.1/runtime-session-fixtures");
@@ -26,17 +15,6 @@ const scenarios = new Set([
   "sidecar-handshake-health",
   "remote-local-neutral-url-session-semantics"
 ]);
-
-async function importContracts() {
-  if (contractsPackage.startsWith(".") || path.isAbsolute(contractsPackage)) {
-    const entry = contractsPackage.endsWith(".js")
-      ? contractsPackage
-      : path.join(contractsPackage, "index.js");
-    return import(pathToFileURL(path.resolve(root, entry)).href);
-  }
-
-  return import(contractsPackage);
-}
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -810,7 +788,7 @@ async function runFixture(fixture, contracts, runtimeInfo, runId) {
   }
 }
 
-const contracts = await importContracts();
+const contracts = await importContracts(root, contractsPackage);
 const currentFiles = await walk(currentFixtureRoot);
 const unsupportedFiles = await walk(unsupportedFixtureRoot);
 const validCurrentFiles = currentFiles.filter((file) => file.includes(`${path.sep}valid${path.sep}`));

@@ -23,10 +23,14 @@ Unsupported pre-consolidation material is isolated under
 current contract validation and are not normal examples.
 
 Active runtime project payload fixtures live under `compatibility/v0.1/projects`
-and use current graph 0.1 contracts. The runtime JSON validation scripts import
-the generated Contracts package from `.deps/skenion-contracts` when that
-checkout is present, falling back to the installed `@skenion/contracts`
-dependency for standalone local runs.
+and use current graph 0.1 contracts. The runtime JSON validation scripts use
+the installed `@skenion/contracts` dependency by default, even when a sibling
+Contracts checkout exists under `.deps/skenion-contracts`. Local source
+integration is explicit: set `SKENION_USE_LOCAL_CONTRACTS=1` to consume the
+built `.deps/skenion-contracts/packages/ts/dist/index.js`, or set
+`SKENION_CONTRACTS_PACKAGE` to a specific built package entry. Release mode
+rejects both local Contracts settings and a present `.deps/skenion-contracts`
+checkout so release conformance fails closed instead of using sibling artifacts.
 
 Current 0.1 Runtime project smoke checks live in
 `scripts/smoke-runtime-v01-projects.sh`. The script validates current 0.1
@@ -100,6 +104,7 @@ pnpm install --frozen-lockfile
 node scripts/validate-with-contracts.mjs
 node scripts/validate-runtime-project-payloads.mjs
 node scripts/validate-runtime-session-smoke-fixtures.mjs
+SKENION_USE_LOCAL_CONTRACTS=1 node scripts/validate-with-contracts.mjs
 SKENION_CONTRACTS_DIR=/Volumes/dev/skenion/skenion-contracts node scripts/audit-node-conventions.mjs
 bash scripts/validate-with-runtime.sh /Volumes/dev/skenion/skenion-runtime
 SKENION_RUNTIME_URL=http://127.0.0.1:3761 bash scripts/smoke-runtime-v01-projects.sh
