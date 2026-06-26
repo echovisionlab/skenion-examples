@@ -19,7 +19,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control",
           "description": "Example value copied from live help."
         }
@@ -37,14 +37,14 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control",
           "required": true
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ]
@@ -58,7 +58,7 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control",
           "description": "Displays the copied help result."
         }
@@ -76,7 +76,7 @@
         "nodeId": "help_scale",
         "portId": "in"
       },
-      "resolvedType": "value.number"
+      "resolvedType": "control.number.float"
     },
     {
       "id": "edge_help_scale_meter",
@@ -88,7 +88,7 @@
         "nodeId": "help_meter",
         "portId": "in"
       },
-      "resolvedType": "value.number"
+      "resolvedType": "control.number.float"
     }
   ],
   "view": {

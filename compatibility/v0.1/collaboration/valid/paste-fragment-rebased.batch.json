@@ -52,7 +52,7 @@
                   {
                     "id": "out",
                     "direction": "output",
-                    "type": "value.number",
+                    "type": "control.number.float",
                     "rate": "control",
                     "description": "Copied value used by the pasted meter example."
                   }
@@ -67,7 +67,7 @@
                   {
                     "id": "in",
                     "direction": "input",
-                    "type": "value.number",
+                    "type": "control.number.float",
                     "rate": "control",
                     "description": "Meter copied from live help."
                   }
@@ -85,7 +85,7 @@
                   "nodeId": "help_meter",
                   "portId": "in"
                 },
-                "resolvedType": "value.number"
+                "resolvedType": "control.number.float"
               }
             ],
             "view": {

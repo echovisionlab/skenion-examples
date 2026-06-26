@@ -24,7 +24,7 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "Left value for subpatch inputs."
           }
@@ -41,7 +41,7 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "Right value for subpatch inputs."
           }
@@ -71,7 +71,7 @@
           {
             "id": "value",
             "direction": "input",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "required": true,
             "description": "External input materialized from input_only.value_in."
@@ -91,7 +91,7 @@
           {
             "id": "value",
             "direction": "output",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "External output materialized from output_only.value_out."
           }
@@ -110,7 +110,7 @@
           {
             "id": "left",
             "direction": "input",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "required": true,
             "description": "Left external input."
@@ -118,7 +118,7 @@
           {
             "id": "right",
             "direction": "input",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "required": true,
             "description": "Right external input."
@@ -126,21 +126,21 @@
           {
             "id": "sum",
             "direction": "output",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "Left value routed to the first output."
           },
           {
             "id": "difference",
             "direction": "output",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "Left-derived output."
           },
           {
             "id": "thru",
             "direction": "output",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "Right-derived output."
           }
@@ -155,7 +155,7 @@
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "Displays the output-only patch value."
           }
@@ -170,7 +170,7 @@
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "Displays the merged output."
           }
@@ -185,7 +185,7 @@
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "Displays the left-derived output."
           }
@@ -200,7 +200,7 @@
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "control.number.float",
             "rate": "control",
             "description": "Displays the right-derived output."
           }
@@ -218,7 +218,7 @@
           "nodeId": "input_patch",
           "portId": "value"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "control.number.float"
       },
       {
         "id": "edge_output_meter",
@@ -230,7 +230,7 @@
           "nodeId": "meter_output",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "control.number.float"
       },
       {
         "id": "edge_left_matrix",
@@ -242,7 +242,7 @@
           "nodeId": "matrix_patch",
           "portId": "left"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "control.number.float"
       },
       {
         "id": "edge_right_matrix",
@@ -254,7 +254,7 @@
           "nodeId": "matrix_patch",
           "portId": "right"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "control.number.float"
       },
       {
         "id": "edge_matrix_sum_meter",
@@ -266,7 +266,7 @@
           "nodeId": "meter_sum",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "control.number.float"
       },
       {
         "id": "edge_matrix_difference_meter",
@@ -278,7 +278,7 @@
           "nodeId": "meter_difference",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "control.number.float"
       },
       {
         "id": "edge_matrix_thru_meter",
@@ -290,7 +290,7 @@
           "nodeId": "meter_thru",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "control.number.float"
       }
     ]
   },
@@ -390,7 +390,7 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Value entering the input-only patch."
               }
@@ -426,7 +426,7 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Value leaving the output-only patch."
               }
@@ -462,7 +462,7 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Left value entering the patch."
               }
@@ -481,7 +481,7 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Right value entering the patch."
               }
@@ -500,7 +500,7 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Left value routed to the first output."
               }
@@ -519,7 +519,7 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Left-derived value leaving the patch."
               }
@@ -538,7 +538,7 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Right-derived value leaving the patch."
               }
@@ -556,7 +556,7 @@
               "nodeId": "sum_out",
               "portId": "in"
             },
-            "resolvedType": "value.number",
+            "resolvedType": "control.number.float",
             "order": 0
           },
           {
@@ -569,7 +569,7 @@
               "nodeId": "difference_out",
               "portId": "in"
             },
-            "resolvedType": "value.number"
+            "resolvedType": "control.number.float"
           },
           {
             "id": "edge_right_thru",
@@ -581,7 +581,7 @@
               "nodeId": "thru_out",
               "portId": "in"
             },
-            "resolvedType": "value.number"
+            "resolvedType": "control.number.float"
           }
         ]
       }
@@ -599,19 +599,19 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     },
     {
@@ -625,19 +625,19 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     }
   ]

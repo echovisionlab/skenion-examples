@@ -45,7 +45,7 @@
                 {
                   "id": "out",
                   "direction": "output",
-                  "type": "value.number",
+                  "type": "control.number.float",
                   "rate": "control",
                   "description": "Alice's modulation value."
                 }
@@ -116,7 +116,7 @@
                 "nodeId": "meter_main",
                 "portId": "in"
               },
-              "resolvedType": "value.number",
+              "resolvedType": "control.number.float",
               "description": "Bob connects Alice's new value node after receiving the optimistic add."
             }
           }

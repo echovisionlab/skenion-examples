@@ -11,6 +11,6 @@
     "validate:sdk-compatibility": "node scripts/validate-sdk-compatibility.mjs"
   },
   "devDependencies": {
-    "@skenion/contracts": "0.45.0"
+    "@skenion/contracts": "0.51.0"
   }
 }

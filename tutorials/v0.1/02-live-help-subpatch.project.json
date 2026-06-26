@@ -22,12 +22,63 @@
           {
             "id": "in",
             "direction": "input",
-            "type": "message.any",
-            "rate": "event",
-            "triggerMode": "trigger"
+            "type": "control.message.any",
+            "rate": "control",
+            "triggerMode": "trigger",
+            "accepts": [
+              "control.number.float",
+              "control.number.int",
+              "control.number.uint",
+              "control.bool",
+              "control.string",
+              "control.color",
+              "event.bang"
+            ],
+            "messageSelectors": {
+              "accepted": [
+                "bang",
+                "set",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ],
+              "silent": [
+                "set"
+              ],
+              "trigger": [
+                "bang",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ],
+              "emit": [
+                "bang",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ]
+            }
           },
           {
-            "id": "bang",
+            "id": "out",
             "direction": "output",
             "type": "event.bang",
             "rate": "event"
@@ -57,8 +108,8 @@
           {
             "id": "help",
             "direction": "output",
-            "type": "message.any",
-            "rate": "event",
+            "type": "control.message.any",
+            "rate": "control",
             "description": "Emits live help patch metadata."
           }
         ]
@@ -72,15 +123,69 @@
           {
             "id": "in",
             "direction": "input",
-            "type": "message.any",
-            "rate": "event",
-            "triggerMode": "trigger"
+            "type": "control.message.any",
+            "rate": "control",
+            "triggerMode": "trigger",
+            "accepts": [
+              "control.number.float",
+              "control.number.int",
+              "control.number.uint",
+              "control.bool",
+              "control.string",
+              "control.color",
+              "event.bang"
+            ],
+            "messageSelectors": {
+              "accepted": [
+                "bang",
+                "set",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ],
+              "silent": [
+                "set"
+              ],
+              "trigger": [
+                "bang",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ],
+              "store": [
+                "set"
+              ],
+              "emit": [
+                "bang",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ]
+            }
           },
           {
             "id": "out",
             "direction": "output",
-            "type": "message.any",
-            "rate": "event"
+            "type": "control.message.any",
+            "rate": "control"
           }
         ]
       }
@@ -90,7 +195,7 @@
         "id": "edge_open_help",
         "source": {
           "nodeId": "open_help",
-          "portId": "bang"
+          "portId": "out"
         },
         "target": {
           "nodeId": "subpatch_help",
@@ -108,7 +213,7 @@
           "nodeId": "help_message",
           "portId": "in"
         },
-        "resolvedType": "message.any"
+        "resolvedType": "control.message.any"
       }
     ]
   },
@@ -163,7 +268,7 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "A value entering the help patch."
               }
@@ -181,7 +286,7 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "required": true,
                 "description": "The same value leaving the help patch."
@@ -200,7 +305,7 @@
               "nodeId": "patch_out",
               "portId": "in"
             },
-            "resolvedType": "value.number"
+            "resolvedType": "control.number.float"
           }
         ]
       },
@@ -245,12 +350,63 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "message.any",
-          "rate": "event",
-          "triggerMode": "trigger"
+          "type": "control.message.any",
+          "rate": "control",
+          "triggerMode": "trigger",
+          "accepts": [
+            "control.number.float",
+            "control.number.int",
+            "control.number.uint",
+            "control.bool",
+            "control.string",
+            "control.color",
+            "event.bang"
+          ],
+          "messageSelectors": {
+            "accepted": [
+              "bang",
+              "set",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "silent": [
+              "set"
+            ],
+            "trigger": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "emit": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ]
+          }
         },
         {
-          "id": "bang",
+          "id": "out",
           "direction": "output",
           "type": "event.bang",
           "rate": "event"
@@ -285,8 +441,8 @@
         {
           "id": "help",
           "direction": "output",
-          "type": "message.any",
-          "rate": "event"
+          "type": "control.message.any",
+          "rate": "control"
         }
       ],
       "execution": {
@@ -311,26 +467,80 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "message.any",
-          "rate": "event",
-          "triggerMode": "trigger"
+          "type": "control.message.any",
+          "rate": "control",
+          "triggerMode": "trigger",
+          "accepts": [
+            "control.number.float",
+            "control.number.int",
+            "control.number.uint",
+            "control.bool",
+            "control.string",
+            "control.color",
+            "event.bang"
+          ],
+          "messageSelectors": {
+            "accepted": [
+              "bang",
+              "set",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "silent": [
+              "set"
+            ],
+            "trigger": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "store": [
+              "set"
+            ],
+            "emit": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ]
+          }
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "message.any",
-          "rate": "event"
+          "type": "control.message.any",
+          "rate": "control"
         }
       ],
       "execution": {
-        "model": "event"
+        "model": "control"
       },
       "state": {
         "persistent": true
       },
       "permissions": [],
       "capabilities": [
-        "message.any.v0.1"
+        "control.message.any.v0.1"
       ]
     }
   ]

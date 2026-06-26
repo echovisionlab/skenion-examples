@@ -9,24 +9,24 @@
     {
       "id": "in",
       "direction": "input",
-      "type": "value.number",
+      "type": "control.number.float",
       "rate": "control"
     },
     {
       "id": "out",
       "direction": "output",
-      "type": "value.number",
+      "type": "control.number.float",
       "rate": "control"
     }
   ],
   "execution": {
-    "model": "value"
+    "model": "control"
   },
   "state": {
     "persistent": false
   },
   "permissions": [],
   "capabilities": [
-    "value.number.v0.1"
+    "control.number.float.v0.1"
   ]
 }

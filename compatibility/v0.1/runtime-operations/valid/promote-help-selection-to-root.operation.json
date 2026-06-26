@@ -31,7 +31,7 @@
             {
               "id": "out",
               "direction": "output",
-              "type": "value.number",
+              "type": "control.number.float",
               "rate": "control"
             }
           ]
@@ -45,7 +45,7 @@
             {
               "id": "in",
               "direction": "input",
-              "type": "value.number",
+              "type": "control.number.float",
               "rate": "control"
             }
           ]
@@ -62,7 +62,7 @@
             "nodeId": "help_meter",
             "portId": "in"
           },
-          "resolvedType": "value.number"
+          "resolvedType": "control.number.float"
         }
       ],
       "view": {

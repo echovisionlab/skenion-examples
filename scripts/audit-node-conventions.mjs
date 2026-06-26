@@ -5,6 +5,15 @@ const root = process.cwd();
 const releaseMode = process.env.SKENION_RELEASE_MODE === "1";
 const contractsDir = process.env.SKENION_CONTRACTS_DIR;
 const currentCompatibilityRoot = path.join(root, "compatibility/v0.1");
+const unsupportedVersionSegment = `${path.sep}unsupported-versions${path.sep}`;
+const explicitCanonicalTypeAliases = new Map([
+  ["message.any", "control.message.any"],
+  ["number.float", "control.number.float"],
+  ["number.int", "control.number.int"],
+  ["number.uint", "control.number.uint"],
+  ["boolean", "control.bool"],
+  ["value.number", "control.number.float"],
+]);
 
 if (releaseMode && contractsDir) {
   throw new Error("release mode must use the released @skenion/contracts package, not SKENION_CONTRACTS_DIR");
@@ -34,54 +43,94 @@ function fail(message) {
   throw new Error(message);
 }
 
-function collectDataKinds(value, out = []) {
+function collectPortTypeReferences(value, out = [], pointer = "$") {
   if (Array.isArray(value)) {
-    for (const item of value) {
-      collectDataKinds(item, out);
+    for (const [index, item] of value.entries()) {
+      collectPortTypeReferences(item, out, `${pointer}[${index}]`);
     }
     return out;
   }
   if (value && typeof value === "object") {
-    if (typeof value.dataKind === "string") {
-      out.push(value.dataKind);
+    if (isPortSpecLike(value)) {
+      out.push({
+        location: `${pointer}.type`,
+        type: value.type,
+      });
+      for (const [index, acceptedType] of (value.accepts ?? []).entries()) {
+        if (typeof acceptedType === "string") {
+          out.push({
+            location: `${pointer}.accepts[${index}]`,
+            type: acceptedType,
+          });
+        }
+      }
     }
-    for (const child of Object.values(value)) {
-      collectDataKinds(child, out);
+    if (typeof value.resolvedType === "string") {
+      out.push({
+        location: `${pointer}.resolvedType`,
+        type: value.resolvedType,
+      });
+    }
+    for (const [key, child] of Object.entries(value)) {
+      collectPortTypeReferences(child, out, `${pointer}.${key}`);
     }
   }
   return out;
 }
 
+function isPortSpecLike(value) {
+  return (
+    (value.direction === "input" || value.direction === "output") &&
+    typeof value.type === "string"
+  );
+}
+
+function canonicalSuggestionForType(type, canonicalTypes) {
+  const explicit = explicitCanonicalTypeAliases.get(type);
+  if (explicit && canonicalTypes.has(explicit)) {
+    return explicit;
+  }
+
+  if (type.startsWith("value.") || type.startsWith("value<")) {
+    return explicit ?? "a domain-qualified control.*, event.*, signal.*, resource, gpu, render, or other current port type";
+  }
+
+  const suffixMatches = [...canonicalTypes].filter((canonicalType) => canonicalType.endsWith(`.${type}`));
+  return suffixMatches.length === 1 ? suffixMatches[0] : "";
+}
+
+function shouldAuditFile(file) {
+  return !file.includes(unsupportedVersionSegment);
+}
+
 const { builtinsManifest, builtinsManifestSource } = await loadBuiltinsManifest();
-const canonicalDataKinds = new Set(builtinsManifest.canonicalDataKinds ?? []);
+const canonicalTypes = new Set(builtinsManifest.canonicalTypes ?? []);
 if (builtinsManifest.schema !== "skenion.builtins.manifest") {
   fail(`${builtinsManifestSource}: expected schema skenion.builtins.manifest`);
 }
 if (builtinsManifest.schemaVersion !== "0.1.0") {
   fail(`${builtinsManifestSource}: expected schemaVersion 0.1.0`);
 }
-if (canonicalDataKinds.size === 0) {
-  fail(`${builtinsManifestSource}: canonicalDataKinds must not be empty`);
+if (canonicalTypes.size === 0) {
+  fail(`${builtinsManifestSource}: canonicalTypes must not be empty`);
 }
 
-const currentCompatibilityFiles = await walk(currentCompatibilityRoot);
+const currentCompatibilityFiles = (await walk(currentCompatibilityRoot)).filter(shouldAuditFile);
+let portTypeReferenceCount = 0;
 for (const file of currentCompatibilityFiles) {
   const document = await readJson(file);
-  const dataKinds = collectDataKinds(document);
-  for (const dataKind of dataKinds) {
-    const numberCanonical = `number.${dataKind}`;
-    const eventCanonical = `event.${dataKind}`;
-    if (canonicalDataKinds.has(numberCanonical)) {
-      fail(`${file}: non-canonical dataKind ${dataKind} found; use ${numberCanonical}`);
-    }
-    if (canonicalDataKinds.has(eventCanonical)) {
-      fail(`${file}: non-canonical dataKind ${dataKind} found; use ${eventCanonical}`);
+  const portTypeReferences = collectPortTypeReferences(document);
+  portTypeReferenceCount += portTypeReferences.length;
+  for (const { location, type } of portTypeReferences) {
+    const canonicalType = canonicalSuggestionForType(type, canonicalTypes);
+    if (canonicalType) {
+      fail(`${file}: non-canonical port type ${JSON.stringify(type)} at ${location}; use ${canonicalType}`);
     }
   }
 }
 
 console.log(
-  `audited current 0.1 fixtures: ${currentCompatibilityFiles.length} JSON files for canonical type spelling against ${canonicalDataKinds.size} Contracts data kinds from ${builtinsManifestSource}`
+  `audited current 0.1 fixtures: ${currentCompatibilityFiles.length} JSON files and ${portTypeReferenceCount} port type references against ${canonicalTypes.size} Contracts canonical types from ${builtinsManifestSource}`
 );
 
 async function loadBuiltinsManifest() {

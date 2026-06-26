@@ -15,7 +15,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control",
           "description": "Value sent into the subpatch."
         }
@@ -34,7 +34,7 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control",
           "required": true,
           "description": "Value entering the Scale Twice patch."
@@ -42,7 +42,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control",
           "description": "Scaled value leaving the Scale Twice patch."
         }
@@ -57,7 +57,7 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control",
           "required": true,
           "description": "Displays the subpatch output."
@@ -76,7 +76,7 @@
         "nodeId": "scale_patch",
         "portId": "in"
       },
-      "resolvedType": "value.number"
+      "resolvedType": "control.number.float"
     },
     {
       "id": "edge_subpatch_meter",
@@ -88,7 +88,7 @@
         "nodeId": "meter",
         "portId": "in"
       },
-      "resolvedType": "value.number"
+      "resolvedType": "control.number.float"
     }
   ]
 }

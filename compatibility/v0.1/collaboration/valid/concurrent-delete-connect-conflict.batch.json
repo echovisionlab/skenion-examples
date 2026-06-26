@@ -84,7 +84,7 @@
                 "nodeId": "meter_main",
                 "portId": "in"
               },
-              "resolvedType": "value.number",
+              "resolvedType": "control.number.float",
               "description": "Conflicts when Alice's delete wins the server order."
             }
           }

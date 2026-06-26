@@ -32,7 +32,7 @@
             {
               "id": "out",
               "direction": "output",
-              "type": "value.number",
+              "type": "control.number.float",
               "rate": "control",
               "description": "Modulation value entering the patch."
             }

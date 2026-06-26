@@ -13,13 +13,13 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ]
@@ -33,13 +33,13 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ]

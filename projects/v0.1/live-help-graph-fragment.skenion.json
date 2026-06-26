@@ -22,12 +22,63 @@
           {
             "id": "in",
             "direction": "input",
-            "type": "message.any",
-            "rate": "event",
-            "triggerMode": "trigger"
+            "type": "control.message.any",
+            "rate": "control",
+            "triggerMode": "trigger",
+            "accepts": [
+              "control.number.float",
+              "control.number.int",
+              "control.number.uint",
+              "control.bool",
+              "control.string",
+              "control.color",
+              "event.bang"
+            ],
+            "messageSelectors": {
+              "accepted": [
+                "bang",
+                "set",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ],
+              "silent": [
+                "set"
+              ],
+              "trigger": [
+                "bang",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ],
+              "emit": [
+                "bang",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ]
+            }
           },
           {
-            "id": "bang",
+            "id": "out",
             "direction": "output",
             "type": "event.bang",
             "rate": "event"
@@ -59,8 +110,8 @@
           {
             "id": "help",
             "direction": "output",
-            "type": "message.any",
-            "rate": "event",
+            "type": "control.message.any",
+            "rate": "control",
             "description": "Emits help patch, working copy, and graph fragment metadata."
           }
         ]
@@ -74,15 +125,69 @@
           {
             "id": "in",
             "direction": "input",
-            "type": "message.any",
-            "rate": "event",
-            "triggerMode": "trigger"
+            "type": "control.message.any",
+            "rate": "control",
+            "triggerMode": "trigger",
+            "accepts": [
+              "control.number.float",
+              "control.number.int",
+              "control.number.uint",
+              "control.bool",
+              "control.string",
+              "control.color",
+              "event.bang"
+            ],
+            "messageSelectors": {
+              "accepted": [
+                "bang",
+                "set",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ],
+              "silent": [
+                "set"
+              ],
+              "trigger": [
+                "bang",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ],
+              "store": [
+                "set"
+              ],
+              "emit": [
+                "bang",
+                "float",
+                "int",
+                "uint",
+                "bool",
+                "string",
+                "color",
+                "symbol",
+                "list",
+                "anything"
+              ]
+            }
           },
           {
             "id": "out",
             "direction": "output",
-            "type": "message.any",
-            "rate": "event"
+            "type": "control.message.any",
+            "rate": "control"
           }
         ]
       }
@@ -92,7 +197,7 @@
         "id": "edge_open_fragment_help",
         "source": {
           "nodeId": "open_help",
-          "portId": "bang"
+          "portId": "out"
         },
         "target": {
           "nodeId": "fragment_help",
@@ -110,7 +215,7 @@
           "nodeId": "help_message",
           "portId": "in"
         },
-        "resolvedType": "message.any"
+        "resolvedType": "control.message.any"
       }
     ]
   },
@@ -164,7 +269,7 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Example value copied from live help."
               }
@@ -182,14 +287,14 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "required": true
               },
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control"
               }
             ]
@@ -203,7 +308,7 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Displays the copied help result."
               }
@@ -221,7 +326,7 @@
               "nodeId": "help_scale",
               "portId": "in"
             },
-            "resolvedType": "value.number"
+            "resolvedType": "control.number.float"
           },
           {
             "id": "edge_help_scale_meter",
@@ -233,7 +338,7 @@
               "nodeId": "help_meter",
               "portId": "in"
             },
-            "resolvedType": "value.number"
+            "resolvedType": "control.number.float"
           }
         ]
       },
@@ -292,12 +397,63 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "message.any",
-          "rate": "event",
-          "triggerMode": "trigger"
+          "type": "control.message.any",
+          "rate": "control",
+          "triggerMode": "trigger",
+          "accepts": [
+            "control.number.float",
+            "control.number.int",
+            "control.number.uint",
+            "control.bool",
+            "control.string",
+            "control.color",
+            "event.bang"
+          ],
+          "messageSelectors": {
+            "accepted": [
+              "bang",
+              "set",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "silent": [
+              "set"
+            ],
+            "trigger": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "emit": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ]
+          }
         },
         {
-          "id": "bang",
+          "id": "out",
           "direction": "output",
           "type": "event.bang",
           "rate": "event"
@@ -332,8 +488,8 @@
         {
           "id": "help",
           "direction": "output",
-          "type": "message.any",
-          "rate": "event",
+          "type": "control.message.any",
+          "rate": "control",
           "description": "Emits help patch, working copy, and graph fragment metadata."
         }
       ],
@@ -361,26 +517,80 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "message.any",
-          "rate": "event",
-          "triggerMode": "trigger"
+          "type": "control.message.any",
+          "rate": "control",
+          "triggerMode": "trigger",
+          "accepts": [
+            "control.number.float",
+            "control.number.int",
+            "control.number.uint",
+            "control.bool",
+            "control.string",
+            "control.color",
+            "event.bang"
+          ],
+          "messageSelectors": {
+            "accepted": [
+              "bang",
+              "set",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "silent": [
+              "set"
+            ],
+            "trigger": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "store": [
+              "set"
+            ],
+            "emit": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ]
+          }
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "message.any",
-          "rate": "event"
+          "type": "control.message.any",
+          "rate": "control"
         }
       ],
       "execution": {
-        "model": "event"
+        "model": "control"
       },
       "state": {
         "persistent": true
       },
       "permissions": [],
       "capabilities": [
-        "message.any.v0.1"
+        "control.message.any.v0.1"
       ]
     },
     {
@@ -394,19 +604,19 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     },
     {
@@ -420,25 +630,25 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     },
     {
@@ -452,19 +662,19 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     }
   ]

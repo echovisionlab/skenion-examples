@@ -20,31 +20,31 @@
         {
           "id": "left",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         },
         {
           "id": "right",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         },
         {
           "id": "sum",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         },
         {
           "id": "difference",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         },
         {
           "id": "thru",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ]

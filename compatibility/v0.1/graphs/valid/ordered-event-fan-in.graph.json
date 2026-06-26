@@ -13,12 +13,63 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "message.any",
-          "rate": "event",
-          "triggerMode": "trigger"
+          "type": "control.message.any",
+          "rate": "control",
+          "triggerMode": "trigger",
+          "accepts": [
+            "control.number.float",
+            "control.number.int",
+            "control.number.uint",
+            "control.bool",
+            "control.string",
+            "control.color",
+            "event.bang"
+          ],
+          "messageSelectors": {
+            "accepted": [
+              "bang",
+              "set",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "silent": [
+              "set"
+            ],
+            "trigger": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "emit": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ]
+          }
         },
         {
-          "id": "bang",
+          "id": "out",
           "direction": "output",
           "type": "event.bang",
           "rate": "event"
@@ -34,12 +85,63 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "message.any",
-          "rate": "event",
-          "triggerMode": "trigger"
+          "type": "control.message.any",
+          "rate": "control",
+          "triggerMode": "trigger",
+          "accepts": [
+            "control.number.float",
+            "control.number.int",
+            "control.number.uint",
+            "control.bool",
+            "control.string",
+            "control.color",
+            "event.bang"
+          ],
+          "messageSelectors": {
+            "accepted": [
+              "bang",
+              "set",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "silent": [
+              "set"
+            ],
+            "trigger": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "emit": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ]
+          }
         },
         {
-          "id": "bang",
+          "id": "out",
           "direction": "output",
           "type": "event.bang",
           "rate": "event"
@@ -55,17 +157,71 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "message.any",
-          "rate": "event",
+          "type": "control.message.any",
+          "rate": "control",
           "maxConnections": 8,
           "mergePolicy": "ordered-events",
-          "triggerMode": "trigger"
+          "triggerMode": "trigger",
+          "accepts": [
+            "control.number.float",
+            "control.number.int",
+            "control.number.uint",
+            "control.bool",
+            "control.string",
+            "control.color",
+            "event.bang"
+          ],
+          "messageSelectors": {
+            "accepted": [
+              "bang",
+              "set",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "silent": [
+              "set"
+            ],
+            "trigger": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "store": [
+              "set"
+            ],
+            "emit": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ]
+          }
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "message.any",
-          "rate": "event"
+          "type": "control.message.any",
+          "rate": "control"
         }
       ]
     }
@@ -75,7 +231,7 @@
       "id": "edge_button_a_log",
       "source": {
         "nodeId": "button_a",
-        "portId": "bang"
+        "portId": "out"
       },
       "target": {
         "nodeId": "event_log",
@@ -88,7 +244,7 @@
       "id": "edge_button_b_log",
       "source": {
         "nodeId": "button_b",
-        "portId": "bang"
+        "portId": "out"
       },
       "target": {
         "nodeId": "event_log",

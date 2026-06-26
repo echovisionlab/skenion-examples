@@ -9,7 +9,7 @@
     {
       "id": "in",
       "direction": "input",
-      "type": "value.number",
+      "type": "control.number.float",
       "rate": "control",
       "required": true,
       "description": "External input materialized from a PatchDefinitionV01 core.inlet boundary."
@@ -17,13 +17,13 @@
     {
       "id": "out",
       "direction": "output",
-      "type": "value.number",
+      "type": "control.number.float",
       "rate": "control",
       "description": "External output materialized from a PatchDefinitionV01 core.outlet boundary."
     }
   ],
   "execution": {
-    "model": "value"
+    "model": "control"
   },
   "state": {
     "persistent": true

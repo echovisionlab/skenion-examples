@@ -52,7 +52,7 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "First value entering the patch."
               }
@@ -70,7 +70,7 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "control.number.float",
                 "rate": "control",
                 "description": "Second value with a duplicate boundary port id."
               }

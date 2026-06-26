@@ -16,8 +16,8 @@
     {
       "id": "help",
       "direction": "output",
-      "type": "message.any",
-      "rate": "event",
+      "type": "control.message.any",
+      "rate": "control",
       "description": "Emits live help patch metadata from the project or package patch library."
     }
   ],

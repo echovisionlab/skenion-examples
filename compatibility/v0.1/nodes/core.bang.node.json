@@ -9,12 +9,63 @@
     {
       "id": "in",
       "direction": "input",
-      "type": "message.any",
-      "rate": "event",
-      "triggerMode": "trigger"
+      "type": "control.message.any",
+      "rate": "control",
+      "triggerMode": "trigger",
+      "accepts": [
+        "control.number.float",
+        "control.number.int",
+        "control.number.uint",
+        "control.bool",
+        "control.string",
+        "control.color",
+        "event.bang"
+      ],
+      "messageSelectors": {
+        "accepted": [
+          "bang",
+          "set",
+          "float",
+          "int",
+          "uint",
+          "bool",
+          "string",
+          "color",
+          "symbol",
+          "list",
+          "anything"
+        ],
+        "silent": [
+          "set"
+        ],
+        "trigger": [
+          "bang",
+          "float",
+          "int",
+          "uint",
+          "bool",
+          "string",
+          "color",
+          "symbol",
+          "list",
+          "anything"
+        ],
+        "emit": [
+          "bang",
+          "float",
+          "int",
+          "uint",
+          "bool",
+          "string",
+          "color",
+          "symbol",
+          "list",
+          "anything"
+        ]
+      }
     },
     {
-      "id": "bang",
+      "id": "out",
       "direction": "output",
       "type": "event.bang",
       "rate": "event"

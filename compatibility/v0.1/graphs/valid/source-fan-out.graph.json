@@ -15,7 +15,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ]
@@ -29,7 +29,7 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ]
@@ -43,7 +43,7 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "control.number.float",
           "rate": "control"
         }
       ]
@@ -60,7 +60,7 @@
         "nodeId": "meter_a",
         "portId": "in"
       },
-      "resolvedType": "value.number"
+      "resolvedType": "control.number.float"
     },
     {
       "id": "edge_value_meter_b",
@@ -72,7 +72,7 @@
         "nodeId": "meter_b",
         "portId": "in"
       },
-      "resolvedType": "value.number"
+      "resolvedType": "control.number.float"
     }
   ]
 }
