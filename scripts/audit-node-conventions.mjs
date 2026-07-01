@@ -7,12 +7,23 @@ const contractsDir = process.env.SKENION_CONTRACTS_DIR;
 const currentCompatibilityRoot = path.join(root, "compatibility/v0.1");
 const unsupportedVersionSegment = `${path.sep}unsupported-versions${path.sep}`;
 const explicitCanonicalTypeAliases = new Map([
-  ["message.any", "control.message.any"],
-  ["number.float", "control.number.float"],
-  ["number.int", "control.number.int"],
-  ["number.uint", "control.number.uint"],
-  ["boolean", "control.bool"],
-  ["value.number", "control.number.float"],
+  ["message.any", "value.core.message"],
+  ["control.message.any", "value.core.message"],
+  ["event.bang", "value.core.bang"],
+  ["number.float", "value.core.float64"],
+  ["control.number.float", "value.core.float64"],
+  ["number.int", "value.core.int64"],
+  ["control.number.int", "value.core.int64"],
+  ["number.uint", "value.core.uint64"],
+  ["control.number.uint", "value.core.uint64"],
+  ["boolean", "value.core.bool"],
+  ["control.bool", "value.core.bool"],
+  ["string", "value.core.string"],
+  ["color", "value.core.color"],
+  ["signal.audio", "value.core.float32"],
+  ["gpu.texture2d", "value.core.tensor"],
+  ["render.frame", "value.core.tensor"],
+  ["value.number", "value.core.float64"],
 ]);
 
 if (releaseMode && contractsDir) {
@@ -91,8 +102,12 @@ function canonicalSuggestionForType(type, canonicalTypes) {
     return explicit;
   }
 
-  if (type.startsWith("value.") || type.startsWith("value<")) {
-    return explicit ?? "a domain-qualified control.*, event.*, signal.*, resource, gpu, render, or other current port type";
+  if (type.startsWith("value.core.") && !canonicalTypes.has(type)) {
+    return explicit ?? "a current value.core.* type id from Contracts ValueTypeIdV01";
+  }
+
+  if ((type.startsWith("value.") || type.startsWith("value<")) && !canonicalTypes.has(type)) {
+    return explicit ?? "a current value.core.* type id from Contracts ValueTypeIdV01";
   }
 
   const suffixMatches = [...canonicalTypes].filter((canonicalType) => canonicalType.endsWith(`.${type}`));
@@ -103,16 +118,9 @@ function shouldAuditFile(file) {
   return !file.includes(unsupportedVersionSegment);
 }
 
-const { builtinsManifest, builtinsManifestSource } = await loadBuiltinsManifest();
-const canonicalTypes = new Set(builtinsManifest.canonicalTypes ?? []);
-if (builtinsManifest.schema !== "skenion.builtins.manifest") {
-  fail(`${builtinsManifestSource}: expected schema skenion.builtins.manifest`);
-}
-if (builtinsManifest.schemaVersion !== "0.1.0") {
-  fail(`${builtinsManifestSource}: expected schemaVersion 0.1.0`);
-}
+const { canonicalTypes, canonicalTypesSource } = await loadCanonicalTypes();
 if (canonicalTypes.size === 0) {
-  fail(`${builtinsManifestSource}: canonicalTypes must not be empty`);
+  fail(`${canonicalTypesSource}: Contracts ValueTypeIdV01 type list must not be empty`);
 }
 
 const currentCompatibilityFiles = (await walk(currentCompatibilityRoot)).filter(shouldAuditFile);
@@ -130,20 +138,47 @@ for (const file of currentCompatibilityFiles) {
 }
 
 console.log(
-  `audited current 0.1 fixtures: ${currentCompatibilityFiles.length} JSON files and ${portTypeReferenceCount} port type references against ${canonicalTypes.size} Contracts canonical types from ${builtinsManifestSource}`
+  `audited current 0.1 fixtures: ${currentCompatibilityFiles.length} JSON files and ${portTypeReferenceCount} port type references against ${canonicalTypes.size} Contracts value type ids from ${canonicalTypesSource}`
 );
 
-async function loadBuiltinsManifest() {
-  if (contractsDir) {
-    const builtinsManifestFile = path.join(contractsDir, "builtins/v0.1/builtins.manifest.json");
-    return {
-      builtinsManifest: await readJson(builtinsManifestFile),
-      builtinsManifestSource: builtinsManifestFile,
-    };
+async function loadCanonicalTypes() {
+  const source = await resolveContractsTypesSource();
+  const text = await readFile(source, "utf8");
+  const match = text.match(/export\s+type\s+ValueTypeIdV01\s*=\s*([^;]+);/u);
+  if (!match) {
+    fail(`${source}: expected exported ValueTypeIdV01 union`);
   }
 
+  const canonicalTypes = new Set(
+    [...match[1].matchAll(/"([^"]+)"/gu)]
+      .map((item) => item[1])
+      .filter((type) => type.startsWith("value.core."))
+  );
   return {
-    builtinsManifest: (await import("@skenion/contracts")).builtinManifestV01,
-    builtinsManifestSource: "@skenion/contracts.builtinManifestV01",
+    canonicalTypes,
+    canonicalTypesSource: source,
   };
+}
+
+async function resolveContractsTypesSource() {
+  if (contractsDir) {
+    const candidates = [
+      path.join(contractsDir, "packages/ts/dist/types.d.ts"),
+      path.join(contractsDir, "packages/ts/src/types.ts"),
+      path.join(contractsDir, "dist/types.d.ts"),
+      path.join(contractsDir, "src/types.ts"),
+    ];
+    for (const candidate of candidates) {
+      try {
+        await readFile(candidate, "utf8");
+        return candidate;
+      } catch {
+        // Try the next known Contracts source layout.
+      }
+    }
+    fail(`${contractsDir}: could not locate Contracts types source for ValueTypeIdV01`);
+  }
+
+  const contractsIndex = import.meta.resolve("@skenion/contracts");
+  return path.join(path.dirname(new URL(contractsIndex).pathname), "types.d.ts");
 }

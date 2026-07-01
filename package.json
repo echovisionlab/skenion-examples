@@ -2,6 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "audit:node-conventions": "node scripts/audit-node-conventions.mjs",
     "validate:contracts": "node scripts/validate-with-contracts.mjs",
     "validate:paths": "node scripts/validate-repo-path-references.mjs",
     "validate:compatibility-matrix": "node scripts/validate-compatibility-matrix.mjs",
