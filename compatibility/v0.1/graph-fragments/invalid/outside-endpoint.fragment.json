@@ -5,8 +5,6 @@
   "nodes": [
     {
       "id": "source",
-      "kind": "core.value-number",
-      "kindVersion": "0.1.0",
       "params": {
         "value": 1
       },
@@ -14,10 +12,17 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "float",
+        "version": "0.1.0"
+      }
     }
   ],
   "edges": [
@@ -31,7 +36,7 @@
         "nodeId": "outside",
         "portId": "in"
       },
-      "resolvedType": "control.number.float"
+      "resolvedType": "value.core.float64"
     }
   ]
 }

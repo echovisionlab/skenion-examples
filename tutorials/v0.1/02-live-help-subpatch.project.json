@@ -15,26 +15,24 @@
     "nodes": [
       {
         "id": "open_help",
-        "kind": "core.bang",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "control.message.any",
+            "type": "value.core.message",
             "rate": "control",
             "triggerMode": "trigger",
             "accepts": [
-              "control.number.float",
-              "control.number.int",
-              "control.number.uint",
-              "control.bool",
-              "control.string",
-              "control.color",
-              "event.bang"
+              "value.core.float64",
+              "value.core.int64",
+              "value.core.uint64",
+              "value.core.bool",
+              "value.core.string",
+              "value.core.color",
+              "value.core.bang"
             ],
-            "messageSelectors": {
+            "messageKeys": {
               "accepted": [
                 "bang",
                 "set",
@@ -80,15 +78,20 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "event.bang",
+            "type": "value.core.bang",
             "rate": "event"
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "bang",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "subpatch_help",
-        "kind": "core.live-help",
-        "kindVersion": "0.1.0",
         "params": {
           "topic": "core.subpatch",
           "manualVersion": "0.33",
@@ -101,41 +104,46 @@
           {
             "id": "open",
             "direction": "input",
-            "type": "event.bang",
+            "type": "value.core.bang",
             "rate": "event",
             "triggerMode": "trigger"
           },
           {
             "id": "help",
             "direction": "output",
-            "type": "control.message.any",
+            "type": "value.core.message",
             "rate": "control",
             "description": "Emits live help patch metadata."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "live-help",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "help_message",
-        "kind": "core.message",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "control.message.any",
+            "type": "value.core.message",
             "rate": "control",
             "triggerMode": "trigger",
             "accepts": [
-              "control.number.float",
-              "control.number.int",
-              "control.number.uint",
-              "control.bool",
-              "control.string",
-              "control.color",
-              "event.bang"
+              "value.core.float64",
+              "value.core.int64",
+              "value.core.uint64",
+              "value.core.bool",
+              "value.core.string",
+              "value.core.color",
+              "value.core.bang"
             ],
-            "messageSelectors": {
+            "messageKeys": {
               "accepted": [
                 "bang",
                 "set",
@@ -184,10 +192,17 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "control.message.any",
+            "type": "value.core.message",
             "rate": "control"
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "message",
+          "version": "0.1.0"
+        }
       }
     ],
     "edges": [
@@ -201,7 +216,7 @@
           "nodeId": "subpatch_help",
           "portId": "open"
         },
-        "resolvedType": "event.bang"
+        "resolvedType": "value.core.bang"
       },
       {
         "id": "edge_help_message",
@@ -213,7 +228,7 @@
           "nodeId": "help_message",
           "portId": "in"
         },
-        "resolvedType": "control.message.any"
+        "resolvedType": "value.core.message"
       }
     ]
   },
@@ -258,8 +273,6 @@
         "nodes": [
           {
             "id": "patch_in",
-            "kind": "core.inlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "in",
               "label": "In"
@@ -268,16 +281,21 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "control.number.float",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "A value entering the help patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "inlet",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "patch_out",
-            "kind": "core.outlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "out",
               "label": "Out"
@@ -286,12 +304,19 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "control.number.float",
+                "type": "value.core.float64",
                 "rate": "control",
                 "required": true,
                 "description": "The same value leaving the help patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "outlet",
+              "version": "0.1.0"
+            }
           }
         ],
         "edges": [
@@ -305,7 +330,7 @@
               "nodeId": "patch_out",
               "portId": "in"
             },
-            "resolvedType": "control.number.float"
+            "resolvedType": "value.core.float64"
           }
         ]
       },
@@ -350,19 +375,19 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control",
           "triggerMode": "trigger",
           "accepts": [
-            "control.number.float",
-            "control.number.int",
-            "control.number.uint",
-            "control.bool",
-            "control.string",
-            "control.color",
-            "event.bang"
+            "value.core.float64",
+            "value.core.int64",
+            "value.core.uint64",
+            "value.core.bool",
+            "value.core.string",
+            "value.core.color",
+            "value.core.bang"
           ],
-          "messageSelectors": {
+          "messageKeys": {
             "accepted": [
               "bang",
               "set",
@@ -408,7 +433,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "event.bang",
+          "type": "value.core.bang",
           "rate": "event"
         }
       ],
@@ -434,14 +459,14 @@
         {
           "id": "open",
           "direction": "input",
-          "type": "event.bang",
+          "type": "value.core.bang",
           "rate": "event",
           "triggerMode": "trigger"
         },
         {
           "id": "help",
           "direction": "output",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control"
         }
       ],
@@ -467,19 +492,19 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control",
           "triggerMode": "trigger",
           "accepts": [
-            "control.number.float",
-            "control.number.int",
-            "control.number.uint",
-            "control.bool",
-            "control.string",
-            "control.color",
-            "event.bang"
+            "value.core.float64",
+            "value.core.int64",
+            "value.core.uint64",
+            "value.core.bool",
+            "value.core.string",
+            "value.core.color",
+            "value.core.bang"
           ],
-          "messageSelectors": {
+          "messageKeys": {
             "accepted": [
               "bang",
               "set",
@@ -528,7 +553,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control"
         }
       ],
@@ -543,5 +568,6 @@
         "control.message.any.v0.1"
       ]
     }
-  ]
+  ],
+  "documentId": "447f2fe3-a2bf-40a1-b8b5-d4c368ab28ec"
 }

@@ -42,8 +42,6 @@
         "nodes": [
           {
             "id": "first_in",
-            "kind": "core.inlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "value",
               "label": "First"
@@ -52,16 +50,21 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "control.number.float",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "First value entering the patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "inlet",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "second_in",
-            "kind": "core.inlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "value",
               "label": "Second"
@@ -70,16 +73,24 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "control.number.float",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Second value with a duplicate boundary port id."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "inlet",
+              "version": "0.1.0"
+            }
           }
         ],
         "edges": []
       }
     }
   ],
-  "nodes": []
+  "nodes": [],
+  "documentId": "59a36521-c899-4236-86e2-b3f07daba172"
 }

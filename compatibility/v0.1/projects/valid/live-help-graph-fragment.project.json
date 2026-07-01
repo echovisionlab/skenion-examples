@@ -15,26 +15,24 @@
     "nodes": [
       {
         "id": "open_help",
-        "kind": "core.bang",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "control.message.any",
+            "type": "value.core.message",
             "rate": "control",
             "triggerMode": "trigger",
             "accepts": [
-              "control.number.float",
-              "control.number.int",
-              "control.number.uint",
-              "control.bool",
-              "control.string",
-              "control.color",
-              "event.bang"
+              "value.core.float64",
+              "value.core.int64",
+              "value.core.uint64",
+              "value.core.bool",
+              "value.core.string",
+              "value.core.color",
+              "value.core.bang"
             ],
-            "messageSelectors": {
+            "messageKeys": {
               "accepted": [
                 "bang",
                 "set",
@@ -80,15 +78,20 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "event.bang",
+            "type": "value.core.bang",
             "rate": "event"
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "bang",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "fragment_help",
-        "kind": "core.live-help",
-        "kindVersion": "0.1.0",
         "params": {
           "topic": "core.subpatch.fragments",
           "manualVersion": "0.33",
@@ -103,41 +106,46 @@
           {
             "id": "open",
             "direction": "input",
-            "type": "event.bang",
+            "type": "value.core.bang",
             "rate": "event",
             "triggerMode": "trigger"
           },
           {
             "id": "help",
             "direction": "output",
-            "type": "control.message.any",
+            "type": "value.core.message",
             "rate": "control",
             "description": "Emits help patch, working copy, and graph fragment metadata."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "live-help",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "help_message",
-        "kind": "core.message",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "control.message.any",
+            "type": "value.core.message",
             "rate": "control",
             "triggerMode": "trigger",
             "accepts": [
-              "control.number.float",
-              "control.number.int",
-              "control.number.uint",
-              "control.bool",
-              "control.string",
-              "control.color",
-              "event.bang"
+              "value.core.float64",
+              "value.core.int64",
+              "value.core.uint64",
+              "value.core.bool",
+              "value.core.string",
+              "value.core.color",
+              "value.core.bang"
             ],
-            "messageSelectors": {
+            "messageKeys": {
               "accepted": [
                 "bang",
                 "set",
@@ -186,10 +194,17 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "control.message.any",
+            "type": "value.core.message",
             "rate": "control"
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "message",
+          "version": "0.1.0"
+        }
       }
     ],
     "edges": [
@@ -203,7 +218,7 @@
           "nodeId": "fragment_help",
           "portId": "open"
         },
-        "resolvedType": "event.bang"
+        "resolvedType": "value.core.bang"
       },
       {
         "id": "edge_fragment_help_message",
@@ -215,7 +230,7 @@
           "nodeId": "help_message",
           "portId": "in"
         },
-        "resolvedType": "control.message.any"
+        "resolvedType": "value.core.message"
       }
     ]
   },
@@ -260,8 +275,6 @@
         "nodes": [
           {
             "id": "help_value",
-            "kind": "core.value-number",
-            "kindVersion": "0.1.0",
             "params": {
               "value": 0.5
             },
@@ -269,16 +282,21 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "control.number.float",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Example value copied from live help."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "float",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "help_scale",
-            "kind": "core.value-transform",
-            "kindVersion": "0.1.0",
             "params": {
               "operation": "multiply",
               "operand": 2
@@ -287,32 +305,44 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "control.number.float",
+                "type": "value.core.float64",
                 "rate": "control",
                 "required": true
               },
               {
                 "id": "out",
                 "direction": "output",
-                "type": "control.number.float",
+                "type": "value.core.float64",
                 "rate": "control"
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "operator.mul",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "help_meter",
-            "kind": "core.meter",
-            "kindVersion": "0.1.0",
             "params": {},
             "ports": [
               {
                 "id": "in",
                 "direction": "input",
-                "type": "control.number.float",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Displays the copied help result."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "meter",
+              "version": "0.1.0"
+            }
           }
         ],
         "edges": [
@@ -326,7 +356,7 @@
               "nodeId": "help_scale",
               "portId": "in"
             },
-            "resolvedType": "control.number.float"
+            "resolvedType": "value.core.float64"
           },
           {
             "id": "edge_help_scale_meter",
@@ -338,7 +368,7 @@
               "nodeId": "help_meter",
               "portId": "in"
             },
-            "resolvedType": "control.number.float"
+            "resolvedType": "value.core.float64"
           }
         ]
       },
@@ -397,19 +427,19 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control",
           "triggerMode": "trigger",
           "accepts": [
-            "control.number.float",
-            "control.number.int",
-            "control.number.uint",
-            "control.bool",
-            "control.string",
-            "control.color",
-            "event.bang"
+            "value.core.float64",
+            "value.core.int64",
+            "value.core.uint64",
+            "value.core.bool",
+            "value.core.string",
+            "value.core.color",
+            "value.core.bang"
           ],
-          "messageSelectors": {
+          "messageKeys": {
             "accepted": [
               "bang",
               "set",
@@ -455,7 +485,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "event.bang",
+          "type": "value.core.bang",
           "rate": "event"
         }
       ],
@@ -481,14 +511,14 @@
         {
           "id": "open",
           "direction": "input",
-          "type": "event.bang",
+          "type": "value.core.bang",
           "rate": "event",
           "triggerMode": "trigger"
         },
         {
           "id": "help",
           "direction": "output",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control",
           "description": "Emits help patch, working copy, and graph fragment metadata."
         }
@@ -517,19 +547,19 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control",
           "triggerMode": "trigger",
           "accepts": [
-            "control.number.float",
-            "control.number.int",
-            "control.number.uint",
-            "control.bool",
-            "control.string",
-            "control.color",
-            "event.bang"
+            "value.core.float64",
+            "value.core.int64",
+            "value.core.uint64",
+            "value.core.bool",
+            "value.core.string",
+            "value.core.color",
+            "value.core.bang"
           ],
-          "messageSelectors": {
+          "messageKeys": {
             "accepted": [
               "bang",
               "set",
@@ -578,7 +608,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control"
         }
       ],
@@ -604,7 +634,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         }
       ],
@@ -630,13 +660,13 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         }
       ],
@@ -662,7 +692,7 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         }
       ],
@@ -677,5 +707,6 @@
         "control.number.float.v0.1"
       ]
     }
-  ]
+  ],
+  "documentId": "eb56c920-44f9-4a59-9912-99d53fc0e84c"
 }

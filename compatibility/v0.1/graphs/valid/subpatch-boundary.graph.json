@@ -6,8 +6,6 @@
   "nodes": [
     {
       "id": "source",
-      "kind": "core.value-number",
-      "kindVersion": "0.1.0",
       "params": {
         "value": 0.5
       },
@@ -15,26 +13,30 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control",
           "description": "Value sent into the subpatch."
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "float",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "scale_patch",
-      "kind": "core.subpatch",
-      "kindVersion": "0.1.0",
       "params": {
         "patchId": "scale_twice",
-        "objectText": "p scale_twice",
         "description": "Materialized from the patch library contract for scale_twice."
       },
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control",
           "required": true,
           "description": "Value entering the Scale Twice patch."
@@ -42,27 +44,45 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control",
           "description": "Scaled value leaving the Scale Twice patch."
         }
-      ]
+      ],
+      "objectSpec": "p scale_twice",
+      "implementation": {
+        "provider": {
+          "kind": "projectPatch",
+          "patchId": "scale_twice"
+        },
+        "objectId": "scale_twice",
+        "version": "0.1.0"
+      },
+      "objectResolution": {
+        "status": "resolved",
+        "selectedSpec": "p scale_twice"
+      }
     },
     {
       "id": "meter",
-      "kind": "core.meter",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control",
           "required": true,
           "description": "Displays the subpatch output."
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "meter",
+        "version": "0.1.0"
+      }
     }
   ],
   "edges": [
@@ -76,7 +96,7 @@
         "nodeId": "scale_patch",
         "portId": "in"
       },
-      "resolvedType": "control.number.float"
+      "resolvedType": "value.core.float64"
     },
     {
       "id": "edge_subpatch_meter",
@@ -88,7 +108,7 @@
         "nodeId": "meter",
         "portId": "in"
       },
-      "resolvedType": "control.number.float"
+      "resolvedType": "value.core.float64"
     }
   ]
 }

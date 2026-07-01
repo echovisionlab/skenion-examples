@@ -94,6 +94,16 @@ function validateSchema(document, errors, expectedSchema, label) {
   return true;
 }
 
+function isCoreObjectNode(node, objectId) {
+  return (
+    isRecord(node) &&
+    isRecord(node.implementation) &&
+    isRecord(node.implementation.provider) &&
+    node.implementation.provider.kind === "core" &&
+    node.implementation.objectId === objectId
+  );
+}
+
 function validatePasteGraphFragmentRequest(request, contracts, errors, label) {
   if (!requireRecord(request, errors, label)) {
     return;
@@ -860,8 +870,8 @@ async function validateTutorialManifest(manifestFile, manifest) {
     if (!tutorial.tags.includes("v0.1")) {
       failures.push(`${manifestFile}: ${tutorial.id} tutorial tags must include v0.1`);
     }
-    if (tutorial.tags.includes("live-help") && !(tutorialGraph?.nodes ?? []).some((node) => node.kind === "core.live-help")) {
-      failures.push(`${tutorialFile}: live-help tutorial must include a core.live-help node`);
+    if (tutorial.tags.includes("live-help") && !(tutorialGraph?.nodes ?? []).some((node) => isCoreObjectNode(node, "live-help"))) {
+      failures.push(`${tutorialFile}: live-help tutorial must include a core live-help object node`);
     }
     if (tutorial.tags.includes("subpatch") && !tutorialDocument.patchLibrary?.some((patch) => patch.graph?.schemaVersion === "0.1.0")) {
       failures.push(`${tutorialFile}: subpatch tutorial must include a current 0.1 patch library graph`);

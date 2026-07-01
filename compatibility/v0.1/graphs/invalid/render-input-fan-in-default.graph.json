@@ -6,45 +6,60 @@
   "nodes": [
     {
       "id": "clear_a",
-      "kind": "render.clear-color",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "out",
           "direction": "output",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "render.clear-color",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "clear_b",
-      "kind": "render.clear-color",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "out",
           "direction": "output",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "render.clear-color",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "output",
-      "kind": "render.output",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "render.output",
+        "version": "0.1.0"
+      }
     }
   ],
   "edges": [

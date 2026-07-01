@@ -10,44 +10,54 @@
   "nodes": [
     {
       "id": "matrix_patch",
-      "kind": "core.subpatch",
-      "kindVersion": "0.1.0",
       "params": {
-        "patchId": "two_in_three_out",
-        "objectText": "p two_in_three_out"
+        "patchId": "two_in_three_out"
       },
       "ports": [
         {
           "id": "left",
           "direction": "input",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         },
         {
           "id": "right",
           "direction": "input",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         },
         {
           "id": "sum",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         },
         {
           "id": "difference",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         },
         {
           "id": "thru",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control"
         }
-      ]
+      ],
+      "objectSpec": "p two_in_three_out",
+      "implementation": {
+        "provider": {
+          "kind": "projectPatch",
+          "patchId": "two_in_three_out"
+        },
+        "objectId": "two_in_three_out",
+        "version": "0.1.0"
+      },
+      "objectResolution": {
+        "status": "resolved",
+        "selectedSpec": "p two_in_three_out"
+      }
     }
   ],
   "edges": [],

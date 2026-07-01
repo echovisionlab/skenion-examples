@@ -6,38 +6,48 @@
   "nodes": [
     {
       "id": "feedback_pass",
-      "kind": "render.feedback-composite",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "previous",
           "direction": "input",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render"
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "render.feedback-composite",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "output",
-      "kind": "render.output",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render",
           "required": true
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "render.output",
+        "version": "0.1.0"
+      }
     }
   ],
   "edges": [
@@ -51,7 +61,7 @@
         "nodeId": "feedback_pass",
         "portId": "previous"
       },
-      "resolvedType": "render.frame",
+      "resolvedType": "value.core.tensor",
       "feedback": {
         "enabled": true,
         "boundary": "render-frame",
@@ -69,7 +79,7 @@
         "nodeId": "output",
         "portId": "in"
       },
-      "resolvedType": "render.frame"
+      "resolvedType": "value.core.tensor"
     }
   ]
 }

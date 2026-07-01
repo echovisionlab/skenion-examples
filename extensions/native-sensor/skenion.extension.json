@@ -41,7 +41,7 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "control.number.float",
+            "type": "value.core.float64",
             "rate": "control"
           }
         ],

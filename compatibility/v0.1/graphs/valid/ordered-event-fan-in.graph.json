@@ -6,26 +6,24 @@
   "nodes": [
     {
       "id": "button_a",
-      "kind": "core.bang",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control",
           "triggerMode": "trigger",
           "accepts": [
-            "control.number.float",
-            "control.number.int",
-            "control.number.uint",
-            "control.bool",
-            "control.string",
-            "control.color",
-            "event.bang"
+            "value.core.float64",
+            "value.core.int64",
+            "value.core.uint64",
+            "value.core.bool",
+            "value.core.string",
+            "value.core.color",
+            "value.core.bang"
           ],
-          "messageSelectors": {
+          "messageKeys": {
             "accepted": [
               "bang",
               "set",
@@ -71,33 +69,38 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "event.bang",
+          "type": "value.core.bang",
           "rate": "event"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "bang",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "button_b",
-      "kind": "core.bang",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control",
           "triggerMode": "trigger",
           "accepts": [
-            "control.number.float",
-            "control.number.int",
-            "control.number.uint",
-            "control.bool",
-            "control.string",
-            "control.color",
-            "event.bang"
+            "value.core.float64",
+            "value.core.int64",
+            "value.core.uint64",
+            "value.core.bool",
+            "value.core.string",
+            "value.core.color",
+            "value.core.bang"
           ],
-          "messageSelectors": {
+          "messageKeys": {
             "accepted": [
               "bang",
               "set",
@@ -143,35 +146,40 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "event.bang",
+          "type": "value.core.bang",
           "rate": "event"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "bang",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "event_log",
-      "kind": "core.message",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control",
           "maxConnections": 8,
           "mergePolicy": "ordered-events",
           "triggerMode": "trigger",
           "accepts": [
-            "control.number.float",
-            "control.number.int",
-            "control.number.uint",
-            "control.bool",
-            "control.string",
-            "control.color",
-            "event.bang"
+            "value.core.float64",
+            "value.core.int64",
+            "value.core.uint64",
+            "value.core.bool",
+            "value.core.string",
+            "value.core.color",
+            "value.core.bang"
           ],
-          "messageSelectors": {
+          "messageKeys": {
             "accepted": [
               "bang",
               "set",
@@ -220,10 +228,17 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "control.message.any",
+          "type": "value.core.message",
           "rate": "control"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "message",
+        "version": "0.1.0"
+      }
     }
   ],
   "edges": [
@@ -237,7 +252,7 @@
         "nodeId": "event_log",
         "portId": "in"
       },
-      "resolvedType": "event.bang",
+      "resolvedType": "value.core.bang",
       "order": 0
     },
     {
@@ -250,7 +265,7 @@
         "nodeId": "event_log",
         "portId": "in"
       },
-      "resolvedType": "event.bang",
+      "resolvedType": "value.core.bang",
       "order": 1
     }
   ]

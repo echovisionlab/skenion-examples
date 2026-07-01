@@ -36,8 +36,6 @@
             "changeId": "change-add-lfo-a",
             "node": {
               "id": "lfo_a",
-              "kind": "core.value-number",
-              "kindVersion": "0.1.0",
               "params": {
                 "value": 0.25
               },
@@ -45,11 +43,18 @@
                 {
                   "id": "out",
                   "direction": "output",
-                  "type": "control.number.float",
+                  "type": "value.core.float64",
                   "rate": "control",
                   "description": "Alice's modulation value."
                 }
-              ]
+              ],
+              "implementation": {
+                "provider": {
+                  "kind": "core"
+                },
+                "objectId": "float",
+                "version": "0.1.0"
+              }
             },
             "view": {
               "x": 120,
@@ -116,7 +121,7 @@
                 "nodeId": "meter_main",
                 "portId": "in"
               },
-              "resolvedType": "control.number.float",
+              "resolvedType": "value.core.float64",
               "description": "Bob connects Alice's new value node after receiving the optimistic add."
             }
           }

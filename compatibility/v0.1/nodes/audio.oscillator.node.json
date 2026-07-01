@@ -9,7 +9,7 @@
     {
       "id": "out",
       "direction": "output",
-      "type": "signal.audio",
+      "type": "value.core.float32",
       "rate": "audio"
     }
   ],

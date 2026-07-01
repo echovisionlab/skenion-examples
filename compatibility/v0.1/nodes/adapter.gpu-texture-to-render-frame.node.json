@@ -9,13 +9,13 @@
     {
       "id": "texture",
       "direction": "input",
-      "type": "gpu.texture2d",
+      "type": "value.core.tensor",
       "rate": "gpu"
     },
     {
       "id": "frame",
       "direction": "output",
-      "type": "render.frame",
+      "type": "value.core.tensor",
       "rate": "render"
     }
   ],

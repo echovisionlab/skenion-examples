@@ -7,8 +7,6 @@
     "nodes": [
       {
         "id": "clear_color",
-        "kind": "render.clear-color",
-        "kindVersion": "0.1.0",
         "params": {
           "color": [
             0.12,
@@ -21,25 +19,37 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "render.frame",
+            "type": "value.core.tensor",
             "rate": "render"
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "render.clear-color",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "output",
-        "kind": "render.output",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "render.frame",
+            "type": "value.core.tensor",
             "rate": "render",
             "required": true
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "render.output",
+          "version": "0.1.0"
+        }
       }
     ],
     "edges": [
@@ -53,7 +63,7 @@
           "nodeId": "output",
           "portId": "in"
         },
-        "resolvedType": "render.frame"
+        "resolvedType": "value.core.tensor"
       }
     ]
   },
@@ -69,7 +79,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render"
         }
       ],
@@ -96,7 +106,7 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render",
           "required": true
         }

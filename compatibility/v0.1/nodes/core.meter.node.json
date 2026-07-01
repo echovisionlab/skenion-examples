@@ -9,7 +9,7 @@
     {
       "id": "in",
       "direction": "input",
-      "type": "control.number.float",
+      "type": "value.core.float64",
       "rate": "control"
     }
   ],

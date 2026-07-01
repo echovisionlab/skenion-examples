@@ -9,19 +9,19 @@
     {
       "id": "in",
       "direction": "input",
-      "type": "control.message.any",
+      "type": "value.core.message",
       "rate": "control",
       "triggerMode": "trigger",
       "accepts": [
-        "control.number.float",
-        "control.number.int",
-        "control.number.uint",
-        "control.bool",
-        "control.string",
-        "control.color",
-        "event.bang"
+        "value.core.float64",
+        "value.core.int64",
+        "value.core.uint64",
+        "value.core.bool",
+        "value.core.string",
+        "value.core.color",
+        "value.core.bang"
       ],
-      "messageSelectors": {
+      "messageKeys": {
         "accepted": [
           "bang",
           "set",
@@ -70,7 +70,7 @@
     {
       "id": "out",
       "direction": "output",
-      "type": "control.message.any",
+      "type": "value.core.message",
       "rate": "control"
     }
   ],

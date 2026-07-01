@@ -6,8 +6,6 @@
   "nodes": [
     {
       "id": "left",
-      "kind": "core.inlet",
-      "kindVersion": "0.1.0",
       "params": {
         "portId": "left",
         "label": "Left"
@@ -16,16 +14,21 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control",
           "description": "First value entering the patch."
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "inlet",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "right",
-      "kind": "core.inlet",
-      "kindVersion": "0.1.0",
       "params": {
         "portId": "right",
         "label": "Right"
@@ -34,16 +37,21 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control",
           "description": "Second value entering the patch."
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "inlet",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "out",
-      "kind": "core.outlet",
-      "kindVersion": "0.1.0",
       "params": {
         "portId": "out",
         "label": "Out"
@@ -52,12 +60,19 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "control.number.float",
+          "type": "value.core.float64",
           "rate": "control",
           "required": true,
           "description": "Invalid because this boundary outlet receives two values without mergePolicy."
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "outlet",
+        "version": "0.1.0"
+      }
     }
   ],
   "edges": [
@@ -71,7 +86,7 @@
         "nodeId": "out",
         "portId": "in"
       },
-      "resolvedType": "control.number.float",
+      "resolvedType": "value.core.float64",
       "order": 0
     },
     {
@@ -84,7 +99,7 @@
         "nodeId": "out",
         "portId": "in"
       },
-      "resolvedType": "control.number.float",
+      "resolvedType": "value.core.float64",
       "order": 1
     }
   ]
