@@ -65,7 +65,7 @@ if (hasSdkNativeCompatibilityMatrixShape(matrix)) {
     requiredStudioSidecarTargets: releaseBlockingStudioSidecarTargets,
   });
   if (!matrixValidation.ok) {
-    throw new Error(`released SDK rejected compatibility matrix: ${matrixValidation.diagnostics.map((diagnostic) => diagnostic.message).join("; ")}`);
+    throw new Error(`released SDK rejected compatibility matrix: ${matrixValidation.issues.map((issue) => issue.message).join("; ")}`);
   }
 }
 

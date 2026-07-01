@@ -133,7 +133,7 @@ MIDI Clock parser fixtures under `clock-midi-fixtures` validate the M05.1
 contract/parser slice without requiring a real MIDI device. They cover
 start/stop transport, 14-bit Song Position Pointer, meter-derived bar/beat,
 meterless unavailable bar/beat, unavailable tempo/timecode, and invalid SPP
-diagnostics.
+issues.
 
 Runtime MIDI Clock fixtures under `runtime-midi-clock-fixtures` are retained
 only as unsupported pre-consolidation reference material. They are excluded

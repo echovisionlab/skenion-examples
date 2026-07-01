@@ -233,11 +233,11 @@ function requireNonEmptyString(value, label) {
   }
 }
 
-function requireRuntimeDiagnostics(value, label) {
-  const diagnostics = requireArray(value, `${label}.diagnostics`);
-  for (const [index, diagnostic] of diagnostics.entries()) {
-    const entry = requireRecord(diagnostic, `${label}.diagnostics[${index}]`);
-    requireString(entry.message, `${label}.diagnostics[${index}].message`);
+function requireRuntimeIssues(value, label) {
+  const issues = requireArray(value, `${label}.issues`);
+  for (const [index, issue] of issues.entries()) {
+    const entry = requireRecord(issue, `${label}.issues[${index}]`);
+    requireString(entry.message, `${label}.issues[${index}].message`);
   }
 }
 
@@ -284,7 +284,7 @@ function assertSessionInfo(value, label) {
   if (replay.overflow !== undefined) {
     requireBoolean(replay.overflow, `${label}.eventReplay.overflow`);
   }
-  requireRuntimeDiagnostics(info.diagnostics, label);
+  requireRuntimeIssues(info.issues, label);
 }
 
 function assertSessionEvent(value, label) {
@@ -314,7 +314,7 @@ function assertSessionEvent(value, label) {
     requireInteger(gap.actualSequence, `${label}.replay.gap.actualSequence`, { min: 0 });
     requireNonEmptyString(gap.reason, `${label}.replay.gap.reason`);
   }
-  requireRuntimeDiagnostics(event.diagnostics, label);
+  requireRuntimeIssues(event.issues, label);
   requireNonEmptyString(event.createdAt, `${label}.createdAt`);
 }
 
@@ -322,7 +322,7 @@ function assertRuntimeSessionResponse(value, label) {
   const response = requireRecord(value, label);
   requireBoolean(response.ok, `${label}.ok`);
   assertSessionSnapshot(response.snapshot, `${label}.snapshot`);
-  requireRuntimeDiagnostics(response.diagnostics, label);
+  requireRuntimeIssues(response.issues, label);
 }
 
 function assertPatchResponse(value, label) {
@@ -332,7 +332,7 @@ function assertPatchResponse(value, label) {
   requireBoolean(response.conflict, `${label}.conflict`);
   assertSessionSnapshot(response.snapshot, `${label}.snapshot`);
   assertHistory(response.history, `${label}.history`);
-  requireRuntimeDiagnostics(response.diagnostics, label);
+  requireRuntimeIssues(response.issues, label);
 }
 
 function assertSessionSnapshot(value, label) {
@@ -346,7 +346,7 @@ function assertSessionSnapshot(value, label) {
     requireNonEmptyString(graph.id, `${label}.project.graph.id`);
     requireNonEmptyString(graph.revision, `${label}.project.graph.revision`);
   }
-  requireRuntimeDiagnostics(snapshot.diagnostics, label);
+  requireRuntimeIssues(snapshot.issues, label);
 }
 
 function assertHistory(value, label) {
@@ -383,7 +383,7 @@ function assertControlEventResponse(value, label) {
     requireNonEmptyString(entry.portId, `${label}.emitted[${index}].portId`);
     requireRecord(entry.message, `${label}.emitted[${index}].message`);
   }
-  requireRuntimeDiagnostics(response.diagnostics, label);
+  requireRuntimeIssues(response.issues, label);
 }
 
 function assertControlStateResponse(value, label) {
@@ -392,7 +392,7 @@ function assertControlStateResponse(value, label) {
   requireInteger(response.controlRevision, `${label}.controlRevision`, { min: 0 });
   requireRecord(response.values, `${label}.values`);
   requireRecord(response.channels, `${label}.channels`);
-  requireRuntimeDiagnostics(response.diagnostics, label);
+  requireRuntimeIssues(response.issues, label);
 }
 
 function assertDeepEqual(left, right, label) {

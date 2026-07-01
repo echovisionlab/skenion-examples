@@ -37,7 +37,7 @@
         },
         "appliedAt": "2026-06-21T22:00:00Z"
       },
-      "diagnostics": [],
+      "issues": [],
       "createdAt": "2026-06-21T22:00:00Z"
     },
     {
@@ -63,7 +63,7 @@
       "nack": {
         "reason": "duplicate-idempotency-key",
         "retryable": false,
-        "diagnostics": [
+        "issues": [
           {
             "severity": "info",
             "code": "idempotent-replay",
@@ -74,7 +74,7 @@
           }
         ]
       },
-      "diagnostics": [
+      "issues": [
         {
           "severity": "info",
           "code": "idempotent-replay",
@@ -108,7 +108,7 @@
       "nack": {
         "reason": "invalid-operation",
         "retryable": false,
-        "diagnostics": [
+        "issues": [
           {
             "severity": "error",
             "code": "invalid-operation",
@@ -119,7 +119,7 @@
           }
         ]
       },
-      "diagnostics": [
+      "issues": [
         {
           "severity": "error",
           "code": "invalid-operation",
@@ -293,7 +293,7 @@
         },
         "conflicts": []
       },
-      "diagnostics": [
+      "issues": [
         {
           "severity": "info",
           "code": "operation-rebased",
@@ -309,5 +309,5 @@
       "createdAt": "2026-06-21T22:00:13Z"
     }
   ],
-  "diagnostics": []
+  "issues": []
 }

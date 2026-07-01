@@ -13,7 +13,7 @@ import sys
 response = json.loads(sys.argv[1])
 assert isinstance(response["ok"], bool)
 assert isinstance(response["devices"], list)
-assert isinstance(response["diagnostics"], list)
+assert isinstance(response["issues"], list)
 
 for device in response["devices"]:
     assert isinstance(device["id"], str) and device["id"]
@@ -27,7 +27,7 @@ for device in response["devices"]:
         assert isinstance(device["index"], int)
 
 if response["ok"] is False:
-    assert response["diagnostics"]
+    assert response["issues"]
 PY
 
 echo "validated runtime IO device discovery API smoke"

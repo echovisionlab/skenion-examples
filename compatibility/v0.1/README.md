@@ -32,7 +32,7 @@ The valid graphs cover:
 - realtime collaboration operation batches, batch results, presence,
   selection, and broadcast event envelopes for convergence/conflict examples
 
-The invalid fixtures cover hard diagnostics such as ambiguous control/value
+The invalid fixtures cover hard issues such as ambiguous control/value
 algebraic loops, default render input fan-in, subpatch boundary fan-in without
 an explicit merge policy, duplicate boundary port ids, and rejected graph
 fragments with outside endpoints.

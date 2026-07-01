@@ -62,7 +62,7 @@ WRONG_TYPE_RESPONSE="$(curl --fail --silent \
   --data '{"nodeId":"value_1","portId":"in","message":{"selector":"bool","atoms":[{"type":"bool","value":true}]}}' \
   "${RUNTIME_URL}/v0/session/control/event")"
 
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["emitted"] == []; assert r["diagnostics"]' "${WRONG_TYPE_RESPONSE}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is False; assert r["emitted"] == []; assert r["issues"]' "${WRONG_TYPE_RESPONSE}"
 
 curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null
 

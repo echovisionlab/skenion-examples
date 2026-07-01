@@ -397,7 +397,7 @@ function validateCollaborationOperationResult(document, label) {
   if (document.status === "rebased") {
     validateCollaborationRebase(document.rebase, errors, `${label}.rebase`);
   }
-  validateCollaborationDiagnostics(document.diagnostics, errors, `${label}.diagnostics`);
+  validateCollaborationIssues(document.issues, errors, `${label}.issues`);
   requireNonEmptyString(document.createdAt, errors, `${label}.createdAt`);
   return validationResult(errors);
 }
@@ -417,7 +417,7 @@ function validateCollaborationOperationBatchResult(document) {
       errors.push(`collaboration operation batch result.results[${index}].sessionId must match batch result sessionId`);
     }
   }
-  validateCollaborationDiagnostics(document.diagnostics, errors, "collaboration operation batch result.diagnostics");
+  validateCollaborationIssues(document.issues, errors, "collaboration operation batch result.issues");
   requireNonEmptyString(document.createdAt, errors, "collaboration operation batch result.createdAt");
   return validationResult(errors);
 }
@@ -438,7 +438,7 @@ function validateCollaborationNack(nack, errors, label) {
   }
   requireNonEmptyString(nack.reason, errors, `${label}.reason`);
   requireBoolean(nack.retryable, errors, `${label}.retryable`);
-  validateCollaborationDiagnostics(nack.diagnostics, errors, `${label}.diagnostics`);
+  validateCollaborationIssues(nack.issues, errors, `${label}.issues`);
 }
 
 function validateCollaborationRebase(rebase, errors, label) {
@@ -465,10 +465,10 @@ function validateCollaborationServerClock(clock, errors, label) {
   }
 }
 
-function validateCollaborationDiagnostics(diagnostics, errors, label) {
-  const entries = requireArray(diagnostics, errors, label) ?? [];
-  for (const [index, diagnostic] of entries.entries()) {
-    const entry = requireRecord(diagnostic, errors, `${label}[${index}]`);
+function validateCollaborationIssues(issues, errors, label) {
+  const entries = requireArray(issues, errors, label) ?? [];
+  for (const [index, issue] of entries.entries()) {
+    const entry = requireRecord(issue, errors, `${label}[${index}]`);
     if (!entry) {
       continue;
     }
