@@ -25,6 +25,601 @@ async function readJson(file) {
   return JSON.parse(await readFile(file, "utf8"));
 }
 
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.length > 0;
+}
+
+function validationResult(errors) {
+  return {
+    ok: errors.length === 0,
+    errors
+  };
+}
+
+function requireRecord(value, errors, label) {
+  if (!isRecord(value)) {
+    errors.push(`${label} must be an object`);
+    return null;
+  }
+  return value;
+}
+
+function requireArray(value, errors, label) {
+  if (!Array.isArray(value)) {
+    errors.push(`${label} must be an array`);
+    return null;
+  }
+  return value;
+}
+
+function requireBoolean(value, errors, label) {
+  if (typeof value !== "boolean") {
+    errors.push(`${label} must be a boolean`);
+  }
+}
+
+function requireNonEmptyString(value, errors, label) {
+  if (!isNonEmptyString(value)) {
+    errors.push(`${label} must be a non-empty string`);
+  }
+}
+
+function requireInteger(value, errors, label, { min = 0 } = {}) {
+  if (!Number.isInteger(value) || value < min) {
+    errors.push(`${label} must be an integer >= ${min}`);
+  }
+}
+
+function appendValidation(result, errors, label) {
+  if (!result.ok) {
+    errors.push(...result.errors.map((error) => `${label}: ${error}`));
+  }
+}
+
+function validateSchema(document, errors, expectedSchema, label) {
+  if (!isRecord(document)) {
+    errors.push(`${label} must be an object`);
+    return false;
+  }
+  if (document.schema !== expectedSchema) {
+    errors.push(`${label}.schema must be ${expectedSchema}`);
+  }
+  if (document.schemaVersion !== "0.1.0") {
+    errors.push(`${label}.schemaVersion must be 0.1.0`);
+  }
+  return true;
+}
+
+function isCoreObjectNode(node, objectId) {
+  return (
+    isRecord(node) &&
+    isRecord(node.implementation) &&
+    isRecord(node.implementation.provider) &&
+    node.implementation.provider.kind === "core" &&
+    node.implementation.objectId === objectId
+  );
+}
+
+function validatePasteGraphFragmentRequest(request, contracts, errors, label) {
+  if (!requireRecord(request, errors, label)) {
+    return;
+  }
+  if (typeof contracts.validatePasteGraphFragmentRequest === "function") {
+    appendValidation(contracts.validatePasteGraphFragmentRequest(request), errors, label);
+  }
+  if (isRecord(request.fragment)) {
+    appendValidation(contracts.validateGraphFragmentV01(request.fragment), errors, `${label}.fragment`);
+  } else {
+    errors.push(`${label}.fragment must be an object`);
+  }
+}
+
+function validateRuntimeOperationFixture(document, contracts) {
+  const errors = [];
+  if (!validateSchema(document, errors, "skenion.runtime.operation", "runtime operation")) {
+    return validationResult(errors);
+  }
+  requireNonEmptyString(document.id, errors, "runtime operation id");
+  if (document.kind !== "pasteGraphFragment") {
+    errors.push("runtime operation kind must be pasteGraphFragment");
+  }
+  validatePasteGraphFragmentRequest(document.request, contracts, errors, "runtime operation request");
+  if (document.attribution !== undefined) {
+    const attribution = requireRecord(document.attribution, errors, "runtime operation attribution");
+    if (attribution) {
+      if (attribution.clientId !== undefined) {
+        requireNonEmptyString(attribution.clientId, errors, "runtime operation attribution.clientId");
+      }
+      if (attribution.label !== undefined) {
+        requireNonEmptyString(attribution.label, errors, "runtime operation attribution.label");
+      }
+    }
+  }
+  if (document.correlationId !== undefined) {
+    requireNonEmptyString(document.correlationId, errors, "runtime operation correlationId");
+  }
+  return validationResult(errors);
+}
+
+function validateRuntimeCollaborationFixture(document, contracts) {
+  if (!isRecord(document)) {
+    return validationResult(["collaboration fixture must be an object"]);
+  }
+  if (document.schema === "skenion.runtime.collaboration.operation") {
+    return validateCollaborationOperation(document, contracts, "collaboration operation");
+  }
+  if (document.schema === "skenion.runtime.collaboration.operation-batch") {
+    return validateCollaborationOperationBatch(document, contracts);
+  }
+  if (document.schema === "skenion.runtime.collaboration.operation-result") {
+    return validateCollaborationOperationResult(document, "collaboration operation result");
+  }
+  if (document.schema === "skenion.runtime.collaboration.operation-batch-result") {
+    return validateCollaborationOperationBatchResult(document);
+  }
+  if (document.schema === "skenion.runtime.collaboration.presence") {
+    return validateCollaborationPresence(document, "collaboration presence");
+  }
+  if (document.schema === "skenion.runtime.collaboration.selection") {
+    return validateCollaborationSelection(document, "collaboration selection");
+  }
+  if (document.schema === "skenion.runtime.collaboration.event") {
+    return validateCollaborationEvent(document);
+  }
+  return validationResult([`unsupported collaboration schema ${document.schema ?? "<missing>"}`]);
+}
+
+function validateCollaborationOperation(document, contracts, label) {
+  const errors = [];
+  validateSchema(document, errors, "skenion.runtime.collaboration.operation", label);
+  requireNonEmptyString(document.operationId, errors, `${label}.operationId`);
+  requireNonEmptyString(document.sessionId, errors, `${label}.sessionId`);
+  requireNonEmptyString(document.participantId, errors, `${label}.participantId`);
+  requireNonEmptyString(document.idempotencyKey, errors, `${label}.idempotencyKey`);
+  validateCollaborationCausal(document.causal, errors, `${label}.causal`);
+  validateCollaborationPayload(document.payload, contracts, errors, `${label}.payload`);
+  if (document.correlationId !== undefined) {
+    requireNonEmptyString(document.correlationId, errors, `${label}.correlationId`);
+  }
+  requireNonEmptyString(document.submittedAt, errors, `${label}.submittedAt`);
+  return validationResult(errors);
+}
+
+function validateCollaborationOperationBatch(document, contracts) {
+  const errors = [];
+  validateSchema(document, errors, "skenion.runtime.collaboration.operation-batch", "collaboration operation batch");
+  requireNonEmptyString(document.sessionId, errors, "collaboration operation batch.sessionId");
+  requireNonEmptyString(document.submittedAt, errors, "collaboration operation batch.submittedAt");
+  const operations = requireArray(document.operations, errors, "collaboration operation batch.operations") ?? [];
+  if (operations.length === 0) {
+    errors.push("collaboration operation batch.operations must not be empty");
+  }
+  const idempotencyKeys = new Set();
+  for (const [index, operation] of operations.entries()) {
+    const result = validateCollaborationOperation(operation, contracts, `collaboration operation batch.operations[${index}]`);
+    appendValidation(result, errors, `collaboration operation batch.operations[${index}]`);
+    if (isRecord(operation)) {
+      if (operation.sessionId !== document.sessionId) {
+        errors.push(`collaboration operation batch.operations[${index}].sessionId must match batch sessionId`);
+      }
+      if (isNonEmptyString(operation.idempotencyKey)) {
+        if (idempotencyKeys.has(operation.idempotencyKey)) {
+          errors.push(`duplicate collaboration idempotency key ${operation.idempotencyKey}`);
+        }
+        idempotencyKeys.add(operation.idempotencyKey);
+      }
+    }
+  }
+  return validationResult(errors);
+}
+
+function validateCollaborationPayload(payload, contracts, errors, label) {
+  if (!requireRecord(payload, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(payload.kind, errors, `${label}.kind`);
+  if (payload.kind === "changeSet") {
+    validateGraphTarget(payload.target, errors, `${label}.target`);
+    const changes = requireArray(payload.changes, errors, `${label}.changes`) ?? [];
+    if (changes.length === 0) {
+      errors.push(`${label}.changes must not be empty`);
+    }
+    for (const [index, change] of changes.entries()) {
+      validateCollaborationChange(change, contracts, errors, `${label}.changes[${index}]`);
+    }
+    if (payload.undoGroupId !== undefined) {
+      requireNonEmptyString(payload.undoGroupId, errors, `${label}.undoGroupId`);
+    }
+    if (payload.description !== undefined) {
+      requireNonEmptyString(payload.description, errors, `${label}.description`);
+    }
+    return;
+  }
+  if (payload.kind === "pasteGraphFragment") {
+    validatePasteGraphFragmentRequest(payload.request, contracts, errors, `${label}.request`);
+    if (payload.undoGroupId !== undefined) {
+      requireNonEmptyString(payload.undoGroupId, errors, `${label}.undoGroupId`);
+    }
+    if (payload.description !== undefined) {
+      requireNonEmptyString(payload.description, errors, `${label}.description`);
+    }
+    return;
+  }
+  if (payload.kind === "undoRedo") {
+    if (!["undo", "redo"].includes(payload.action)) {
+      errors.push(`${label}.action must be undo or redo`);
+    }
+    const scope = requireRecord(payload.scope, errors, `${label}.scope`);
+    if (scope) {
+      requireNonEmptyString(scope.kind, errors, `${label}.scope.kind`);
+      if (scope.kind === "participant") {
+        requireNonEmptyString(scope.participantId, errors, `${label}.scope.participantId`);
+      }
+    }
+    requireNonEmptyString(payload.subjectOperationId, errors, `${label}.subjectOperationId`);
+    requireNonEmptyString(payload.undoGroupId, errors, `${label}.undoGroupId`);
+    requireInteger(payload.maxOperations, errors, `${label}.maxOperations`, { min: 1 });
+    return;
+  }
+  errors.push(`${label}.kind is unsupported: ${payload.kind}`);
+}
+
+function validateCollaborationChange(change, contracts, errors, label) {
+  if (!requireRecord(change, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(change.op, errors, `${label}.op`);
+  requireNonEmptyString(change.changeId, errors, `${label}.changeId`);
+  if (change.op === "node.add") {
+    validateGraphNodePayload(change.node, contracts, errors, `${label}.node`);
+    validatePoint(change.view, errors, `${label}.view`);
+    return;
+  }
+  if (change.op === "node.delete") {
+    requireNonEmptyString(change.nodeId, errors, `${label}.nodeId`);
+    if (change.tombstoneId !== undefined) {
+      requireNonEmptyString(change.tombstoneId, errors, `${label}.tombstoneId`);
+    }
+    return;
+  }
+  if (change.op === "node.move") {
+    requireNonEmptyString(change.nodeId, errors, `${label}.nodeId`);
+    validatePoint(change.from, errors, `${label}.from`);
+    validatePoint(change.to, errors, `${label}.to`);
+    return;
+  }
+  if (change.op === "edge.connect") {
+    validateEdge(change.edge, errors, `${label}.edge`);
+    return;
+  }
+  errors.push(`${label}.op is unsupported: ${change.op}`);
+}
+
+function validateGraphNodePayload(node, contracts, errors, label) {
+  if (!requireRecord(node, errors, label)) {
+    return;
+  }
+  const graph = {
+    schema: "skenion.graph",
+    schemaVersion: "0.1.0",
+    id: `${node.id ?? "node"}-graph-node-wrapper`,
+    revision: "1",
+    nodes: [node],
+    edges: []
+  };
+  appendValidation(contracts.validateGraphDocumentV01(graph), errors, label);
+}
+
+function validatePoint(point, errors, label) {
+  if (!requireRecord(point, errors, label)) {
+    return;
+  }
+  if (typeof point.x !== "number") {
+    errors.push(`${label}.x must be a number`);
+  }
+  if (typeof point.y !== "number") {
+    errors.push(`${label}.y must be a number`);
+  }
+}
+
+function validateEndpoint(endpoint, errors, label) {
+  if (!requireRecord(endpoint, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(endpoint.nodeId, errors, `${label}.nodeId`);
+  requireNonEmptyString(endpoint.portId, errors, `${label}.portId`);
+}
+
+function validateEdge(edge, errors, label) {
+  if (!requireRecord(edge, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(edge.id, errors, `${label}.id`);
+  validateEndpoint(edge.source, errors, `${label}.source`);
+  validateEndpoint(edge.target, errors, `${label}.target`);
+  requireNonEmptyString(edge.resolvedType, errors, `${label}.resolvedType`);
+}
+
+function validateGraphTarget(target, errors, label) {
+  if (!requireRecord(target, errors, label)) {
+    return;
+  }
+  const graphPath = requireRecord(target.path, errors, `${label}.path`);
+  if (graphPath) {
+    requireNonEmptyString(graphPath.kind, errors, `${label}.path.kind`);
+  }
+  if (target.baseRevision !== undefined) {
+    requireNonEmptyString(target.baseRevision, errors, `${label}.baseRevision`);
+  }
+}
+
+function validateCollaborationCausal(causal, errors, label) {
+  if (!requireRecord(causal, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(causal.baseRevision, errors, `${label}.baseRevision`);
+  requireInteger(causal.baseSequence, errors, `${label}.baseSequence`, { min: 0 });
+  const vector = requireRecord(causal.vector, errors, `${label}.vector`);
+  if (vector) {
+    for (const [key, value] of Object.entries(vector)) {
+      requireInteger(value, errors, `${label}.vector.${key}`, { min: 0 });
+    }
+  }
+  const observed = requireArray(causal.observedOperationIds, errors, `${label}.observedOperationIds`) ?? [];
+  for (const [index, operationId] of observed.entries()) {
+    requireNonEmptyString(operationId, errors, `${label}.observedOperationIds[${index}]`);
+  }
+}
+
+function validateCollaborationOperationResult(document, label) {
+  const errors = [];
+  validateSchema(document, errors, "skenion.runtime.collaboration.operation-result", label);
+  requireNonEmptyString(document.sessionId, errors, `${label}.sessionId`);
+  requireNonEmptyString(document.operationId, errors, `${label}.operationId`);
+  requireNonEmptyString(document.participantId, errors, `${label}.participantId`);
+  requireNonEmptyString(document.idempotencyKey, errors, `${label}.idempotencyKey`);
+  if (!["accepted", "duplicate", "rejected", "rebased"].includes(document.status)) {
+    errors.push(`${label}.status must be accepted, duplicate, rejected, or rebased`);
+  }
+  validateCollaborationCausal(document.causal, errors, `${label}.causal`);
+  const needsAck = ["accepted", "rebased"].includes(document.status);
+  const needsNack = ["duplicate", "rejected"].includes(document.status);
+  if (needsAck) {
+    validateCollaborationAck(document.ack, errors, `${label}.ack`);
+  }
+  if (needsNack) {
+    validateCollaborationNack(document.nack, errors, `${label}.nack`);
+  }
+  if (document.status === "rebased") {
+    validateCollaborationRebase(document.rebase, errors, `${label}.rebase`);
+  }
+  validateCollaborationIssues(document.issues, errors, `${label}.issues`);
+  requireNonEmptyString(document.createdAt, errors, `${label}.createdAt`);
+  return validationResult(errors);
+}
+
+function validateCollaborationOperationBatchResult(document) {
+  const errors = [];
+  validateSchema(document, errors, "skenion.runtime.collaboration.operation-batch-result", "collaboration operation batch result");
+  requireNonEmptyString(document.sessionId, errors, "collaboration operation batch result.sessionId");
+  const results = requireArray(document.results, errors, "collaboration operation batch result.results") ?? [];
+  if (results.length === 0) {
+    errors.push("collaboration operation batch result.results must not be empty");
+  }
+  for (const [index, result] of results.entries()) {
+    const itemResult = validateCollaborationOperationResult(result, `collaboration operation batch result.results[${index}]`);
+    appendValidation(itemResult, errors, `collaboration operation batch result.results[${index}]`);
+    if (isRecord(result) && result.sessionId !== document.sessionId) {
+      errors.push(`collaboration operation batch result.results[${index}].sessionId must match batch result sessionId`);
+    }
+  }
+  validateCollaborationIssues(document.issues, errors, "collaboration operation batch result.issues");
+  requireNonEmptyString(document.createdAt, errors, "collaboration operation batch result.createdAt");
+  return validationResult(errors);
+}
+
+function validateCollaborationAck(ack, errors, label) {
+  if (!requireRecord(ack, errors, label)) {
+    return;
+  }
+  requireInteger(ack.sequence, errors, `${label}.sequence`, { min: 1 });
+  requireNonEmptyString(ack.revision, errors, `${label}.revision`);
+  validateCollaborationServerClock(ack.serverClock, errors, `${label}.serverClock`);
+  requireNonEmptyString(ack.appliedAt, errors, `${label}.appliedAt`);
+}
+
+function validateCollaborationNack(nack, errors, label) {
+  if (!requireRecord(nack, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(nack.reason, errors, `${label}.reason`);
+  requireBoolean(nack.retryable, errors, `${label}.retryable`);
+  validateCollaborationIssues(nack.issues, errors, `${label}.issues`);
+}
+
+function validateCollaborationRebase(rebase, errors, label) {
+  if (!requireRecord(rebase, errors, label)) {
+    return;
+  }
+  validateCollaborationCausal(rebase.from, errors, `${label}.from`);
+  validateCollaborationCausal(rebase.to, errors, `${label}.to`);
+  requireNonEmptyString(rebase.strategy, errors, `${label}.strategy`);
+  requireArray(rebase.conflicts, errors, `${label}.conflicts`);
+}
+
+function validateCollaborationServerClock(clock, errors, label) {
+  if (!requireRecord(clock, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(clock.revision, errors, `${label}.revision`);
+  requireInteger(clock.sequence, errors, `${label}.sequence`, { min: 0 });
+  const vector = requireRecord(clock.vector, errors, `${label}.vector`);
+  if (vector) {
+    for (const [key, value] of Object.entries(vector)) {
+      requireInteger(value, errors, `${label}.vector.${key}`, { min: 0 });
+    }
+  }
+}
+
+function validateCollaborationIssues(issues, errors, label) {
+  const entries = requireArray(issues, errors, label) ?? [];
+  for (const [index, issue] of entries.entries()) {
+    const entry = requireRecord(issue, errors, `${label}[${index}]`);
+    if (!entry) {
+      continue;
+    }
+    requireNonEmptyString(entry.severity, errors, `${label}[${index}].severity`);
+    requireNonEmptyString(entry.code, errors, `${label}[${index}].code`);
+    requireNonEmptyString(entry.message, errors, `${label}[${index}].message`);
+  }
+}
+
+function validateCollaborationPresence(document, label) {
+  const errors = [];
+  validateSchema(document, errors, "skenion.runtime.collaboration.presence", label);
+  requireNonEmptyString(document.sessionId, errors, `${label}.sessionId`);
+  requireNonEmptyString(document.participantId, errors, `${label}.participantId`);
+  const presence = requireRecord(document.presence, errors, `${label}.presence`);
+  if (presence) {
+    requireNonEmptyString(presence.state, errors, `${label}.presence.state`);
+    if (presence.capabilities !== undefined) {
+      const capabilities = requireArray(presence.capabilities, errors, `${label}.presence.capabilities`) ?? [];
+      for (const [index, capability] of capabilities.entries()) {
+        requireNonEmptyString(capability, errors, `${label}.presence.capabilities[${index}]`);
+      }
+    }
+  }
+  requireNonEmptyString(document.updatedAt, errors, `${label}.updatedAt`);
+  requireNonEmptyString(document.expiresAt, errors, `${label}.expiresAt`);
+  return validationResult(errors);
+}
+
+function validateCollaborationSelection(document, label) {
+  const errors = [];
+  validateSchema(document, errors, "skenion.runtime.collaboration.selection", label);
+  requireNonEmptyString(document.sessionId, errors, `${label}.sessionId`);
+  requireNonEmptyString(document.participantId, errors, `${label}.participantId`);
+  validateGraphTarget(document.target, errors, `${label}.target`);
+  const selection = requireRecord(document.selection, errors, `${label}.selection`);
+  if (selection) {
+    const ranges = requireArray(selection.ranges, errors, `${label}.selection.ranges`) ?? [];
+    if (ranges.length === 0) {
+      errors.push(`${label}.selection.ranges must not be empty`);
+    }
+    requireInteger(selection.activeRangeIndex, errors, `${label}.selection.activeRangeIndex`, { min: 0 });
+    if (Number.isInteger(selection.activeRangeIndex) && selection.activeRangeIndex >= ranges.length) {
+      errors.push(`${label}.selection.activeRangeIndex must point at a range`);
+    }
+    for (const [index, range] of ranges.entries()) {
+      validateSelectionRange(range, errors, `${label}.selection.ranges[${index}]`);
+    }
+  }
+  if (document.cursor !== undefined) {
+    validateSelectionCursor(document.cursor, errors, `${label}.cursor`);
+  }
+  requireNonEmptyString(document.updatedAt, errors, `${label}.updatedAt`);
+  requireNonEmptyString(document.expiresAt, errors, `${label}.expiresAt`);
+  return validationResult(errors);
+}
+
+function validateSelectionRange(range, errors, label) {
+  if (!requireRecord(range, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(range.kind, errors, `${label}.kind`);
+  if (range.kind === "nodes") {
+    requireArray(range.nodeIds, errors, `${label}.nodeIds`);
+  } else if (range.kind === "edges") {
+    requireArray(range.edgeIds, errors, `${label}.edgeIds`);
+  } else if (range.kind === "ports") {
+    const endpoints = requireArray(range.endpoints, errors, `${label}.endpoints`) ?? [];
+    for (const [index, endpoint] of endpoints.entries()) {
+      validateEndpoint(endpoint, errors, `${label}.endpoints[${index}]`);
+    }
+  } else if (range.kind === "text") {
+    validateTextPosition(range.anchor, errors, `${label}.anchor`);
+    validateTextPosition(range.focus, errors, `${label}.focus`);
+  }
+}
+
+function validateTextPosition(position, errors, label) {
+  if (!requireRecord(position, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(position.nodeId, errors, `${label}.nodeId`);
+  requireNonEmptyString(position.field, errors, `${label}.field`);
+  requireInteger(position.offset, errors, `${label}.offset`, { min: 0 });
+}
+
+function validateSelectionCursor(cursor, errors, label) {
+  if (!requireRecord(cursor, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(cursor.kind, errors, `${label}.kind`);
+  if (cursor.kind === "node") {
+    requireNonEmptyString(cursor.nodeId, errors, `${label}.nodeId`);
+  }
+  if (cursor.portId !== undefined) {
+    requireNonEmptyString(cursor.portId, errors, `${label}.portId`);
+  }
+}
+
+function validateCollaborationEvent(document) {
+  const errors = [];
+  validateSchema(document, errors, "skenion.runtime.collaboration.event", "collaboration event");
+  requireNonEmptyString(document.eventId, errors, "collaboration event.eventId");
+  requireNonEmptyString(document.sessionId, errors, "collaboration event.sessionId");
+  requireInteger(document.sequence, errors, "collaboration event.sequence", { min: 1 });
+  validateCollaborationCausal(document.causal, errors, "collaboration event.causal");
+  requireNonEmptyString(document.kind, errors, "collaboration event.kind");
+  const payload = requireRecord(document.payload, errors, "collaboration event.payload");
+  if (payload) {
+    if (document.kind === "presence") {
+      if (payload.kind !== "presence") {
+        errors.push("collaboration event.payload.kind must be presence");
+      }
+      appendValidation(validateCollaborationPresence(payload.presence, "collaboration event.payload.presence"), errors, "collaboration event.payload.presence");
+    } else if (document.kind === "selection") {
+      if (payload.kind !== "selection") {
+        errors.push("collaboration event.payload.kind must be selection");
+      }
+      appendValidation(validateCollaborationSelection(payload.selection, "collaboration event.payload.selection"), errors, "collaboration event.payload.selection");
+    } else if (document.kind === "operation-result") {
+      if (payload.kind !== "operationResult") {
+        errors.push("collaboration event.payload.kind must be operationResult");
+      }
+      appendValidation(validateCollaborationOperationResult(payload.result, "collaboration event.payload.result"), errors, "collaboration event.payload.result");
+    }
+  }
+  validateReplayMetadata(document.replay, errors, "collaboration event.replay");
+  requireNonEmptyString(document.createdAt, errors, "collaboration event.createdAt");
+  return validationResult(errors);
+}
+
+function validateReplayMetadata(replay, errors, label) {
+  if (!requireRecord(replay, errors, label)) {
+    return;
+  }
+  requireNonEmptyString(replay.cursor, errors, `${label}.cursor`);
+  if (replay.previousCursor !== null && replay.previousCursor !== undefined) {
+    requireNonEmptyString(replay.previousCursor, errors, `${label}.previousCursor`);
+  }
+  requireBoolean(replay.replayed, errors, `${label}.replayed`);
+  requireBoolean(replay.overflow, errors, `${label}.overflow`);
+  if (replay.gap !== null && replay.gap !== undefined) {
+    const gap = requireRecord(replay.gap, errors, `${label}.gap`);
+    if (gap) {
+      requireInteger(gap.expectedSequence, errors, `${label}.gap.expectedSequence`, { min: 0 });
+      requireInteger(gap.actualSequence, errors, `${label}.gap.actualSequence`, { min: 0 });
+      requireNonEmptyString(gap.reason, errors, `${label}.gap.reason`);
+    }
+  }
+}
+
 function validateDocument(file, document, contracts) {
   if (document.schema === "skenion.project") {
     const { nodes = [], frames: _frames, ...projectDocument } = document;
@@ -80,31 +675,28 @@ function validateDocument(file, document, contracts) {
     return contracts.validateExtensionManifestV01(document);
   }
   if (document.schema === "skenion.runtime.operation") {
-    return contracts.validateRuntimeOperationEnvelope(document);
-  }
-  if (document.schema === "skenion.runtime.paste-graph-fragment.response") {
-    return contracts.validatePasteGraphFragmentResponse(document);
+    return validateRuntimeOperationFixture(document, contracts);
   }
   if (document.schema === "skenion.runtime.collaboration.operation") {
-    return contracts.validateRuntimeCollaborationOperationEnvelope(document);
+    return validateRuntimeCollaborationFixture(document, contracts);
   }
   if (document.schema === "skenion.runtime.collaboration.operation-batch") {
-    return contracts.validateRuntimeCollaborationOperationBatch(document);
+    return validateRuntimeCollaborationFixture(document, contracts);
   }
   if (document.schema === "skenion.runtime.collaboration.operation-result") {
-    return contracts.validateRuntimeCollaborationOperationResult(document);
+    return validateRuntimeCollaborationFixture(document, contracts);
   }
   if (document.schema === "skenion.runtime.collaboration.operation-batch-result") {
-    return contracts.validateRuntimeCollaborationOperationBatchResult(document);
+    return validateRuntimeCollaborationFixture(document, contracts);
   }
   if (document.schema === "skenion.runtime.collaboration.presence") {
-    return contracts.validateRuntimeCollaborationPresenceEnvelope(document);
+    return validateRuntimeCollaborationFixture(document, contracts);
   }
   if (document.schema === "skenion.runtime.collaboration.selection") {
-    return contracts.validateRuntimeCollaborationSelectionEnvelope(document);
+    return validateRuntimeCollaborationFixture(document, contracts);
   }
   if (document.schema === "skenion.runtime.collaboration.event") {
-    return contracts.validateRuntimeCollaborationEventEnvelope(document);
+    return validateRuntimeCollaborationFixture(document, contracts);
   }
 
   return {
@@ -278,8 +870,8 @@ async function validateTutorialManifest(manifestFile, manifest) {
     if (!tutorial.tags.includes("v0.1")) {
       failures.push(`${manifestFile}: ${tutorial.id} tutorial tags must include v0.1`);
     }
-    if (tutorial.tags.includes("live-help") && !(tutorialGraph?.nodes ?? []).some((node) => node.kind === "core.live-help")) {
-      failures.push(`${tutorialFile}: live-help tutorial must include a core.live-help node`);
+    if (tutorial.tags.includes("live-help") && !(tutorialGraph?.nodes ?? []).some((node) => isCoreObjectNode(node, "live-help"))) {
+      failures.push(`${tutorialFile}: live-help tutorial must include a core live-help object node`);
     }
     if (tutorial.tags.includes("subpatch") && !tutorialDocument.patchLibrary?.some((patch) => patch.graph?.schemaVersion === "0.1.0")) {
       failures.push(`${tutorialFile}: subpatch tutorial must include a current 0.1 patch library graph`);

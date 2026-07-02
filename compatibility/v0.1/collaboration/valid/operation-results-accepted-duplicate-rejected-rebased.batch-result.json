@@ -37,7 +37,7 @@
         },
         "appliedAt": "2026-06-21T22:00:00Z"
       },
-      "diagnostics": [],
+      "issues": [],
       "createdAt": "2026-06-21T22:00:00Z"
     },
     {
@@ -63,7 +63,7 @@
       "nack": {
         "reason": "duplicate-idempotency-key",
         "retryable": false,
-        "diagnostics": [
+        "issues": [
           {
             "severity": "info",
             "code": "idempotent-replay",
@@ -74,7 +74,7 @@
           }
         ]
       },
-      "diagnostics": [
+      "issues": [
         {
           "severity": "info",
           "code": "idempotent-replay",
@@ -108,7 +108,7 @@
       "nack": {
         "reason": "invalid-operation",
         "retryable": false,
-        "diagnostics": [
+        "issues": [
           {
             "severity": "error",
             "code": "invalid-operation",
@@ -119,7 +119,7 @@
           }
         ]
       },
-      "diagnostics": [
+      "issues": [
         {
           "severity": "error",
           "code": "invalid-operation",
@@ -211,8 +211,6 @@
               "nodes": [
                 {
                   "id": "help_value",
-                  "kind": "core.value-number",
-                  "kindVersion": "0.1.0",
                   "params": {
                     "value": 0.75
                   },
@@ -220,24 +218,36 @@
                     {
                       "id": "out",
                       "direction": "output",
-                      "type": "value.number",
+                      "type": "value.core.float64",
                       "rate": "control"
                     }
-                  ]
+                  ],
+                  "implementation": {
+                    "provider": {
+                      "kind": "core"
+                    },
+                    "objectId": "float",
+                    "version": "0.1.0"
+                  }
                 },
                 {
                   "id": "help_meter",
-                  "kind": "core.meter",
-                  "kindVersion": "0.1.0",
                   "params": {},
                   "ports": [
                     {
                       "id": "in",
                       "direction": "input",
-                      "type": "value.number",
+                      "type": "value.core.float64",
                       "rate": "control"
                     }
-                  ]
+                  ],
+                  "implementation": {
+                    "provider": {
+                      "kind": "core"
+                    },
+                    "objectId": "meter",
+                    "version": "0.1.0"
+                  }
                 }
               ],
               "edges": [
@@ -251,7 +261,7 @@
                     "nodeId": "help_meter",
                     "portId": "in"
                   },
-                  "resolvedType": "value.number"
+                  "resolvedType": "value.core.float64"
                 }
               ],
               "view": {
@@ -283,7 +293,7 @@
         },
         "conflicts": []
       },
-      "diagnostics": [
+      "issues": [
         {
           "severity": "info",
           "code": "operation-rebased",
@@ -299,5 +309,5 @@
       "createdAt": "2026-06-21T22:00:13Z"
     }
   ],
-  "diagnostics": []
+  "issues": []
 }

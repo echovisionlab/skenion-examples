@@ -9,15 +9,15 @@
     {
       "id": "open",
       "direction": "input",
-      "type": "event.bang",
+      "type": "value.core.bang",
       "rate": "event",
       "triggerMode": "trigger"
     },
     {
       "id": "help",
       "direction": "output",
-      "type": "message.any",
-      "rate": "event",
+      "type": "value.core.message",
+      "rate": "control",
       "description": "Emits live help patch metadata from the project or package patch library."
     }
   ],

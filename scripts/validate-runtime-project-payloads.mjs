@@ -107,7 +107,7 @@ if (runtimeUrl) {
   for (const file of validCurrentFiles) {
     const response = await postValidate(file, await readJson(file));
     if (response.ok !== true) {
-      fail(file, `expected runtime ok:true, got ${JSON.stringify(response.diagnostics)}`);
+      fail(file, `expected runtime ok:true, got ${JSON.stringify(response.issues)}`);
     }
   }
 
@@ -117,9 +117,9 @@ if (runtimeUrl) {
       fail(file, "expected runtime ok:false, got ok:true");
     }
     const reasons = expectedInvalidReason(file);
-    const diagnostics = response.diagnostics?.map((diagnostic) => diagnostic.message).join("; ") ?? "";
-    if (reasons.length > 0 && !reasons.some((reason) => diagnostics.includes(reason))) {
-      fail(file, `expected diagnostic containing one of ${JSON.stringify(reasons)}, got ${diagnostics}`);
+    const issues = response.issues?.map((issue) => issue.message).join("; ") ?? "";
+    if (reasons.length > 0 && !reasons.some((reason) => issues.includes(reason))) {
+      fail(file, `expected issue containing one of ${JSON.stringify(reasons)}, got ${issues}`);
     }
   }
 }

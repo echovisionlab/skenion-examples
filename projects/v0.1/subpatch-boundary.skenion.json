@@ -15,8 +15,6 @@
     "nodes": [
       {
         "id": "source",
-        "kind": "core.value-number",
-        "kindVersion": "0.1.0",
         "params": {
           "value": 0.5
         },
@@ -24,26 +22,30 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Value sent into the subpatch."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "float",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "scale_patch",
-        "kind": "core.subpatch",
-        "kindVersion": "0.1.0",
         "params": {
           "patchId": "scale_twice",
-          "objectText": "p scale_twice",
           "description": "Materialized from the patch library contract for scale_twice."
         },
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "required": true,
             "description": "Value entering the Scale Twice patch."
@@ -51,27 +53,45 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Scaled value leaving the Scale Twice patch."
           }
-        ]
+        ],
+        "objectSpec": "p scale_twice",
+        "implementation": {
+          "provider": {
+            "kind": "projectPatch",
+            "patchId": "scale_twice"
+          },
+          "objectId": "scale_twice",
+          "version": "0.1.0"
+        },
+        "objectResolution": {
+          "status": "resolved",
+          "selectedSpec": "p scale_twice"
+        }
       },
       {
         "id": "meter",
-        "kind": "core.meter",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "required": true,
             "description": "Displays the subpatch output."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "meter",
+          "version": "0.1.0"
+        }
       }
     ],
     "edges": [
@@ -85,7 +105,7 @@
           "nodeId": "scale_patch",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "value.core.float64"
       },
       {
         "id": "edge_subpatch_meter",
@@ -97,7 +117,7 @@
           "nodeId": "meter",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "value.core.float64"
       }
     ]
   },
@@ -142,8 +162,6 @@
         "nodes": [
           {
             "id": "patch_in",
-            "kind": "core.inlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "in",
               "label": "In",
@@ -153,16 +171,21 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Value entering the patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "inlet",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "double",
-            "kind": "core.value-transform",
-            "kindVersion": "0.1.0",
             "params": {
               "operation": "multiply",
               "operand": 2
@@ -171,22 +194,27 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "required": true
               },
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control"
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "operator.mul",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "patch_out",
-            "kind": "core.outlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "out",
               "label": "Out",
@@ -196,12 +224,19 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "required": true,
                 "description": "Scaled value leaving the patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "outlet",
+              "version": "0.1.0"
+            }
           }
         ],
         "edges": [
@@ -215,7 +250,7 @@
               "nodeId": "double",
               "portId": "in"
             },
-            "resolvedType": "value.number"
+            "resolvedType": "value.core.float64"
           },
           {
             "id": "edge_double_out",
@@ -227,7 +262,7 @@
               "nodeId": "patch_out",
               "portId": "in"
             },
-            "resolvedType": "value.number"
+            "resolvedType": "value.core.float64"
           }
         ]
       },
@@ -270,19 +305,19 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     },
     {
@@ -296,26 +331,26 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control",
           "required": true
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     },
     {
@@ -329,21 +364,22 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control",
           "required": true
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     }
-  ]
+  ],
+  "documentId": "31c5d76d-75c6-4fdc-8cc5-f2b906c55ac1"
 }

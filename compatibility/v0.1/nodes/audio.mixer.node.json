@@ -9,7 +9,7 @@
     {
       "id": "in",
       "direction": "input",
-      "type": "signal.audio",
+      "type": "value.core.float32",
       "rate": "audio",
       "maxConnections": 8,
       "mergePolicy": "mix"
@@ -17,7 +17,7 @@
     {
       "id": "out",
       "direction": "output",
-      "type": "signal.audio",
+      "type": "value.core.float32",
       "rate": "audio"
     }
   ],
@@ -25,7 +25,7 @@
     {
       "id": "inputs",
       "direction": "input",
-      "type": "signal.audio",
+      "type": "value.core.float32",
       "rate": "audio",
       "minPorts": 1,
       "maxPorts": 64,
@@ -35,7 +35,7 @@
       "defaultPortSpec": {
         "id": "in_template",
         "direction": "input",
-        "type": "signal.audio",
+        "type": "value.core.float32",
         "rate": "audio",
         "maxConnections": 1
       }

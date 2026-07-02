@@ -6,29 +6,83 @@
   "nodes": [
     {
       "id": "open_help",
-      "kind": "core.bang",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "message.any",
-          "rate": "event",
-          "triggerMode": "trigger"
+          "type": "value.core.message",
+          "rate": "control",
+          "triggerMode": "trigger",
+          "accepts": [
+            "value.core.float64",
+            "value.core.int64",
+            "value.core.uint64",
+            "value.core.bool",
+            "value.core.string",
+            "value.core.color",
+            "value.core.bang"
+          ],
+          "messageKeys": {
+            "accepted": [
+              "bang",
+              "set",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "silent": [
+              "set"
+            ],
+            "trigger": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "emit": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ]
+          }
         },
         {
-          "id": "bang",
+          "id": "out",
           "direction": "output",
-          "type": "event.bang",
+          "type": "value.core.bang",
           "rate": "event"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "bang",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "subpatch_help",
-      "kind": "core.live-help",
-      "kindVersion": "0.1.0",
       "params": {
         "topic": "core.subpatch",
         "manualVersion": "0.33",
@@ -41,39 +95,105 @@
         {
           "id": "open",
           "direction": "input",
-          "type": "event.bang",
+          "type": "value.core.bang",
           "rate": "event",
           "triggerMode": "trigger"
         },
         {
           "id": "help",
           "direction": "output",
-          "type": "message.any",
-          "rate": "event",
+          "type": "value.core.message",
+          "rate": "control",
           "description": "Emits live help patch metadata."
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "live-help",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "help_message",
-      "kind": "core.message",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "message.any",
-          "rate": "event",
-          "triggerMode": "trigger"
+          "type": "value.core.message",
+          "rate": "control",
+          "triggerMode": "trigger",
+          "accepts": [
+            "value.core.float64",
+            "value.core.int64",
+            "value.core.uint64",
+            "value.core.bool",
+            "value.core.string",
+            "value.core.color",
+            "value.core.bang"
+          ],
+          "messageKeys": {
+            "accepted": [
+              "bang",
+              "set",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "silent": [
+              "set"
+            ],
+            "trigger": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ],
+            "store": [
+              "set"
+            ],
+            "emit": [
+              "bang",
+              "float",
+              "int",
+              "uint",
+              "bool",
+              "string",
+              "color",
+              "symbol",
+              "list",
+              "anything"
+            ]
+          }
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "message.any",
-          "rate": "event"
+          "type": "value.core.message",
+          "rate": "control"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "message",
+        "version": "0.1.0"
+      }
     }
   ],
   "edges": [
@@ -81,13 +201,13 @@
       "id": "edge_open_help",
       "source": {
         "nodeId": "open_help",
-        "portId": "bang"
+        "portId": "out"
       },
       "target": {
         "nodeId": "subpatch_help",
         "portId": "open"
       },
-      "resolvedType": "event.bang"
+      "resolvedType": "value.core.bang"
     },
     {
       "id": "edge_help_message",
@@ -99,7 +219,7 @@
         "nodeId": "help_message",
         "portId": "in"
       },
-      "resolvedType": "message.any"
+      "resolvedType": "value.core.message"
     }
   ]
 }

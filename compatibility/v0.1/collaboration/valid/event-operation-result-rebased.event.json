@@ -82,7 +82,7 @@
         "strategy": "crdt-merge",
         "conflicts": []
       },
-      "diagnostics": [
+      "issues": [
         {
           "severity": "info",
           "code": "operation-rebased",

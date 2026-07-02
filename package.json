@@ -2,6 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "audit:node-conventions": "node scripts/audit-node-conventions.mjs",
     "validate:contracts": "node scripts/validate-with-contracts.mjs",
     "validate:paths": "node scripts/validate-repo-path-references.mjs",
     "validate:compatibility-matrix": "node scripts/validate-compatibility-matrix.mjs",
@@ -11,6 +12,7 @@
     "validate:sdk-compatibility": "node scripts/validate-sdk-compatibility.mjs"
   },
   "devDependencies": {
-    "@skenion/contracts": "0.45.0"
-  }
+    "@skenion/contracts": "0.57.0"
+  },
+  "packageManager": "pnpm@11.9.0"
 }

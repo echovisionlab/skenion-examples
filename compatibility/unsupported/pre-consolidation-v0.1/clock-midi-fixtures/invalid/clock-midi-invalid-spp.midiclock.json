@@ -9,5 +9,5 @@
       "songPositionSixteenth": 16384
     }
   ],
-  "expectedDiagnostic": "invalid-midi-song-position-pointer"
+  "expectedIssue": "invalid-midi-song-position-pointer"
 }

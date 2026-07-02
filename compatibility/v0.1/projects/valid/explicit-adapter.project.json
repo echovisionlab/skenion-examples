@@ -7,52 +7,67 @@
     "nodes": [
       {
         "id": "texture",
-        "kind": "gpu.texture-source",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "out",
             "direction": "output",
-            "type": "gpu.texture2d",
+            "type": "value.core.tensor",
             "rate": "gpu"
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "gpu.texture-source",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "adapter",
-        "kind": "adapter.gpu-texture-to-render-frame",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "texture",
             "direction": "input",
-            "type": "gpu.texture2d",
+            "type": "value.core.tensor",
             "rate": "gpu"
           },
           {
             "id": "frame",
             "direction": "output",
-            "type": "render.frame",
+            "type": "value.core.tensor",
             "rate": "render"
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "adapter.gpu-texture-to-render-frame",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "output",
-        "kind": "render.output",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "render.frame",
+            "type": "value.core.tensor",
             "rate": "render",
             "required": true
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "render.output",
+          "version": "0.1.0"
+        }
       }
     ],
     "edges": [
@@ -66,7 +81,7 @@
           "nodeId": "adapter",
           "portId": "texture"
         },
-        "resolvedType": "gpu.texture2d",
+        "resolvedType": "value.core.tensor",
         "adapter": "adapter.gpu-texture-to-render-frame"
       },
       {
@@ -79,7 +94,7 @@
           "nodeId": "output",
           "portId": "in"
         },
-        "resolvedType": "render.frame"
+        "resolvedType": "value.core.tensor"
       }
     ]
   },
@@ -95,7 +110,7 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "gpu.texture2d",
+          "type": "value.core.tensor",
           "rate": "gpu"
         }
       ],
@@ -122,13 +137,13 @@
         {
           "id": "texture",
           "direction": "input",
-          "type": "gpu.texture2d",
+          "type": "value.core.tensor",
           "rate": "gpu"
         },
         {
           "id": "frame",
           "direction": "output",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render"
         }
       ],
@@ -155,7 +170,7 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "render.frame",
+          "type": "value.core.tensor",
           "rate": "render",
           "required": true
         }

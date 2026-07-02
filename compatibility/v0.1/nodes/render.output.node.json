@@ -9,7 +9,7 @@
     {
       "id": "in",
       "direction": "input",
-      "type": "render.frame",
+      "type": "value.core.tensor",
       "rate": "render",
       "required": true
     }

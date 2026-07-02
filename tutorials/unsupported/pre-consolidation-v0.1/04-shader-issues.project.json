@@ -1,7 +1,7 @@
 {
   "schema": "skenion.graph",
   "schemaVersion": "0.1.0",
-  "id": "tutorial-shader-diagnostics",
+  "id": "tutorial-shader-issues",
   "revision": "1",
   "nodes": [
     {
@@ -9,7 +9,7 @@
       "kind": "core.comment",
       "kindVersion": "0.1.0",
       "params": {
-        "text": "This shader intentionally uses an unsupported uniform type so diagnostics can point at the annotation."
+        "text": "This shader intentionally uses an unsupported uniform type so issues can point at the annotation."
       },
       "ports": []
     },

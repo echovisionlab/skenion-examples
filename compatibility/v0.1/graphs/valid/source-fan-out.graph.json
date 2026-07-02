@@ -6,8 +6,6 @@
   "nodes": [
     {
       "id": "value",
-      "kind": "core.value-number",
-      "kindVersion": "0.1.0",
       "params": {
         "value": 0.5
       },
@@ -15,38 +13,55 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "float",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "meter_a",
-      "kind": "core.meter",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "meter",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "meter_b",
-      "kind": "core.meter",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "meter",
+        "version": "0.1.0"
+      }
     }
   ],
   "edges": [
@@ -60,7 +75,7 @@
         "nodeId": "meter_a",
         "portId": "in"
       },
-      "resolvedType": "value.number"
+      "resolvedType": "value.core.float64"
     },
     {
       "id": "edge_value_meter_b",
@@ -72,7 +87,7 @@
         "nodeId": "meter_b",
         "portId": "in"
       },
-      "resolvedType": "value.number"
+      "resolvedType": "value.core.float64"
     }
   ]
 }

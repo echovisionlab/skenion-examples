@@ -22,8 +22,6 @@
       "nodes": [
         {
           "id": "mod_in",
-          "kind": "core.inlet",
-          "kindVersion": "0.1.0",
           "params": {
             "portId": "mod",
             "label": "Mod"
@@ -32,11 +30,18 @@
             {
               "id": "out",
               "direction": "output",
-              "type": "value.number",
+              "type": "value.core.float64",
               "rate": "control",
               "description": "Modulation value entering the patch."
             }
-          ]
+          ],
+          "implementation": {
+            "provider": {
+              "kind": "core"
+            },
+            "objectId": "inlet",
+            "version": "0.1.0"
+          }
         }
       ],
       "edges": [],

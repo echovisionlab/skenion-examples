@@ -189,88 +189,210 @@ function validateExpectedCapabilities(capabilities, info, label) {
   }
 }
 
-function validateSessionInfo(contracts, value, label) {
-  if (!contracts.isRuntimeSessionInfoResponse(value)) {
-    throw new Error(`${label}: response does not match RuntimeSessionInfoResponse shape`);
+function requireRecord(value, label) {
+  if (!isRecord(value)) {
+    throw new Error(`${label} must be an object`);
   }
-  const result = contracts.validateRuntimeSessionInfoResponse(value);
-  if (!result.ok) {
-    throw new Error(`${label}: session info contract errors: ${result.errors.join("; ")}`);
+  return value;
+}
+
+function requireArray(value, label) {
+  if (!Array.isArray(value)) {
+    throw new Error(`${label} must be an array`);
+  }
+  return value;
+}
+
+function requireBoolean(value, label) {
+  if (typeof value !== "boolean") {
+    throw new Error(`${label} must be a boolean`);
   }
 }
 
-function validateSessionEvent(contracts, value, label) {
-  const contractValue = normalizeRuntimeContractValue(value);
-  if (!contracts.isRuntimeSessionEvent(contractValue)) {
-    throw new Error(`${label}: response does not match RuntimeSessionEvent shape`);
-  }
-  const result = contracts.validateRuntimeSessionEvent(contractValue);
-  if (!result.ok) {
-    throw new Error(`${label}: session event contract errors: ${result.errors.join("; ")}`);
+function requireInteger(value, label, { min = 0 } = {}) {
+  if (!Number.isInteger(value) || value < min) {
+    throw new Error(`${label} must be an integer >= ${min}`);
   }
 }
 
-function assertRuntimeSessionResponse(contracts, value, label) {
-  if (!contracts.isRuntimeSessionResponse(value)) {
-    throw new Error(`${label}: response does not match RuntimeSessionResponse shape`);
+function requireOptionalInteger(value, label, options) {
+  if (value !== null && value !== undefined) {
+    requireInteger(value, label, options);
   }
 }
 
-function assertPatchResponse(contracts, value, label) {
-  if (!contracts.isRuntimePatchResponse(normalizeRuntimeContractValue(value))) {
-    throw new Error(`${label}: response does not match RuntimePatchResponse shape`);
+function requireString(value, label) {
+  if (typeof value !== "string") {
+    throw new Error(`${label} must be a string`);
   }
 }
 
-function assertHistory(contracts, value, label) {
-  if (!contracts.isRuntimeHistory(normalizeRuntimeContractValue(value))) {
-    throw new Error(`${label}: response does not match RuntimeHistory shape`);
+function requireNonEmptyString(value, label) {
+  if (!isNonEmptyString(value)) {
+    throw new Error(`${label} must be a non-empty string`);
   }
 }
 
-function normalizeRuntimeContractValue(value) {
-  // Runtime 0.39.0 serializes absent mutation view patches as null; the TS
-  // contract guard models the same field as optional.
-  const clone = JSON.parse(JSON.stringify(value));
-  normalizeRuntimeHistory(clone);
-  normalizeRuntimeHistory(clone.history);
-  normalizeRuntimeHistoryEntry(clone.mutation);
-  return clone;
-}
-
-function normalizeRuntimeHistory(history) {
-  if (!isRecord(history) || !Array.isArray(history.entries)) {
-    return;
-  }
-  for (const entry of history.entries) {
-    normalizeRuntimeHistoryEntry(entry);
+function requireRuntimeIssues(value, label) {
+  const issues = requireArray(value, `${label}.issues`);
+  for (const [index, issue] of issues.entries()) {
+    const entry = requireRecord(issue, `${label}.issues[${index}]`);
+    requireString(entry.message, `${label}.issues[${index}].message`);
   }
 }
 
-function normalizeRuntimeHistoryEntry(entry) {
-  if (!isRecord(entry)) {
-    return;
-  }
-  normalizeRuntimeMutation(entry.mutation);
-  normalizeRuntimeMutation(entry.inverseMutation);
-}
-
-function normalizeRuntimeMutation(mutation) {
-  if (isRecord(mutation) && mutation.viewPatch === null) {
-    delete mutation.viewPatch;
-  }
-}
-
-function assertControlEventResponse(contracts, value, label) {
-  if (!contracts.isRuntimeControlEventResponse(value)) {
-    throw new Error(`${label}: response does not match RuntimeControlEventResponse shape`);
+function assertRuntimeInfo(value, label) {
+  const info = requireRecord(value, label);
+  requireNonEmptyString(info.name, `${label}.name`);
+  requireNonEmptyString(info.version, `${label}.version`);
+  requireNonEmptyString(info.apiVersion, `${label}.apiVersion`);
+  requireNonEmptyString(info.contractsBuiltAgainstVersion, `${label}.contractsBuiltAgainstVersion`);
+  requireNonEmptyString(info.supportedContractsLine, `${label}.supportedContractsLine`);
+  requireNonEmptyString(info.supportedContractsRange, `${label}.supportedContractsRange`);
+  for (const [index, capability] of requireArray(info.capabilities, `${label}.capabilities`).entries()) {
+    requireNonEmptyString(capability, `${label}.capabilities[${index}]`);
   }
 }
 
-function assertControlStateResponse(contracts, value, label) {
-  if (!contracts.isRuntimeControlStateResponse(value)) {
-    throw new Error(`${label}: response does not match RuntimeControlStateResponse shape`);
+function assertRuntimeHealth(value, label) {
+  const health = requireRecord(value, label);
+  requireBoolean(health.ok, `${label}.ok`);
+  requireNonEmptyString(health.service, `${label}.service`);
+  requireNonEmptyString(health.version, `${label}.version`);
+  requireNonEmptyString(health.apiVersion, `${label}.apiVersion`);
+}
+
+function assertSessionInfo(value, label) {
+  const info = requireRecord(value, label);
+  assertEqual(info.schema, "skenion.runtime.session.info", `${label} schema`);
+  assertEqual(info.schemaVersion, schemaVersion, `${label} schemaVersion`);
+  requireBoolean(info.ok, `${label}.ok`);
+  requireNonEmptyString(info.sessionId, `${label}.sessionId`);
+  assertSessionSnapshot(info.snapshot, `${label}.snapshot`);
+  const capabilities = requireRecord(info.capabilities, `${label}.capabilities`);
+  requireBoolean(capabilities.sessionAddressing, `${label}.capabilities.sessionAddressing`);
+  requireBoolean(capabilities.eventReplay, `${label}.capabilities.eventReplay`);
+  requireBoolean(capabilities.multiWindow, `${label}.capabilities.multiWindow`);
+  requireArray(capabilities.profiles, `${label}.capabilities.profiles`);
+  requireNonEmptyString(capabilities.authPolicy, `${label}.capabilities.authPolicy`);
+  const replay = requireRecord(info.eventReplay, `${label}.eventReplay`);
+  assertEqual(replay.cursorKind, "sequence", `${label} eventReplay cursorKind`);
+  requireNonEmptyString(replay.currentCursor, `${label}.eventReplay.currentCursor`);
+  requireInteger(replay.earliestSequence, `${label}.eventReplay.earliestSequence`, { min: 1 });
+  requireInteger(replay.latestSequence, `${label}.eventReplay.latestSequence`, { min: 0 });
+  requireOptionalInteger(replay.replayLimit, `${label}.eventReplay.replayLimit`, { min: 1 });
+  if (replay.overflow !== undefined) {
+    requireBoolean(replay.overflow, `${label}.eventReplay.overflow`);
   }
+  requireRuntimeIssues(info.issues, label);
+}
+
+function assertSessionEvent(value, label) {
+  const event = requireRecord(value, label);
+  assertEqual(event.schema, "skenion.runtime.session.event", `${label} schema`);
+  assertEqual(event.schemaVersion, schemaVersion, `${label} schemaVersion`);
+  requireNonEmptyString(event.id, `${label}.id`);
+  requireNonEmptyString(event.sessionId, `${label}.sessionId`);
+  requireInteger(event.sequence, `${label}.sequence`, { min: 1 });
+  requireInteger(event.sessionRevision, `${label}.sessionRevision`, { min: 0 });
+  requireNonEmptyString(event.kind, `${label}.kind`);
+  assertSessionSnapshot(event.snapshot, `${label}.snapshot`);
+  assertHistory(event.history, `${label}.history`);
+  if (event.mutation !== null && event.mutation !== undefined) {
+    assertHistoryEntry(event.mutation, `${label}.mutation`);
+  }
+  const replay = requireRecord(event.replay, `${label}.replay`);
+  requireNonEmptyString(replay.cursor, `${label}.replay.cursor`);
+  if (replay.previousCursor !== null && replay.previousCursor !== undefined) {
+    requireString(replay.previousCursor, `${label}.replay.previousCursor`);
+  }
+  requireBoolean(replay.replayed, `${label}.replay.replayed`);
+  requireBoolean(replay.overflow, `${label}.replay.overflow`);
+  if (replay.gap !== null && replay.gap !== undefined) {
+    const gap = requireRecord(replay.gap, `${label}.replay.gap`);
+    requireInteger(gap.expectedSequence, `${label}.replay.gap.expectedSequence`, { min: 0 });
+    requireInteger(gap.actualSequence, `${label}.replay.gap.actualSequence`, { min: 0 });
+    requireNonEmptyString(gap.reason, `${label}.replay.gap.reason`);
+  }
+  requireRuntimeIssues(event.issues, label);
+  requireNonEmptyString(event.createdAt, `${label}.createdAt`);
+}
+
+function assertRuntimeSessionResponse(value, label) {
+  const response = requireRecord(value, label);
+  requireBoolean(response.ok, `${label}.ok`);
+  assertSessionSnapshot(response.snapshot, `${label}.snapshot`);
+  requireRuntimeIssues(response.issues, label);
+}
+
+function assertPatchResponse(value, label) {
+  const response = requireRecord(value, label);
+  requireBoolean(response.ok, `${label}.ok`);
+  requireBoolean(response.applied, `${label}.applied`);
+  requireBoolean(response.conflict, `${label}.conflict`);
+  assertSessionSnapshot(response.snapshot, `${label}.snapshot`);
+  assertHistory(response.history, `${label}.history`);
+  requireRuntimeIssues(response.issues, label);
+}
+
+function assertSessionSnapshot(value, label) {
+  const snapshot = requireRecord(value, label);
+  requireInteger(snapshot.sessionRevision, `${label}.sessionRevision`, { min: 0 });
+  requireInteger(snapshot.viewRevision, `${label}.viewRevision`, { min: 0 });
+  requireInteger(snapshot.controlRevision, `${label}.controlRevision`, { min: 0 });
+  if (snapshot.project !== null && snapshot.project !== undefined) {
+    const project = requireRecord(snapshot.project, `${label}.project`);
+    const graph = requireRecord(project.graph, `${label}.project.graph`);
+    requireNonEmptyString(graph.id, `${label}.project.graph.id`);
+    requireNonEmptyString(graph.revision, `${label}.project.graph.revision`);
+  }
+  requireRuntimeIssues(snapshot.issues, label);
+}
+
+function assertHistory(value, label) {
+  const history = requireRecord(value, label);
+  assertEqual(history.schema, "skenion.runtime.history", `${label} schema`);
+  assertEqual(history.schemaVersion, schemaVersion, `${label} schemaVersion`);
+  for (const [index, entry] of requireArray(history.entries, `${label}.entries`).entries()) {
+    assertHistoryEntry(entry, `${label}.entries[${index}]`);
+  }
+  requireBoolean(history.canUndo, `${label}.canUndo`);
+  requireBoolean(history.canRedo, `${label}.canRedo`);
+  requireInteger(history.undoDepth, `${label}.undoDepth`, { min: 0 });
+  requireInteger(history.redoDepth, `${label}.redoDepth`, { min: 0 });
+}
+
+function assertHistoryEntry(value, label) {
+  const entry = requireRecord(value, label);
+  requireNonEmptyString(entry.id, `${label}.id`);
+  requireInteger(entry.sequence, `${label}.sequence`, { min: 1 });
+  requireNonEmptyString(entry.kind, `${label}.kind`);
+  requireRecord(entry.mutation, `${label}.mutation`);
+  requireRecord(entry.inverseMutation, `${label}.inverseMutation`);
+  requireNonEmptyString(entry.createdAt, `${label}.createdAt`);
+}
+
+function assertControlEventResponse(value, label) {
+  const response = requireRecord(value, label);
+  requireBoolean(response.ok, `${label}.ok`);
+  requireBoolean(response.changed, `${label}.changed`);
+  requireOptionalInteger(response.controlRevision, `${label}.controlRevision`, { min: 0 });
+  for (const [index, emission] of requireArray(response.emitted, `${label}.emitted`).entries()) {
+    const entry = requireRecord(emission, `${label}.emitted[${index}]`);
+    requireNonEmptyString(entry.nodeId, `${label}.emitted[${index}].nodeId`);
+    requireNonEmptyString(entry.portId, `${label}.emitted[${index}].portId`);
+    requireRecord(entry.message, `${label}.emitted[${index}].message`);
+  }
+  requireRuntimeIssues(response.issues, label);
+}
+
+function assertControlStateResponse(value, label) {
+  const response = requireRecord(value, label);
+  requireBoolean(response.ok, `${label}.ok`);
+  requireInteger(response.controlRevision, `${label}.controlRevision`, { min: 0 });
+  requireRecord(response.values, `${label}.values`);
+  requireRecord(response.channels, `${label}.channels`);
+  requireRuntimeIssues(response.issues, label);
 }
 
 function assertDeepEqual(left, right, label) {
@@ -299,7 +421,7 @@ function graphMutation(patch) {
   };
 }
 
-async function readFirstSessionSseEvent(route, contracts, { lastEventId } = {}) {
+async function readFirstSessionSseEvent(route, { lastEventId } = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5000);
   let reader;
@@ -327,7 +449,7 @@ async function readFirstSessionSseEvent(route, contracts, { lastEventId } = {}) 
       text += decoder.decode(value, { stream: true });
       const parsed = parseFirstSseEvent(text);
       if (parsed) {
-        validateSessionEvent(contracts, parsed.data, route);
+        assertSessionEvent(parsed.data, route);
         return parsed.data;
       }
     }
@@ -597,29 +719,28 @@ async function runSameSessionFixture(fixture, contracts, runtimeInfo, runId) {
   const sessionRoute = `/v0/sessions/${encodeURIComponent(sessionId)}`;
 
   const load = await requestJson(`${sessionRoute}/load`, { body: project });
-  assertRuntimeSessionResponse(contracts, load, `${fixture.title} load`);
+  assertRuntimeSessionResponse(load, `${fixture.title} load`);
   assertTrue(load.ok, `${fixture.title} load ok`);
 
   const info = await requestJson(`${sessionRoute}/info`);
-  validateSessionInfo(contracts, info, `${fixture.title} loaded info`);
+  assertSessionInfo(info, `${fixture.title} loaded info`);
   const loadedCursor = info.eventReplay.currentCursor;
   if (!/^\d+$/.test(loadedCursor)) {
     throw new Error(`${fixture.title}: loaded cursor must be numeric, got ${loadedCursor}`);
   }
 
   const mutation = await requestJson(`${sessionRoute}/mutate`, { body: graphMutation(patch) });
-  assertPatchResponse(contracts, mutation, `${fixture.title} mutation`);
+  assertPatchResponse(mutation, `${fixture.title} mutation`);
   assertTrue(mutation.ok, `${fixture.title} mutation ok`);
   assertTrue(mutation.applied, `${fixture.title} mutation applied`);
 
   const replay = await readFirstSessionSseEvent(
-    `${sessionRoute}/events/stream?after=${encodeURIComponent(loadedCursor)}`,
-    contracts
+    `${sessionRoute}/events/stream?after=${encodeURIComponent(loadedCursor)}`
   );
   assertSameSessionReplayEvent(fixture, replay, sessionId, Number(loadedCursor), mutation, `${fixture.title} after replay`);
 
   if (fixture.expect.alsoAcceptsLastEventId) {
-    const lastEventReplay = await readFirstSessionSseEvent(`${sessionRoute}/events/stream`, contracts, {
+    const lastEventReplay = await readFirstSessionSseEvent(`${sessionRoute}/events/stream`, {
       lastEventId: loadedCursor
     });
     assertSameSessionReplayEvent(
@@ -668,13 +789,13 @@ async function runSeparateSessionFixture(fixture, contracts, runtimeInfo, runId)
   const mutation = await requestJson(`${primaryRoute}/mutate`, {
     body: graphMutation(await readJson(path.join(root, primary.patch)))
   });
-  assertPatchResponse(contracts, mutation, `${fixture.title} primary mutation`);
+  assertPatchResponse(mutation, `${fixture.title} primary mutation`);
   assertTrue(mutation.ok, `${fixture.title} primary mutation ok`);
 
   const control = await requestJson(`${primaryRoute}/control/event`, {
     body: primary.controlEvent
   });
-  assertControlEventResponse(contracts, control, `${fixture.title} primary control event`);
+  assertControlEventResponse(control, `${fixture.title} primary control event`);
   assertTrue(control.ok, `${fixture.title} primary control event ok`);
 
   const primarySnapshot = await requestJson(primaryRoute);
@@ -683,11 +804,11 @@ async function runSeparateSessionFixture(fixture, contracts, runtimeInfo, runId)
   const secondaryHistory = await requestJson(`${secondaryRoute}/history`);
   const secondaryControl = await requestJson(`${secondaryRoute}/control/state`);
 
-  assertRuntimeSessionResponse(contracts, primarySnapshot, `${fixture.title} primary snapshot`);
-  assertRuntimeSessionResponse(contracts, secondarySnapshot, `${fixture.title} secondary snapshot`);
-  assertHistory(contracts, primaryHistory, `${fixture.title} primary history`);
-  assertHistory(contracts, secondaryHistory, `${fixture.title} secondary history`);
-  assertControlStateResponse(contracts, secondaryControl, `${fixture.title} secondary control state`);
+  assertRuntimeSessionResponse(primarySnapshot, `${fixture.title} primary snapshot`);
+  assertRuntimeSessionResponse(secondarySnapshot, `${fixture.title} secondary snapshot`);
+  assertHistory(primaryHistory, `${fixture.title} primary history`);
+  assertHistory(secondaryHistory, `${fixture.title} secondary history`);
+  assertControlStateResponse(secondaryControl, `${fixture.title} secondary control state`);
 
   assertEqual(
     primarySnapshot.snapshot.project.graph.id,
@@ -727,9 +848,7 @@ async function runSeparateSessionFixture(fixture, contracts, runtimeInfo, runId)
 async function runSidecarFixture(fixture, contracts, runtimeInfo) {
   validateExpectedCapabilities(fixture.runtime.requiresCapabilities, runtimeInfo, fixture.title);
   const runtimeHealth = await requestJson(fixture.paths.runtimeHealth);
-  if (!contracts.isRuntimeHealth(runtimeHealth)) {
-    throw new Error(`${fixture.title}: /health response does not match RuntimeHealth shape`);
-  }
+  assertRuntimeHealth(runtimeHealth, `${fixture.title} runtime health`);
   assertEqual(runtimeHealth.service, fixture.expect.runtimeService, `${fixture.title} service`);
 
   const startup = await requestJson(fixture.paths.startup);
@@ -766,12 +885,12 @@ async function runRemoteLocalNeutralFixture(fixture, contracts, runtimeInfo, run
   const load = await requestJson(`${sessionRoute}/load`, {
     body: await readJson(path.join(root, fixture.session.project))
   });
-  assertRuntimeSessionResponse(contracts, load, `${fixture.title} load`);
+  assertRuntimeSessionResponse(load, `${fixture.title} load`);
   assertTrue(load.ok, `${fixture.title} load ok`);
   assertEqual(load.snapshot.project.graph.id, fixture.expect.graphId, `${fixture.title} graph id`);
 
   const info = await requestJson(infoRoute);
-  validateSessionInfo(contracts, info, `${fixture.title} info`);
+  assertSessionInfo(info, `${fixture.title} info`);
   assertEqual(info.sessionId, sessionId, `${fixture.title} session id`);
   assertTrue(info.capabilities.sessionAddressing, `${fixture.title} session addressing capability`);
 }
@@ -843,9 +962,7 @@ let runtimeSmokeCount = 0;
 let skippedUnsupportedRuntimeSmokeCount = 0;
 if (runtimeUrl) {
   const runtimeInfo = await requestJson("/v0/runtime/info");
-  if (!contracts.isRuntimeInfo(runtimeInfo)) {
-    throw new Error("/v0/runtime/info response does not match RuntimeInfo shape");
-  }
+  assertRuntimeInfo(runtimeInfo, "/v0/runtime/info");
   const runId = `${Date.now().toString(36)}-${process.pid}`;
   const currentRuntimeSession = runtimeInfo.capabilities?.includes("session.load.v0.1");
   const runtimeFixtures = currentRuntimeSession

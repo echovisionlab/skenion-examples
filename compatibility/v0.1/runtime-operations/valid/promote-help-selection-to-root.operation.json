@@ -22,8 +22,6 @@
       "nodes": [
         {
           "id": "help_value",
-          "kind": "core.value-number",
-          "kindVersion": "0.1.0",
           "params": {
             "value": 0.5
           },
@@ -31,24 +29,36 @@
             {
               "id": "out",
               "direction": "output",
-              "type": "value.number",
+              "type": "value.core.float64",
               "rate": "control"
             }
-          ]
+          ],
+          "implementation": {
+            "provider": {
+              "kind": "core"
+            },
+            "objectId": "float",
+            "version": "0.1.0"
+          }
         },
         {
           "id": "help_meter",
-          "kind": "core.meter",
-          "kindVersion": "0.1.0",
           "params": {},
           "ports": [
             {
               "id": "in",
               "direction": "input",
-              "type": "value.number",
+              "type": "value.core.float64",
               "rate": "control"
             }
-          ]
+          ],
+          "implementation": {
+            "provider": {
+              "kind": "core"
+            },
+            "objectId": "meter",
+            "version": "0.1.0"
+          }
         }
       ],
       "edges": [
@@ -62,7 +72,7 @@
             "nodeId": "help_meter",
             "portId": "in"
           },
-          "resolvedType": "value.number"
+          "resolvedType": "value.core.float64"
         }
       ],
       "view": {

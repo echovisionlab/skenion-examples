@@ -65,7 +65,7 @@ start, stop, or semantically decode MIDI, HID, or Serial input.
 The `compatibility/v0.1` directory also includes M06.75 subpatch and live-help
 fixtures. These reserve explicit subpatch boundary ports, Manual version lookup
 metadata, graph fragment copy/paste fixtures, current target paths, and invalid
-boundary fan-in diagnostics while keeping runtime IO and clock behavior owned
+boundary fan-in issues while keeping runtime IO and clock behavior owned
 by node/object instances.
 
 M06.82 realtime collaboration wire fixtures live under

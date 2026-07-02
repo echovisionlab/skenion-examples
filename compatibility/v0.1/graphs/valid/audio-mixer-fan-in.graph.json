@@ -6,8 +6,6 @@
   "nodes": [
     {
       "id": "osc_a",
-      "kind": "audio.oscillator",
-      "kindVersion": "0.1.0",
       "params": {
         "frequency": 220
       },
@@ -15,15 +13,20 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "signal.audio",
+          "type": "value.core.float32",
           "rate": "audio"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "audio.oscillator",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "osc_b",
-      "kind": "audio.oscillator",
-      "kindVersion": "0.1.0",
       "params": {
         "frequency": 440
       },
@@ -31,21 +34,26 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "signal.audio",
+          "type": "value.core.float32",
           "rate": "audio"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "audio.oscillator",
+        "version": "0.1.0"
+      }
     },
     {
       "id": "mixer",
-      "kind": "audio.mixer",
-      "kindVersion": "0.1.0",
       "params": {},
       "ports": [
         {
           "id": "in",
           "direction": "input",
-          "type": "signal.audio",
+          "type": "value.core.float32",
           "rate": "audio",
           "maxConnections": 8,
           "mergePolicy": "mix"
@@ -53,10 +61,17 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "signal.audio",
+          "type": "value.core.float32",
           "rate": "audio"
         }
-      ]
+      ],
+      "implementation": {
+        "provider": {
+          "kind": "core"
+        },
+        "objectId": "audio.mixer",
+        "version": "0.1.0"
+      }
     }
   ],
   "edges": [
@@ -70,7 +85,7 @@
         "nodeId": "mixer",
         "portId": "in"
       },
-      "resolvedType": "signal.audio",
+      "resolvedType": "value.core.float32",
       "order": 0
     },
     {
@@ -83,7 +98,7 @@
         "nodeId": "mixer",
         "portId": "in"
       },
-      "resolvedType": "signal.audio",
+      "resolvedType": "value.core.float32",
       "order": 1
     }
   ]

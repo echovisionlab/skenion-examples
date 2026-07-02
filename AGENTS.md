@@ -23,17 +23,26 @@ surface.
 Examples should provide conformance fixtures for subpatches, living help,
 package installation, native extension manifests, Runtime validation, and
 Studio authoring flows. Release readiness is proven against the compatibility
-matrix for the supported Contracts line, not by equal component versions. Do
-not keep compatibility fixtures as normal examples.
+matrix and component-advertised Contracts range, not by equal component
+versions. Do not keep compatibility fixtures as normal examples.
 
 ## Compatibility Matrix Release Model
 
-Skenion component versions are independent during v0. The compatibility seed is
-the Contracts line: for example, Contracts line `0.45` means
-`>=0.45.0 <0.46.0`. Examples release validation must consume released
-Contracts/SDK packages, released Runtime/Studio artifacts, or checked-in
-compatibility matrix evidence. Release-mode validation must not consume sibling
-branches, `main`, `.deps`, workspace paths, or local build outputs.
+Skenion component versions are independent during v0. Examples release
+validation must consume released Contracts/SDK packages, released Runtime/Studio
+artifacts, or checked-in compatibility matrix evidence. During v0, a consumed
+component may advertise a broad Contracts range such as `>=0.0.0 <1.0.0`; do
+not narrow that range in Examples CI unless the component metadata itself does
+so. Release-mode validation must not consume sibling branches, `main`, `.deps`,
+workspace paths, or local build outputs.
+
+CI must not hardcode a Contracts version or supported range as a second
+compatibility authority. Examples CI should validate the examples
+against the released packages/artifacts or explicit matrix inputs it actually
+consumes, and release CI should reject only invalid dependency sources,
+malformed metadata, or missing evidence. Any reported Contracts version/range
+must come from the consumed package or matrix metadata, not a workflow-owned
+constant.
 
 Examples tags may use their own component version, such as
 `skenion-examples-v0.45.1`. SDK and Contracts versions do not need to be equal,

@@ -9,7 +9,7 @@
     {
       "id": "out",
       "direction": "output",
-      "type": "gpu.texture2d",
+      "type": "value.core.tensor",
       "rate": "gpu"
     }
   ],

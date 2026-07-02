@@ -4,7 +4,7 @@
   "id": "patch_set_invalid_fullscreen_shader_source",
   "baseRevision": "1",
   "clientId": "examples-smoke",
-  "description": "Set a schema-valid but shader-invalid source for diagnostics smoke tests.",
+  "description": "Set a schema-valid but shader-invalid source for issues smoke tests.",
   "ops": [
     {
       "op": "setNodeParam",

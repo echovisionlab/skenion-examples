@@ -18,19 +18,19 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control"
           }
         ],
         "execution": {
-          "model": "value"
+          "model": "control"
         },
         "state": {
           "persistent": false
         },
         "permissions": [],
         "capabilities": [
-          "value.number.v0.1"
+          "control.number.float.v0.1"
         ]
       }
     ],

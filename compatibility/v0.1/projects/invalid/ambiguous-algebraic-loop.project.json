@@ -7,43 +7,53 @@
     "nodes": [
       {
         "id": "a",
-        "kind": "core.value-transform",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control"
           },
           {
             "id": "out",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control"
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "operator.mul",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "b",
-        "kind": "core.value-transform",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control"
           },
           {
             "id": "out",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control"
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "operator.mul",
+          "version": "0.1.0"
+        }
       }
     ],
     "edges": [
@@ -83,25 +93,25 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control"
         },
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     }
   ]

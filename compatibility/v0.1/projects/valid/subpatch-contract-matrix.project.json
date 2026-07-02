@@ -15,8 +15,6 @@
     "nodes": [
       {
         "id": "source_left",
-        "kind": "core.value-number",
-        "kindVersion": "0.1.0",
         "params": {
           "value": 0.25
         },
@@ -24,16 +22,21 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Left value for subpatch inputs."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "float",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "source_right",
-        "kind": "core.value-number",
-        "kindVersion": "0.1.0",
         "params": {
           "value": 0.75
         },
@@ -41,76 +44,110 @@
           {
             "id": "out",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Right value for subpatch inputs."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "float",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "zero_patch",
-        "kind": "core.subpatch",
-        "kindVersion": "0.1.0",
         "params": {
           "patchId": "zero_port",
-          "objectText": "p zero_port",
           "description": "A patch-backed node with no external ports."
         },
-        "ports": []
+        "ports": [],
+        "objectSpec": "p zero_port",
+        "implementation": {
+          "provider": {
+            "kind": "projectPatch",
+            "patchId": "zero_port"
+          },
+          "objectId": "zero_port",
+          "version": "0.1.0"
+        },
+        "objectResolution": {
+          "status": "resolved",
+          "selectedSpec": "p zero_port"
+        }
       },
       {
         "id": "input_patch",
-        "kind": "core.subpatch",
-        "kindVersion": "0.1.0",
         "params": {
           "patchId": "input_only",
-          "objectText": "p input_only",
           "description": "A patch-backed node with one external input and no external outputs."
         },
         "ports": [
           {
             "id": "value",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "required": true,
             "description": "External input materialized from input_only.value_in."
           }
-        ]
+        ],
+        "objectSpec": "p input_only",
+        "implementation": {
+          "provider": {
+            "kind": "projectPatch",
+            "patchId": "input_only"
+          },
+          "objectId": "input_only",
+          "version": "0.1.0"
+        },
+        "objectResolution": {
+          "status": "resolved",
+          "selectedSpec": "p input_only"
+        }
       },
       {
         "id": "output_patch",
-        "kind": "core.subpatch",
-        "kindVersion": "0.1.0",
         "params": {
           "patchId": "output_only",
-          "objectText": "p output_only",
           "description": "A patch-backed node with one external output and no external inputs."
         },
         "ports": [
           {
             "id": "value",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "External output materialized from output_only.value_out."
           }
-        ]
+        ],
+        "objectSpec": "p output_only",
+        "implementation": {
+          "provider": {
+            "kind": "projectPatch",
+            "patchId": "output_only"
+          },
+          "objectId": "output_only",
+          "version": "0.1.0"
+        },
+        "objectResolution": {
+          "status": "resolved",
+          "selectedSpec": "p output_only"
+        }
       },
       {
         "id": "matrix_patch",
-        "kind": "core.subpatch",
-        "kindVersion": "0.1.0",
         "params": {
           "patchId": "two_in_three_out",
-          "objectText": "p two_in_three_out",
           "description": "A patch-backed node with two external inputs and three external outputs."
         },
         "ports": [
           {
             "id": "left",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "required": true,
             "description": "Left external input."
@@ -118,7 +155,7 @@
           {
             "id": "right",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "required": true,
             "description": "Right external input."
@@ -126,85 +163,118 @@
           {
             "id": "sum",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Left value routed to the first output."
           },
           {
             "id": "difference",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Left-derived output."
           },
           {
             "id": "thru",
             "direction": "output",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Right-derived output."
           }
-        ]
+        ],
+        "objectSpec": "p two_in_three_out",
+        "implementation": {
+          "provider": {
+            "kind": "projectPatch",
+            "patchId": "two_in_three_out"
+          },
+          "objectId": "two_in_three_out",
+          "version": "0.1.0"
+        },
+        "objectResolution": {
+          "status": "resolved",
+          "selectedSpec": "p two_in_three_out"
+        }
       },
       {
         "id": "meter_output",
-        "kind": "core.meter",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Displays the output-only patch value."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "meter",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "meter_sum",
-        "kind": "core.meter",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Displays the merged output."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "meter",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "meter_difference",
-        "kind": "core.meter",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Displays the left-derived output."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "meter",
+          "version": "0.1.0"
+        }
       },
       {
         "id": "meter_thru",
-        "kind": "core.meter",
-        "kindVersion": "0.1.0",
         "params": {},
         "ports": [
           {
             "id": "in",
             "direction": "input",
-            "type": "value.number",
+            "type": "value.core.float64",
             "rate": "control",
             "description": "Displays the right-derived output."
           }
-        ]
+        ],
+        "implementation": {
+          "provider": {
+            "kind": "core"
+          },
+          "objectId": "meter",
+          "version": "0.1.0"
+        }
       }
     ],
     "edges": [
@@ -218,7 +288,7 @@
           "nodeId": "input_patch",
           "portId": "value"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "value.core.float64"
       },
       {
         "id": "edge_output_meter",
@@ -230,7 +300,7 @@
           "nodeId": "meter_output",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "value.core.float64"
       },
       {
         "id": "edge_left_matrix",
@@ -242,7 +312,7 @@
           "nodeId": "matrix_patch",
           "portId": "left"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "value.core.float64"
       },
       {
         "id": "edge_right_matrix",
@@ -254,7 +324,7 @@
           "nodeId": "matrix_patch",
           "portId": "right"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "value.core.float64"
       },
       {
         "id": "edge_matrix_sum_meter",
@@ -266,7 +336,7 @@
           "nodeId": "meter_sum",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "value.core.float64"
       },
       {
         "id": "edge_matrix_difference_meter",
@@ -278,7 +348,7 @@
           "nodeId": "meter_difference",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "value.core.float64"
       },
       {
         "id": "edge_matrix_thru_meter",
@@ -290,7 +360,7 @@
           "nodeId": "meter_thru",
           "portId": "in"
         },
-        "resolvedType": "value.number"
+        "resolvedType": "value.core.float64"
       }
     ]
   },
@@ -379,8 +449,6 @@
         "nodes": [
           {
             "id": "value_in",
-            "kind": "core.inlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "value",
               "label": "Value",
@@ -390,11 +458,18 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Value entering the input-only patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "inlet",
+              "version": "0.1.0"
+            }
           }
         ],
         "edges": []
@@ -415,8 +490,6 @@
         "nodes": [
           {
             "id": "value_out",
-            "kind": "core.outlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "value",
               "label": "Value",
@@ -426,11 +499,18 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Value leaving the output-only patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "outlet",
+              "version": "0.1.0"
+            }
           }
         ],
         "edges": []
@@ -451,8 +531,6 @@
         "nodes": [
           {
             "id": "left_in",
-            "kind": "core.inlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "left",
               "label": "Left",
@@ -462,16 +540,21 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Left value entering the patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "inlet",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "right_in",
-            "kind": "core.inlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "right",
               "label": "Right",
@@ -481,16 +564,21 @@
               {
                 "id": "out",
                 "direction": "output",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Right value entering the patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "inlet",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "sum_out",
-            "kind": "core.outlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "sum",
               "label": "Sum",
@@ -500,16 +588,21 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Left value routed to the first output."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "outlet",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "difference_out",
-            "kind": "core.outlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "difference",
               "label": "Difference",
@@ -519,16 +612,21 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Left-derived value leaving the patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "outlet",
+              "version": "0.1.0"
+            }
           },
           {
             "id": "thru_out",
-            "kind": "core.outlet",
-            "kindVersion": "0.1.0",
             "params": {
               "portId": "thru",
               "label": "Thru",
@@ -538,11 +636,18 @@
               {
                 "id": "in",
                 "direction": "input",
-                "type": "value.number",
+                "type": "value.core.float64",
                 "rate": "control",
                 "description": "Right-derived value leaving the patch."
               }
-            ]
+            ],
+            "implementation": {
+              "provider": {
+                "kind": "core"
+              },
+              "objectId": "outlet",
+              "version": "0.1.0"
+            }
           }
         ],
         "edges": [
@@ -556,7 +661,7 @@
               "nodeId": "sum_out",
               "portId": "in"
             },
-            "resolvedType": "value.number",
+            "resolvedType": "value.core.float64",
             "order": 0
           },
           {
@@ -569,7 +674,7 @@
               "nodeId": "difference_out",
               "portId": "in"
             },
-            "resolvedType": "value.number"
+            "resolvedType": "value.core.float64"
           },
           {
             "id": "edge_right_thru",
@@ -581,7 +686,7 @@
               "nodeId": "thru_out",
               "portId": "in"
             },
-            "resolvedType": "value.number"
+            "resolvedType": "value.core.float64"
           }
         ]
       }
@@ -599,19 +704,19 @@
         {
           "id": "out",
           "direction": "output",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     },
     {
@@ -625,20 +730,21 @@
         {
           "id": "in",
           "direction": "input",
-          "type": "value.number",
+          "type": "value.core.float64",
           "rate": "control"
         }
       ],
       "execution": {
-        "model": "value"
+        "model": "control"
       },
       "state": {
         "persistent": false
       },
       "permissions": [],
       "capabilities": [
-        "value.number.v0.1"
+        "control.number.float.v0.1"
       ]
     }
-  ]
+  ],
+  "documentId": "de2953aa-6ccd-454c-b082-f54efbf7f361"
 }

@@ -57,20 +57,20 @@
       ]
     },
     {
-      "id": "shader-diagnostics",
-      "title": "Shader Diagnostics",
+      "id": "shader-issues",
+      "title": "Shader Issues",
       "summary": "Inspect a shader with an intentional annotation error.",
-      "description": "Shows how invalid shader interface annotations surface as structured diagnostics.",
-      "path": "tutorials/unsupported/pre-consolidation-v0.1/04-shader-diagnostics.project.json",
+      "description": "Shows how invalid shader interface annotations surface as structured issues.",
+      "path": "tutorials/unsupported/pre-consolidation-v0.1/04-shader-issues.project.json",
       "helpNodeIds": [
         "render.fullscreen-shader",
         "render.output"
       ],
       "tags": [
         "shader",
-        "diagnostics"
+        "issues"
       ],
-      "expectedDiagnostics": [
+      "expectedIssues": [
         "unsupported-uniform-type"
       ]
     },

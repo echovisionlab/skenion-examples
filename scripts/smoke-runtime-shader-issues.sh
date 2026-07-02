@@ -16,7 +16,7 @@ curl --fail --silent \
   "${RUNTIME_URL}/v0/session/load" >/dev/null
 
 GENERATED="$(curl --fail --silent "${RUNTIME_URL}/v0/session/render/generated-shader")"
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["nodeId"] == "shader_1"; assert "struct SkenionFrame" in r["source"]; assert r["sourceMap"]["userSourceStartLine"] > 1; assert r["diagnostics"] == []' "${GENERATED}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["nodeId"] == "shader_1"; assert "struct SkenionFrame" in r["source"]; assert r["sourceMap"]["userSourceStartLine"] > 1; assert r["issues"] == []' "${GENERATED}"
 
 PATCH_RESPONSE="$(curl --fail --silent \
   -H "content-type: application/json" \
@@ -25,7 +25,7 @@ PATCH_RESPONSE="$(curl --fail --silent \
 python3 -c 'import json, sys; r=json.loads(sys.argv[1]); assert r["ok"] is True; assert r["applied"] is True' "${PATCH_RESPONSE}"
 
 BAD_GENERATED="$(curl --fail --silent "${RUNTIME_URL}/v0/session/render/generated-shader")"
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); d=r["diagnostics"][0]; assert r["ok"] is False; assert d["phase"] == "interface-analysis"; assert d["code"] == "unsupported-uniform-type"; assert d["line"] == 1; assert d["source"] == "user"' "${BAD_GENERATED}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); d=r["issues"][0]; assert r["ok"] is False; assert d["phase"] == "interface-analysis"; assert d["code"] == "unsupported-uniform-type"; assert d["line"] == 1; assert d["source"] == "user"' "${BAD_GENERATED}"
 
 curl --fail --silent \
   -H "content-type: application/json" \
@@ -33,7 +33,7 @@ curl --fail --silent \
   "${RUNTIME_URL}/v0/session/preview/start" >/dev/null
 
 TELEMETRY="$(curl --fail --silent "${RUNTIME_URL}/v0/session/telemetry")"
-python3 -c 'import json, sys; r=json.loads(sys.argv[1]); d=r["render"]["diagnostics"][0]; assert r["ok"] is True; assert r["render"]["active"] is True; assert d["phase"] == "interface-analysis"; assert d["code"] == "unsupported-uniform-type"; assert r["render"]["generatedSourceAvailable"] is False' "${TELEMETRY}"
+python3 -c 'import json, sys; r=json.loads(sys.argv[1]); d=r["render"]["issues"][0]; assert r["ok"] is True; assert r["render"]["active"] is True; assert d["phase"] == "interface-analysis"; assert d["code"] == "unsupported-uniform-type"; assert r["render"]["generatedSourceAvailable"] is False' "${TELEMETRY}"
 
 curl --fail --silent -X POST "${RUNTIME_URL}/v0/session/preview/stop" >/dev/null
 curl --fail --silent -X DELETE "${RUNTIME_URL}/v0/session" >/dev/null

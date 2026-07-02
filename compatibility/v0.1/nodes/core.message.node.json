@@ -9,25 +9,79 @@
     {
       "id": "in",
       "direction": "input",
-      "type": "message.any",
-      "rate": "event",
-      "triggerMode": "trigger"
+      "type": "value.core.message",
+      "rate": "control",
+      "triggerMode": "trigger",
+      "accepts": [
+        "value.core.float64",
+        "value.core.int64",
+        "value.core.uint64",
+        "value.core.bool",
+        "value.core.string",
+        "value.core.color",
+        "value.core.bang"
+      ],
+      "messageKeys": {
+        "accepted": [
+          "bang",
+          "set",
+          "float",
+          "int",
+          "uint",
+          "bool",
+          "string",
+          "color",
+          "symbol",
+          "list",
+          "anything"
+        ],
+        "silent": [
+          "set"
+        ],
+        "trigger": [
+          "bang",
+          "float",
+          "int",
+          "uint",
+          "bool",
+          "string",
+          "color",
+          "symbol",
+          "list",
+          "anything"
+        ],
+        "store": [
+          "set"
+        ],
+        "emit": [
+          "bang",
+          "float",
+          "int",
+          "uint",
+          "bool",
+          "string",
+          "color",
+          "symbol",
+          "list",
+          "anything"
+        ]
+      }
     },
     {
       "id": "out",
       "direction": "output",
-      "type": "message.any",
-      "rate": "event"
+      "type": "value.core.message",
+      "rate": "control"
     }
   ],
   "execution": {
-    "model": "event"
+    "model": "control"
   },
   "state": {
     "persistent": true
   },
   "permissions": [],
   "capabilities": [
-    "message.any.v0.1"
+    "control.message.any.v0.1"
   ]
 }
